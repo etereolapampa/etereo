@@ -102,7 +102,7 @@ export default function SellerMultiSale () {
         <Card className="mb-3">
           <Card.Header className="d-flex justify-content-between align-items-center">
             <span>Ítems</span>
-            <Button size="sm" variant="outline-primary" onClick={addRow}>➕ Agregar</Button>
+            <Button size="sm" variant="outline-success" onClick={addRow}>➕ Agregar</Button>
           </Card.Header>
           <Card.Body className="p-0">
             <table className="table mb-0">
