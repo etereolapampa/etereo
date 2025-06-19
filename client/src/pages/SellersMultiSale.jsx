@@ -11,9 +11,7 @@ export default function SellersMultiSale() {
     const navigate = useNavigate();
 
     //   👉 viene de …/sellers/:id/sale  **o**  …/stock/sale?sellerId=…
-    const { id: sellerIdParam } = useParams();
-    const [searchParams] = useSearchParams();
-    const sellerId = sellerIdParam || searchParams.get('sellerId') || '';
+    const { id: sellerId } = useParams();
 
     const [seller, setSeller] = useState(null);
 

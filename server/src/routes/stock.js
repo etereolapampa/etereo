@@ -71,41 +71,105 @@ router.post('/add', async (req, res) => {
 
 /**
  * POST /stock/sale
- * Body: { productId, quantity, price, total, branch, sellerId, observations, date }
+ *  – Venta simple   → body: { productId, quantity, price, total, branch, … }
+ *  – Venta múltiple → body: { items:[{ productId, quantity, price }], branch, … }
  */
 router.post('/sale', async (req, res) => {
   try {
+    /*─────────────────────────
+      ¿VIENE items[]?  entonces
+      estamos ante una VENTA MÚLTIPLE
+    ─────────────────────────*/
+    if (Array.isArray(req.body.items) && req.body.items.length) {
+
+      const { items, branch, sellerId, observations = '', date } = req.body;
+
+      if (!branch) return res.status(400).json({ error: 'branch es obligatorio' });
+
+      /* ——— validar vendedor si existe ——— */
+      if (sellerId) {
+        const sellerOK = await Vendedor.exists({ _id: sellerId });
+        if (!sellerOK) return res.status(400).json({ error: 'Vendedor no encontrado' });
+      }
+
+      /* ——— recorrer cada producto y validar stock ——— */
+      let total = 0;
+      for (const it of items) {
+        const prod = await Producto.findById(it.productId);
+        if (!prod) return res.status(404).json({ error: `Producto ${it.productId} no encontrado` });
+
+        // stock global
+        if (prod.stock < it.quantity)
+          return res.status(400).json({ error: `Stock global insuficiente para ${prod.name}` });
+
+        // stock en sucursal
+        const branchStock = await Movimiento.aggregate([
+          { $match: { productId: prod._id, branch } },
+          {
+            $group: {
+              _id: null,
+              total: {
+                $sum: {
+                  $cond: [
+                    { $eq: ['$type', 'add'] },
+                    '$quantity',
+                    { $multiply: ['$quantity', -1] }
+                  ]
+                }
+              }
+            }
+          }
+        ]);
+        const disponible = branchStock[0]?.total || 0;
+        if (disponible < it.quantity)
+          return res.status(400).json({ error: `Stock insuficiente en ${branch} para ${prod.name}` });
+
+        /* descontar stock global del producto */
+        prod.stock -= it.quantity;
+        await prod.save();
+
+        total += it.quantity * it.price;          // acumular $
+      }
+
+      /* ——— registrar movimiento único con items[] ——— */
+      const newMovement = await Movimiento.create({
+        type           : 'sell',
+        branch,
+        date           : date?.length === 10 ? parseDateAR(date) : (date || getArgentinaDate()),
+        sellerId       : sellerId || null,
+        isFinalConsumer: !sellerId,
+        items,
+        total,
+        observations
+      });
+
+      return res.json({ movement: newMovement, total });
+    }
+
+    /*─────────────────────────
+      VENTA SIMPLE  (código que ya existía)
+    ─────────────────────────*/
     const { productId, quantity, price, total, branch, sellerId, observations, date } = req.body;
 
     const product = await Producto.findById(productId);
-    if (!product) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
+    if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
 
-    if (!Number.isInteger(quantity) || quantity <= 0) {
+    if (!Number.isInteger(quantity) || quantity <= 0)
       return res.status(400).json({ error: 'quantity (int > 0) es obligatorio' });
-    }
-    if (!price || price <= 0) {
-      return res.status(400).json({ error: 'price (number > 0) es obligatorio' });
-    }
-    if (!total || total <= 0) {
-      return res.status(400).json({ error: 'total (number > 0) es obligatorio' });
-    }
 
-    // Validar que si es una venta (tiene sellerId), el sellerId sea válido
+    if (!price || price <= 0)  return res.status(400).json({ error: 'price (number > 0) es obligatorio' });
+    if (!total || total <= 0)  return res.status(400).json({ error: 'total (number > 0) es obligatorio' });
+
     if (sellerId) {
       const seller = await Vendedor.findById(sellerId);
-      if (!seller) {
-        return res.status(400).json({ error: 'Vendedor no encontrado' });
-      }
+      if (!seller) return res.status(400).json({ error: 'Vendedor no encontrado' });
     }
 
-    // Verificar stock global
-    if (product.stock < quantity) {
+    // stock global
+    if (product.stock < quantity)
       return res.status(400).json({ error: 'Stock global insuficiente' });
-    }
 
-    // Verificar stock en la sucursal
+    // stock sucursal
     const branchStock = await Movimiento.aggregate([
       { $match: { productId: product._id, branch } },
       {
@@ -114,8 +178,7 @@ router.post('/sale', async (req, res) => {
           total: {
             $sum: {
               $cond: [
-                { $eq: ['$type', 'add'] },
-                '$quantity',
+                { $eq: ['$type', 'add'] }, '$quantity',
                 { $multiply: ['$quantity', -1] }
               ]
             }
@@ -123,36 +186,35 @@ router.post('/sale', async (req, res) => {
         }
       }
     ]);
-
-    const availableStock = branchStock[0]?.total || 0;
-    if (availableStock < quantity) {
+    const disponible = branchStock[0]?.total || 0;
+    if (disponible < quantity)
       return res.status(400).json({ error: `Stock insuficiente en ${branch}` });
-    }
 
-    // Ajustar stock global
+    /* descontar stock global */
     product.stock -= quantity;
     await product.save();
 
-    // Registrar movimiento
-    const newMovement = new Movimiento({
+    const newMovement = await Movimiento.create({
       productId,
       quantity,
       price: Number(price),
-      type: 'sell',
+      total: Number(total),
+      type : 'sell',
       branch,
-      date: date?.length === 10 ? parseDateAR(date) : (date || getArgentinaDate()),
+      date : date?.length === 10 ? parseDateAR(date) : (date || getArgentinaDate()),
       observations: observations || '',
       sellerId: sellerId || null,
       isFinalConsumer: !sellerId
     });
-    await newMovement.save();
 
     res.json({ product, movement: newMovement });
+
   } catch (error) {
-    console.error('Error al registrar venta:', error);
+    console.error('Error en /stock/sale:', error);
     res.status(500).json({ error: 'Error al registrar la venta' });
   }
 });
+
 
 /**
  * POST /stock/shortage
@@ -534,52 +596,6 @@ router.get('/stats', async (req, res) => {
   }
 });
 
- /**
-  * POST /stock/sale-multi
-  * Body: { sellerId, branch, date?, observations?, items:[{ productId, quantity, price }] }
-  */
- router.post('/sale-multi', async (req,res)=>{
-   try{
-     const { sellerId, branch, date, observations='', items=[] } = req.body;
-     if(!sellerId || !branch || !items.length){
-       return res.status(400).json({error:'sellerId, branch e items[] son obligatorios'});
-     }
-
-     /* ⓐ validar vendedor */
-     const vendedor = await Vendedor.findById(sellerId);
-     if(!vendedor) return res.status(404).json({ error:'Vendedor no encontrado' });
-
-     /* ⓑ validar y reservar stock de TODOS los ítems */
-     let bruto = 0;
-     for(const it of items){
-       const p = await Producto.findById(it.productId);
-       if(!p) return res.status(404).json({ error:`Producto ${it.productId} no hallado` });
-       if(p.stock < it.quantity){
-         return res.status(400).json({ error:`Stock insuficiente de ${p.name}` });
-       }
-     }
-     /* ⓒ descontar stock */
-     for(const it of items){
-       await Producto.findByIdAndUpdate(it.productId,{ $inc:{ stock:-it.quantity }});
-       bruto += it.quantity * it.price;
-     }
-
-     /* ⓓ guardar movimiento */
-     const movimiento = new Movimiento({
-       type :'sell',
-       branch,
-       sellerId,
-       date : date || new Date(),
-       observations,
-       items,
-       total: bruto
-     });
-     await movimiento.save();
-     res.json(movimiento);
-   }catch(e){
-     console.error('sale-multi:',e);
-     res.status(500).json({ error:'Error al registrar la venta múltiple' });
-   }
- });
+ 
 
 export default router;
