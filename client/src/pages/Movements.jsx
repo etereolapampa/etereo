@@ -68,6 +68,15 @@ export default function Movements() {
 
   /* ========== helpers existentes (getMovementType, getDestination, etc.) ========== */
 
+  /* helper: “2025-06” ➜ “Junio de 2025” */
+  const formatMonthDisplay = (yyyymm) => {
+    const [year, month] = yyyymm.split('-');
+    const date = new Date(year, month - 1);
+    const monthName = date.toLocaleString('es-ES', { month: 'long' });
+    return `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} de ${year}`;
+  };
+
+
   const getMovementType = movement => {
     if (movement.type === 'add') return 'Carga';
     if (movement.type === 'sell') return 'Venta';
@@ -431,8 +440,8 @@ export default function Movements() {
               const priceOrTotal = isMulti(movement)
                 ? `$${movement.total.toFixed(2)}`
                 : `$${(
-                    Number(movement.price || movement.productId?.price) || 0
-                  ).toFixed(2)}`;
+                  Number(movement.price || movement.productId?.price) || 0
+                ).toFixed(2)}`;
 
               return (
                 <tr key={movement._id}>
@@ -501,8 +510,8 @@ export default function Movements() {
           const priceOrTotal = isMulti(movement)
             ? `$${movement.total.toFixed(2)}`
             : `$${(
-                Number(movement.price || movement.productId?.price) || 0
-              ).toFixed(2)}`;
+              Number(movement.price || movement.productId?.price) || 0
+            ).toFixed(2)}`;
 
           return (
             <Card key={movement._id} className="mb-3 shadow-sm">
