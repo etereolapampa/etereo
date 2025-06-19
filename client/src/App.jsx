@@ -20,6 +20,7 @@ import Login from './pages/Login';
 import PrivateRoute from './components/PrivateRoute';
 import MovementDelete from './pages/MovementDelete';
 import PriceAdjustment from './pages/PriceAdjustment';
+import SellerMultiSale from './pages/SellersMultiSale';
 
 export default function App() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="movements" element={<Movements />} />
         <Route path="movements/:id/delete" element={<MovementDelete />} />
         <Route path="stats" element={<Stats />} />
+        <Route path="sellers/:id/sale" element={<SellerMultiSale />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
