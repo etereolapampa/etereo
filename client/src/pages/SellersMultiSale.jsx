@@ -81,7 +81,7 @@ export default function SellerMultiSale () {
   if(!seller || !products.length) return <div>Cargando…</div>;
   return (
     <>
-      <h2>{editId?'Editar':'Registrar'} venta de {seller.name} {seller.lastname}</h2>
+      <h2>{editId?'Editar':'Registrar'} venta a {seller.name} {seller.lastname}</h2>
       {error && <div className="alert alert-danger">{error}</div>}
 
       <Form onSubmit={handleSubmit} className="mb-4">
@@ -102,7 +102,7 @@ export default function SellerMultiSale () {
         <Card className="mb-3">
           <Card.Header className="d-flex justify-content-between align-items-center">
             <span>Ítems</span>
-            <Button size="sm" variant="dark" onClick={addRow}>➕ Agregar</Button>
+            <Button size="sm" variant="outline-primary" onClick={addRow}>➕ Agregar</Button>
           </Card.Header>
           <Card.Body className="p-0">
             <table className="table mb-0">
