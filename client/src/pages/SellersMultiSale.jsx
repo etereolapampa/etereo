@@ -1,87 +1,92 @@
-// client/src/pages/MultiSale.jsx
+// client/src/pages/SellersMultiSale.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 import api from '../api';
 import Modal from '../components/Modal';
 import { todayAR } from '../utils/date';
 
-export default function MultiSale() {
-  /* -------------------------------------------------- hooks & state */
+export default function SellersMultiSale() {
+  /* ───────────────────────── hooks & state ───────────────────────── */
   const navigate = useNavigate();
+
+  //   👉 viene de …/sellers/:id/sale  **o**  …/stock/sale?sellerId=…
+  const { id: sellerIdParam } = useParams();
   const [searchParams] = useSearchParams();
-  const sellerId = searchParams.get('sellerId') || '';      // viene de /sellers/:id/sale
+  const sellerId = sellerIdParam || searchParams.get('sellerId') || '';
+
+  const [seller, setSeller] = useState(null);
 
   const [date, setDate] = useState(todayAR());
   const [branch, setBranch] = useState('');
   const [items, setItems] = useState([
-    { product: null, quantity: 1, price: '', suggestions: [], query: '', showSug: false }
+    { product: null, quantity: 1, price: '', query: '', suggestions: [], showSug: false }
   ]);
 
   const [products, setProducts] = useState([]);
-  const [sucursales] = useState(['Santa Rosa', 'Macachín']); // harcodeadas
+  const SUCURSALES = ['Santa Rosa', 'Macachín'];
+
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  /* -------------------------------------------------- cargar productos */
+  /* ─────────────────────── cargar datos base ─────────────────────── */
   useEffect(() => {
     api.get('/products')
       .then(r => setProducts(r.data))
-      .catch(() => setError('Error al cargar los productos'));
-  }, []);
+      .catch(() => setError('Error al cargar productos'));
 
-  /* -------------------------------------------------- helpers */
+    if (sellerId) {
+      api.get(`/sellers/${sellerId}`)
+        .then(r => setSeller(r.data))
+        .catch(() => setError('Vendedora no encontrada'));
+    }
+  }, [sellerId]);
+
+  /* ────────────────────────── helpers UI ─────────────────────────── */
   const formatNumber = v => (v ? Number(v).toFixed(2) : '');
 
-  /* -------------------------------------------------- handlers */
-  // cambia campo en un ítem específico
-  const handleItemChange = (idx, key, value) => {
-    setItems(items.map((it, i) => i === idx ? { ...it, [key]: value } : it));
-  };
+  /** actualizar un campo dentro de `items[idx]` */
+  const updateItem = (idx, data) =>
+    setItems(items.map((it, i) => (i === idx ? { ...it, ...data } : it)));
 
-  // cuando escribe en el input de búsqueda
+  /* búsqueda / autocompletado */
   const handleQueryChange = (idx, value) => {
     const filtered = value.trim()
-      ? products.filter(p => p.name.toLowerCase().includes(value.toLowerCase()))
+      ? products.filter(p =>
+          p.name.toLowerCase().includes(value.toLowerCase()))
       : [];
-    setItems(items.map((it, i) =>
-      i === idx
-        ? { ...it, query: value, suggestions: filtered, showSug: !!filtered.length }
-        : it
-    ));
+    updateItem(idx, { query: value, suggestions: filtered, showSug: !!filtered.length });
   };
 
-  // clic en una sugerencia
   const handleSuggestionClick = (idx, product) => {
-    setItems(items.map((it, i) =>
-      i === idx
-        ? {
-            ...it,
-            product,
-            price: formatNumber(product.price),
-            query: product.name,
-            suggestions: [],
-            showSug: false
-          }
-        : it
-    ));
+    updateItem(idx, {
+      product,
+      query: product.name,
+      price: formatNumber(product.price),
+      suggestions: [],
+      showSug: false
+    });
   };
 
-  // --------- agregar/quitar renglones
-  const addRow    = () => setItems([...items, { product: null, quantity: 1, price: '', suggestions: [], query: '', showSug: false }]);
+  /* agregar / quitar filas */
+  const addRow = () =>
+    setItems([
+      ...items,
+      { product: null, quantity: 1, price: '', query: '', suggestions: [], showSug: false }
+    ]);
+
   const removeRow = idx => setItems(items.filter((_, i) => i !== idx));
 
-  /* -------------------------------------------------- submit */
+  /* ─────────────────────────── submit ────────────────────────────── */
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
-    // validaciones
-    if (!sellerId) return setError('Falta sellerId en la URL');
-    if (!branch)   return setError('Selecciona una sucursal');
-    if (items.some(it => !it.product)) return setError('Todos los renglones deben tener producto');
+    if (!sellerId)      return setError('Falta seleccionar la vendedora');
+    if (!branch)        return setError('Selecciona una sucursal');
+    if (items.some(it => !it.product))
+      return setError('Todos los renglones deben tener producto');
 
-    // payload
     const payload = {
       sellerId,
       branch,
@@ -94,21 +99,26 @@ export default function MultiSale() {
     };
 
     try {
-      await api.post('/stock/sale', payload);          // <- endpoint nuevo con items[]
+      await api.post('/stock/sale', payload);
       setShowModal(true);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrar la venta');
     }
   };
 
-  /* -------------------------------------------------- render */
+  /* ─────────────────────────── render ────────────────────────────── */
   return (
     <>
       <h2>Registrar venta a Vendedora</h2>
+      {seller && (
+        <h6 className="text-muted mb-4">
+          {seller.name} {seller.lastname}
+        </h6>
+      )}
       {error && <div className="alert alert-danger">{error}</div>}
 
       <Form onSubmit={handleSubmit}>
-        {/* --------- cabecera */}
+        {/* -------- Cabecera -------- */}
         <Form.Group className="mb-3" style={{ maxWidth: 350 }}>
           <Form.Label>Fecha</Form.Label>
           <Form.Control
@@ -127,28 +137,36 @@ export default function MultiSale() {
             required
           >
             <option value="">Seleccione</option>
-            {sucursales.map(b => <option key={b}>{b}</option>)}
+            {SUCURSALES.map(b => (
+              <option key={b}>{b}</option>
+            ))}
           </Form.Select>
         </Form.Group>
 
         <hr />
 
-        {/* --------- tabla de ítems */}
+        {/* -------- Lista de ítems -------- */}
         {items.map((it, idx) => (
-          <div key={idx} className="d-flex gap-2 align-items-start mb-3" style={{ flexWrap: 'wrap' }}>
-            {/* ----- input de búsqueda + sugerencias ----- */}
+          <div
+            key={idx}
+            className="d-flex gap-2 align-items-start mb-3 flex-wrap"
+          >
+            {/* producto + autosuggest */}
             <div style={{ position: 'relative', flex: '1 1 250px' }}>
               <Form.Label className="form-label">Producto</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Buscar producto..."
+                placeholder="Buscar producto…"
                 value={it.query}
                 onChange={e => handleQueryChange(idx, e.target.value)}
                 autoComplete="off"
                 required
               />
               {it.showSug && (
-                <div className="list-group position-absolute w-100" style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}>
+                <div
+                  className="list-group position-absolute w-100"
+                  style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}
+                >
                   {it.suggestions.map(p => (
                     <button
                       key={p._id}
@@ -171,18 +189,22 @@ export default function MultiSale() {
                 pattern="[0-9]*"
                 inputMode="numeric"
                 value={it.quantity}
-                onChange={e => handleItemChange(idx, 'quantity', e.target.value.replace(/[^0-9]/g, ''))}
+                onChange={e =>
+                  updateItem(idx, { quantity: e.target.value.replace(/[^0-9]/g, '') })
+                }
                 required
               />
             </div>
 
-            {/* precio unitario */}
+            {/* precio U. */}
             <div style={{ width: 120, position: 'relative' }}>
               <Form.Label>Precio U.</Form.Label>
               <Form.Control
                 style={{ paddingLeft: 25 }}
                 value={it.price}
-                onChange={e => handleItemChange(idx, 'price', e.target.value.replace(/[^0-9.]/g, ''))}
+                onChange={e =>
+                  updateItem(idx, { price: e.target.value.replace(/[^0-9.]/g, '') })
+                }
                 required
               />
               <span style={{ position: 'absolute', left: 8, top: 34 }}>$</span>
@@ -212,25 +234,29 @@ export default function MultiSale() {
           </div>
         ))}
 
-        {/* --------- añadir fila */}
         <Button variant="outline-primary" onClick={addRow} className="mb-4">
           + Añadir producto
         </Button>
 
-        {/* --------- totales */}
+        {/* totales */}
         <div className="mb-4 fs-5 fw-bold">
-          Total neto:&nbsp;$
-          {formatNumber(items.reduce((sum, it) =>
-            sum + (Number(it.price) || 0) * Number(it.quantity), 0)
+          Total neto: $
+          {formatNumber(
+            items.reduce(
+              (s, it) => s + (Number(it.price) || 0) * Number(it.quantity),
+              0
+            )
           )}
         </div>
 
-        {/* --------- botones */}
-        <Button variant="dark" type="submit" className="me-2">Confirmar Venta</Button>
-        <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
+        <Button type="submit" variant="dark" className="me-2">
+          Confirmar Venta
+        </Button>
+        <Button variant="secondary" onClick={() => navigate(-1)}>
+          Cancelar
+        </Button>
       </Form>
 
-      {/* --------- modal éxito */}
       <Modal
         show={showModal}
         message="Venta registrada satisfactoriamente"
