@@ -69,6 +69,7 @@ export default function Movements() {
   /* ========== helpers existentes (getMovementType, getDestination, etc.) ========== */
 
   /* helper: “2025-06” ➜ “Junio de 2025” */
+  /* helper: “2025-06” ➜ “Junio de 2025” */
   const formatMonthDisplay = (yyyymm) => {
     const [year, month] = yyyymm.split('-');
     const date = new Date(year, month - 1);
@@ -76,6 +77,18 @@ export default function Movements() {
     return `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} de ${year}`;
   };
 
+  /* helper: cambia el mes mostrado */
+  const handleMonthChange = (direction) => {
+    const [year, month] = currentMonth.split('-').map(Number);
+    const date = new Date(year, month - 1);
+
+    if (direction === 'prev') date.setMonth(date.getMonth() - 1);
+    else date.setMonth(date.getMonth() + 1);
+
+    const newYear = date.getFullYear();
+    const newMonth = String(date.getMonth() + 1).padStart(2, '0');
+    setCurrentMonth(`${newYear}-${newMonth}`);
+  };
 
   const getMovementType = movement => {
     if (movement.type === 'add') return 'Carga';
