@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
 // Crear nuevo seller
 router.post('/', async (req, res) => {
   try {
-    const { name, lastname, dni, city, phone, bonus } = req.body;
+    const { name, lastname, dni, city, phone, bonus, email } = req.body;
     if (!name || !lastname || !dni || !city || !phone) {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
 // Modificar seller
 router.put('/:id', async (req, res) => {
   try {
-    const { name, lastname, dni, city, phone, bonus } = req.body;
+    const { name, lastname, dni, city, phone, bonus, email } = req.body;
     if (!name || !lastname || !dni || !city || !phone) {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }

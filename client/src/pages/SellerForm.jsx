@@ -15,7 +15,8 @@ export default function SellerForm() {
     dni: '',
     city: '',
     phone: '',
-    bonus: ''
+    bonus: '',
+    email: ''
   });
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -32,7 +33,7 @@ export default function SellerForm() {
           const response = await api.get(`/sellers/${id}`);
           const vendedorData = response.data;
           setForm(vendedorData);
-          
+
           // Si el vendedor tiene una localidad, buscar su nombre
           if (vendedorData.city && localidades.localidades.length > 0) {
             const localidadEncontrada = localidades.localidades.find(loc => loc._id === vendedorData.city._id);
@@ -69,12 +70,12 @@ export default function SellerForm() {
   const handleBonusChange = e => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     const numValue = parseInt(value) || 0;
-    
+
     if (numValue > 100) {
       setError('Ingrese una bonificación válida (máximo 100%)');
       return;
     }
-    
+
     setError('');
     setForm(prev => ({ ...prev, bonus: value }));
   };
@@ -103,6 +104,10 @@ export default function SellerForm() {
     }
     if (!/^\d+$/.test(phone)) {
       setError('Teléfono debe ser solo números');
+      return;
+    }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)){
+      setError('Correo inválido');
       return;
     }
     try {
@@ -201,8 +206,8 @@ export default function SellerForm() {
             autoComplete="off"
           />
           {showSuggestions && suggestions.length > 0 && (
-            <div 
-              className="list-group" 
+            <div
+              className="list-group"
               style={{
                 position: 'absolute',
                 zIndex: 1000,
@@ -266,6 +271,19 @@ export default function SellerForm() {
             }}
           />
         </div>
+
+        <div className="mb-3">
+          <label className="form-label">Correo</label>
+          <input
+            type="email"
+            className="form-control"
+            style={{ maxWidth: '350px', width: '100%' }}
+            value={form.email}
+            onChange={handleChange('email')}
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+
 
         <button type="submit" className="btn btn-dark">
           {id ? 'Modificar' : 'Guardar'}

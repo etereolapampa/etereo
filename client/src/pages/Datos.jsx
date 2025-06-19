@@ -232,6 +232,7 @@ export default function Datos() {
                 <ListGroup.Item>Localidad: {seller.city?.name || 'Sin localidad'}</ListGroup.Item>
                 <ListGroup.Item>Teléfono: {seller.phone}</ListGroup.Item>
                 <ListGroup.Item>Bonificación: {seller.bonus || '0'}%</ListGroup.Item>
+                <ListGroup.Item>Correo: {seller.email || '-'}</ListGroup.Item>
               </ListGroup>
             </Card>
           ))}
