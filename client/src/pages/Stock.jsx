@@ -24,12 +24,12 @@ export default function Stock() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [productFilter,  setProductFilter]  = useState('');
   const [branchFilter,   setBranchFilter]   = useState('');
-  const [stockFilter,    setStockFilter]    = useState(''); // with | without | ''
+  const [stockFilter,    setStockFilter]    = useState('');
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState('');
   const [sort,           setSort]           = useState({ field: 'name', order: 'asc' });
 
-  /* ───────────── carga inicial ───────────── */
+  /* ───────────── carga ───────────── */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -54,7 +54,6 @@ export default function Stock() {
     setBranchFilter(branch);
     if (branch && !stockFilter) setStockFilter('with');
   };
-
   const toggleStockFilter = (mode) => {
     if (stockFilter === mode) {
       setStockFilter('');
@@ -65,14 +64,10 @@ export default function Stock() {
   };
 
   const filtered = stock.filter((p) => {
-    // categoría
     const catName = categories.find((c) => c._id === p.categoryId)?.name.toLowerCase() || '';
     if (!catName.includes(categoryFilter.toLowerCase())) return false;
-
-    // producto
     if (!p.name.toLowerCase().includes(productFilter.toLowerCase())) return false;
 
-    // stock / sucursal
     if (branchFilter) {
       const branchQty = p.stockByBranch[branchFilter] || 0;
       if (stockFilter === 'with') return branchQty > 0;
@@ -93,14 +88,16 @@ export default function Stock() {
     }));
 
   const getSortValue = (prod) => {
-    switch (sort.field) {
-      case 'category':
-        return categories.find((c) => c._id === prod.categoryId)?.name || '';
-      case 'stock':
-        return branchFilter ? (prod.stockByBranch[branchFilter] || 0) : prod.stock;
-      default:
-        return prod.name;
+    if (sort.field === 'category') {
+      return categories.find((c) => c._id === prod.categoryId)?.name || '';
     }
+    if (sort.field === 'stock') {
+      return branchFilter ? (prod.stockByBranch[branchFilter] || 0) : prod.stock;
+    }
+    if (SUCURSALES.includes(sort.field)) {
+      return prod.stockByBranch[sort.field] || 0;
+    }
+    return prod.name;
   };
 
   const sorted = [...filtered].sort((a, b) => {
@@ -147,9 +144,7 @@ export default function Stock() {
             <Form.Select value={branchFilter} onChange={(e) => handleBranchChange(e.target.value)}>
               <option value="">Todas las sucursales</option>
               {SUCURSALES.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
+                <option key={b} value={b}>{b}</option>
               ))}
             </Form.Select>
           </Col>
@@ -183,9 +178,18 @@ export default function Stock() {
                 Producto
                 <SortIcon active={sort.field === 'name'} order={sort.order} />
               </th>
+
               {SUCURSALES.map((b) => (
-                <th key={b}>{b}</th>
+                <th
+                  key={b}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleSort(b)}
+                >
+                  {b}
+                  <SortIcon active={sort.field === b} order={sort.order} />
+                </th>
               ))}
+
               <th style={{ cursor: 'pointer' }} onClick={() => handleSort('stock')}>
                 Total
                 <SortIcon active={sort.field === 'stock'} order={sort.order} />
