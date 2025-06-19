@@ -94,8 +94,18 @@ router.post('/sale', async (req, res) => {
 
       /* ——— recorrer cada producto y validar stock ——— */
       let total = 0;
+
+      console.log('Items recibidos:', items);
+
+
       for (const it of items) {
+        console.log('Buscando producto', it.productId);
+
         const prod = await Producto.findById(it.productId);
+
+        console.log('Resultado →', !!prod);
+
+
         if (!prod) return res.status(404).json({ error: `Producto ${it.productId} no encontrado` });
 
         // stock global
