@@ -41,13 +41,13 @@ export default function Datos() {
     () => {
       // Si hay filtro de productos, solo mostrar categorías que tengan productos que coincidan
       if (prodFilter.trim()) {
-        return categories.filter(cat => 
+        return categories.filter(cat =>
           cat.name.toLowerCase().includes(catFilter.toLowerCase()) &&
           filteredProds.some(p => p.categoryId && p.categoryId._id === cat._id)
         );
       }
       // Si no hay filtro de productos, mostrar todas las categorías
-      return categories.filter(cat => 
+      return categories.filter(cat =>
         cat.name.toLowerCase().includes(catFilter.toLowerCase())
       );
     },
@@ -208,6 +208,15 @@ export default function Datos() {
               <Card.Header className="d-flex justify-content-between align-items-center border-bottom border-2 border-secondary">
                 <strong>{seller.name} {seller.lastname}</strong>
                 <div>
+                  <Button
+                    title="Registrar venta"
+                    variant="outline-success"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => nav(`/sellers/${seller._id}/sale`)}
+                  >
+                    🛒
+                  </Button>
                   <Button
                     title="Editar vendedor"
                     variant="outline-primary"

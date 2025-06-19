@@ -1,24 +1,26 @@
 // client/src/pages/Movements.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Table, Form, Row, Col, Button, Card } from 'react-bootstrap';
+import {
+  Container,
+  Table,
+  Form,
+  Row,
+  Col,
+  Button,
+  Card
+} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { useSucursales } from '../hooks/useStaticData';
 import { FaPlus, FaTrash } from 'react-icons/fa';
-import axios from 'axios';
-import { todayAR, formatDateAR } from '../utils/date';   // ⇦ usamos helper ya existente
+import Modal from '../components/Modal';            // ← nuevo
+import { todayAR, formatDateAR } from '../utils/date';
 
 const formatDate = formatDateAR;
+const initialMonth = todayAR().slice(0, 7);
 
-// muestra “2025-06”
-const initialMonth = todayAR().slice(0, 7);              // ⇦ reemplaza getArgentinaDate()
-
-const formatMonthDisplay = (yyyymm) => {
-  const [year, month] = yyyymm.split('-');
-  const date = new Date(year, month - 1);
-  const monthName = date.toLocaleString('es-ES', { month: 'long' });
-  return `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} de ${year}`;
-};
+/* ───────── helper ───────── */
+const isMulti = m => Array.isArray(m.items) && m.items.length > 0;
 
 export default function Movements() {
   const navigate = useNavigate();
@@ -41,6 +43,9 @@ export default function Movements() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /* ------------ modal “ver detalle venta múltiple” -------------- */
+  const [detalle, setDetalle] = useState(null);
+
   /* ------------------------- carga inicial -------------------------- */
   useEffect(() => {
     Promise.all([
@@ -55,34 +60,15 @@ export default function Movements() {
         setCategories(cRes.data);
         setSellers(sRes.data);
       })
-      .catch(err => setError(err.response?.data?.error || 'Error al cargar los datos'))
+      .catch(err =>
+        setError(err.response?.data?.error || 'Error al cargar los datos')
+      )
       .finally(() => setLoading(false));
   }, []);
 
-  /* …………… resto del componente se mantiene tal cual  …………… */
+  /* ========== helpers existentes (getMovementType, getDestination, etc.) ========== */
 
-  /* ***************************************************************** */
-  /*  El resto del archivo quedó idéntico: no hubo otro cambio lógico  */
-  /* ***************************************************************** */
-
-
-
-  const handleMonthChange = (direction) => {
-    const [year, month] = currentMonth.split('-').map(Number);
-    const date = new Date(year, month - 1);
-
-    if (direction === 'prev') {
-      date.setMonth(date.getMonth() - 1);
-    } else {
-      date.setMonth(date.getMonth() + 1);
-    }
-
-    const newYear = date.getFullYear();
-    const newMonth = String(date.getMonth() + 1).padStart(2, '0');
-    setCurrentMonth(`${newYear}-${newMonth}`);
-  };
-
-  const getMovementType = (movement) => {
+  const getMovementType = movement => {
     if (movement.type === 'add') return 'Carga';
     if (movement.type === 'sell') return 'Venta';
     if (movement.type === 'transfer') return 'Mudanza';
@@ -90,24 +76,19 @@ export default function Movements() {
     return 'Otro';
   };
 
-  const getDestination = (movement) => {
-    // Si es una venta
+  const getDestination = movement => {
     if (movement.type === 'sell') {
-      // Si tiene sellerId, mostrar nombre del vendedor
       if (movement.sellerId) {
         const seller = sellers.find(s => s._id === movement.sellerId._id);
-        return seller ? `${seller.name} ${seller.lastname}` : 'Vendedor eliminado';
+        return seller
+          ? `${seller.name} ${seller.lastname}`
+          : 'Vendedor eliminado';
       }
-      // Si no tiene sellerId, es Consumidor Final (usar destination si está) o 'Consumidor Final' por defecto
       return movement.destination || 'Consumidor Final';
     }
-
-    // Si es una transferencia, mostrar el destino
     if (movement.type === 'transfer') {
       return movement.destination || '-';
     }
-
-    // Para otros tipos sin destino ni vendedor, mostrar -
     return '-';
   };
 
@@ -226,7 +207,7 @@ export default function Movements() {
     navigate(`/movements/${_id}/delete`);
   };
 
-  const handleEdit = (movement) => {
+  const handleEdit = movement => {
     const type = getMovementType(movement);
     switch (type) {
       case 'Carga':
@@ -276,6 +257,8 @@ export default function Movements() {
     const product = products.find(p => p._id === productId._id);
     return product?.categoryId?.name || 'N/A';
   };
+
+  /* ==================== RENDER ==================== */
 
   if (loading) {
     return <div>Cargando...</div>;
@@ -422,42 +405,57 @@ export default function Movements() {
         </Form>
       </div>
 
-      {/* ==== Tabla de Movimientos (Desktop) ==== */}
-      <div className="d-none d-md-block"> {/* Mostrar solo en md y superior */}
+      {/* ================= Tabla (desktop) ================= */}
+      <div className="d-none d-md-block">
         <Table striped hover responsive>
           <thead>
             <tr>
-              <th className="align-middle">Fecha</th>
-              <th className="align-middle">Tipo</th>
-              <th className="align-middle">Categoría</th>
-              <th className="align-middle">Producto</th>
-              <th className="align-middle">Cantidad</th>
-              <th className="align-middle">Precio</th>
-              <th className="align-middle">Sucursal</th>
-              <th className="align-middle">Destino</th>
-              <th className="align-middle" style={{ maxWidth: '200px' }}>Observaciones</th>
-              <th className="align-middle" style={{ width: '100px' }}>Acciones</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Categoría</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio / Total</th>
+              <th>Sucursal</th>
+              <th>Destino</th>
+              <th style={{ maxWidth: '200px' }}>Observaciones</th>
+              <th style={{ width: '110px' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {filteredMovements.map(movement => {
-              const product = products.find(p => p.id === movement.productId);
-              const category = categories.find(c => c.id === product?.categoryId);
-              const destination = getDestination(movement);
-              const type = getMovementType(movement);
-              const details = getMovementDetails(movement);
+              /* helper locales */
+              const qty = isMulti(movement)
+                ? movement.items.reduce((s, it) => s + it.quantity, 0)
+                : movement.quantity;
+              const priceOrTotal = isMulti(movement)
+                ? `$${movement.total.toFixed(2)}`
+                : `$${(
+                    Number(movement.price || movement.productId?.price) || 0
+                  ).toFixed(2)}`;
+
               return (
                 <tr key={movement._id}>
-                  <td className="align-middle">{formatDate(movement.date)}</td>
-                  <td className="align-middle">{type}</td>
-                  <td className="align-middle">{getCategoryName(movement.productId)}</td>
-                  <td className="align-middle">{movement.productId?.name || 'N/A'}</td>
-                  <td className="align-middle">{movement.quantity}</td>
-                  <td className="align-middle">${(Number(movement.price || movement.productId?.price) || 0).toFixed(2)}</td>
-                  <td className="align-middle">{movement.branch || movement.origin || 'N/A'}</td>
-                  <td className="align-middle">{destination}</td>
-                  <td className="align-middle" style={{ maxWidth: '200px', whiteSpace: 'normal', wordBreak: 'break-word' }}>{movement.observations || '-'}</td>
-                  <td className="align-middle">
+                  <td>{formatDate(movement.date)}</td>
+                  <td>{getMovementType(movement)}</td>
+                  <td>
+                    {movement.productId?.categoryId?.name || (isMulti(movement)
+                      ? '–'
+                      : 'N/A')}
+                  </td>
+                  <td>
+                    {isMulti(movement)
+                      ? 'Venta múltiple'
+                      : movement.productId?.name || 'N/A'}
+                  </td>
+                  <td>{qty}</td>
+                  <td>{priceOrTotal}</td>
+                  <td>{movement.branch || movement.origin || 'N/A'}</td>
+                  <td>{getDestination(movement)}</td>
+                  <td style={{ maxWidth: '200px', whiteSpace: 'normal' }}>
+                    {movement.observations || '-'}
+                  </td>
+                  <td>
                     <div className="d-flex gap-1">
                       <Button
                         variant="outline-primary"
@@ -465,16 +463,26 @@ export default function Movements() {
                         title="Editar movimiento"
                         onClick={() => handleEdit(movement)}
                       >
-                        <span role="img" aria-label="Editar">✏️</span>
+                        ✏️
                       </Button>
                       <Button
                         variant="outline-danger"
                         size="sm"
-                        title="Eliminar asiento"
+                        title="Eliminar movimiento"
                         onClick={() => handleDelete(movement._id)}
                       >
-                        <span role="img" aria-label="Eliminar">🗑️</span>
+                        🗑️
                       </Button>
+                      {isMulti(movement) && (
+                        <Button
+                          variant="outline-secondary"
+                          size="sm"
+                          title="Ver detalle"
+                          onClick={() => setDetalle(movement)}
+                        >
+                          👁️
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -484,31 +492,51 @@ export default function Movements() {
         </Table>
       </div>
 
-      {/* ==== Vista de Cards (Mobile) ==== */}
-      <div className="d-md-none"> {/* Mostrar solo en menos de md */}
+      {/* ================ Vista Cards (mobile) ================ */}
+      <div className="d-md-none">
         {filteredMovements.map(movement => {
-          const product = products.find(p => p.id === movement.productId);
-          const category = categories.find(c => c.id === product?.categoryId);
-          const destination = getDestination(movement);
-          const type = getMovementType(movement);
-          const details = getMovementDetails(movement);
+          const qty = isMulti(movement)
+            ? movement.items.reduce((s, it) => s + it.quantity, 0)
+            : movement.quantity;
+          const priceOrTotal = isMulti(movement)
+            ? `$${movement.total.toFixed(2)}`
+            : `$${(
+                Number(movement.price || movement.productId?.price) || 0
+              ).toFixed(2)}`;
 
           return (
             <Card key={movement._id} className="mb-3 shadow-sm">
               <Card.Body>
                 <Card.Text>
-                  <strong>Fecha:</strong> {formatDate(movement.date)}<br />
-                  <strong>Tipo:</strong> {type}<br />
-                  <strong>Categoría:</strong> {getCategoryName(movement.productId)}<br />
-                  <strong>Producto:</strong> {movement.productId?.name || 'N/A'}<br />
-                  <strong>Cantidad:</strong> {movement.quantity}<br />
-                  <strong>Precio:</strong> ${(Number(movement.price || movement.productId?.price) || 0).toFixed(2)}<br />
-                  <strong>Sucursal:</strong> {movement.branch || movement.origin || 'N/A'}<br />
-                  {destination !== '-' && (
-                    <><strong>Destino/Vendedor:</strong> {destination}<br /></>
+                  <strong>Fecha:</strong> {formatDate(movement.date)} <br />
+                  <strong>Tipo:</strong> {getMovementType(movement)} <br />
+                  {!isMulti(movement) && (
+                    <>
+                      <strong>Categoría:</strong>{' '}
+                      {movement.productId?.categoryId?.name || 'N/A'} <br />
+                      <strong>Producto:</strong>{' '}
+                      {movement.productId?.name || 'N/A'} <br />
+                    </>
+                  )}
+                  {isMulti(movement) && (
+                    <>
+                      <strong>Concepto:</strong> Venta múltiple <br />
+                    </>
+                  )}
+                  <strong>Cantidad:</strong> {qty} <br />
+                  <strong>{isMulti(movement) ? 'Total' : 'Precio'}:</strong>{' '}
+                  {priceOrTotal} <br />
+                  <strong>Sucursal:</strong>{' '}
+                  {movement.branch || movement.origin || 'N/A'} <br />
+                  {getDestination(movement) !== '-' && (
+                    <>
+                      <strong>Destino:</strong> {getDestination(movement)} <br />
+                    </>
                   )}
                   {movement.observations && (
-                    <><strong>Observaciones:</strong> {movement.observations}<br /></>
+                    <>
+                      <strong>Obs.:</strong> {movement.observations} <br />
+                    </>
                   )}
                 </Card.Text>
                 <div className="d-flex gap-1">
@@ -523,17 +551,60 @@ export default function Movements() {
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    title="Eliminar asiento"
+                    title="Eliminar movimiento"
                     onClick={() => handleDelete(movement._id)}
                   >
                     🗑️
                   </Button>
+                  {isMulti(movement) && (
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      title="Ver detalle"
+                      onClick={() => setDetalle(movement)}
+                    >
+                      👁️
+                    </Button>
+                  )}
                 </div>
               </Card.Body>
             </Card>
           );
         })}
       </div>
+
+      {/* =============== Modal Detalle Venta Múltiple =============== */}
+      <Modal
+        show={!!detalle}
+        onClose={() => setDetalle(null)}
+        message={
+          detalle && (
+            <div>
+              <h5>Detalle de venta</h5>
+              <ul className="list-group mb-2">
+                {detalle.items.map((it, i) => {
+                  const prod = products.find(p => p._id === it.productId);
+                  return (
+                    <li
+                      key={i}
+                      className="list-group-item d-flex justify-content-between"
+                    >
+                      <span>{prod ? prod.name : 'Producto eliminado'}</span>
+                      <span>
+                        {it.quantity} × ${it.price.toFixed(2)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="text-end fw-bold">
+                Total: ${detalle.total.toFixed(2)}
+              </div>
+            </div>
+          )
+        }
+      />
     </Container>
   );
 }
+

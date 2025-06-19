@@ -392,13 +392,11 @@ router.put('/movements/:id', async (req, res) => {
     if (!movement) {
       return res.status(404).json({ error: 'Movimiento no encontrado' });
     }
-
     // Validar que el producto existe
     const product = await Producto.findById(productId);
     if (!product) {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
-
     // Validar que el vendedor existe si se proporciona
     if (sellerId) {
       const seller = await Vendedor.findById(sellerId);
@@ -421,6 +419,9 @@ router.put('/movements/:id', async (req, res) => {
     movement.observations = observations || movement.observations;
     movement.price = price || movement.price;
     movement.total = total || movement.total;
+
+   /* ← NUEVO: permitir sustituir el array de ítems si llega */
+   if (req.body.items) movement.items = req.body.items;
 
     await movement.save();
 
@@ -532,5 +533,53 @@ router.get('/stats', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener las estadísticas' });
   }
 });
+
+ /**
+  * POST /stock/sale-multi
+  * Body: { sellerId, branch, date?, observations?, items:[{ productId, quantity, price }] }
+  */
+ router.post('/sale-multi', async (req,res)=>{
+   try{
+     const { sellerId, branch, date, observations='', items=[] } = req.body;
+     if(!sellerId || !branch || !items.length){
+       return res.status(400).json({error:'sellerId, branch e items[] son obligatorios'});
+     }
+
+     /* ⓐ validar vendedor */
+     const vendedor = await Vendedor.findById(sellerId);
+     if(!vendedor) return res.status(404).json({ error:'Vendedor no encontrado' });
+
+     /* ⓑ validar y reservar stock de TODOS los ítems */
+     let bruto = 0;
+     for(const it of items){
+       const p = await Producto.findById(it.productId);
+       if(!p) return res.status(404).json({ error:`Producto ${it.productId} no hallado` });
+       if(p.stock < it.quantity){
+         return res.status(400).json({ error:`Stock insuficiente de ${p.name}` });
+       }
+     }
+     /* ⓒ descontar stock */
+     for(const it of items){
+       await Producto.findByIdAndUpdate(it.productId,{ $inc:{ stock:-it.quantity }});
+       bruto += it.quantity * it.price;
+     }
+
+     /* ⓓ guardar movimiento */
+     const movimiento = new Movimiento({
+       type :'sell',
+       branch,
+       sellerId,
+       date : date || new Date(),
+       observations,
+       items,
+       total: bruto
+     });
+     await movimiento.save();
+     res.json(movimiento);
+   }catch(e){
+     console.error('sale-multi:',e);
+     res.status(500).json({ error:'Error al registrar la venta múltiple' });
+   }
+ });
 
 export default router;
