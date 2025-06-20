@@ -1,4 +1,7 @@
 // server/src/models/Vendedor.js
+
+import mongoose from "mongoose";
+
 const VendedorSchema = new mongoose.Schema({
   name:      { type: String, required: true },
   lastname:  { type: String, required: true },
