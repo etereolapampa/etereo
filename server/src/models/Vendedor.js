@@ -14,3 +14,6 @@ const VendedorSchema = new mongoose.Schema({
     match: /.+@.+\..+/   // validación básica
   }
 });
+
+export default mongoose.model('Vendedor', vendedorSchema);
+
