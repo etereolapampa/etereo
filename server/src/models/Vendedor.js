@@ -3,9 +3,9 @@
 import mongoose from "mongoose";
 
 const VendedorSchema = new mongoose.Schema({
-  name:      { type: String, required: true },
-  lastname:  { type: String, required: true },
-  dni:       { type: String, required: true, unique: true },
+  name:      { type: String, required: true, trim: true },
+  lastname:  { type: String, required: true, trim: true },
+  dni:       { type: String, required: true, unique: true, trim: true },
   city:      { type: mongoose.Schema.Types.ObjectId, ref: 'Localidad', required: true },
   phone:     { type: Number },
   bonus:     { type: Number },
@@ -18,5 +18,5 @@ const VendedorSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model('Vendedor', vendedorSchema);
+export default mongoose.model('Vendedor', VendedorSchema);
 
