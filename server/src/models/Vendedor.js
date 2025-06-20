@@ -18,5 +18,5 @@ const VendedorSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model('Vendedor', VendedorSchema);
+export default mongoose.model('Vendedor', VendedorSchema, 'vendedores');
 
