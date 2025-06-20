@@ -4,6 +4,7 @@ import Producto from '../models/Producto.js';
 import Movimiento from '../models/Movimiento.js';
 import Vendedor from '../models/Vendedor.js';
 import { parseDateAR } from '../utils/date.js';
+import mongoose from 'mongoose';
 
 
 const router = express.Router();
@@ -252,6 +253,8 @@ router.post('/sale', async (req, res) => {
 
         const id = String(it.productId).trim();
         console.log(`Buscando producto ${id} (largo ${id.length})`);
+        console.log([...id].map(c => c.charCodeAt(0)));   // [54,56,52,52,99,53,...]
+
 
         // Validez básica del ObjectId
         if (!mongoose.Types.ObjectId.isValid(id)) {
