@@ -1,7 +1,7 @@
 // client/src/pages/SellersMultiSale.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Button, Form, Alert } from 'react-bootstrap';   // ◄── añadido Alert
+import { Button, Form, Alert } from 'react-bootstrap';
 import api from '../api';
 import Modal from '../components/Modal';
 import { todayAR } from '../utils/date';
@@ -39,7 +39,8 @@ export default function SellersMultiSale() {
   const [branch, setBranch] = useState('');
   const [items, setItems] = useState(editId ? [] : [defaultRow]);
 
-  const [error, setError] = useState('');       // ← seguirá mostrando error
+  const [observations, setObservations] = useState('');   // ◄── NUEVO
+  const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
 
   /* --------------- cargar datos base --------------- */
@@ -72,6 +73,7 @@ export default function SellersMultiSale() {
         setDate(mv.date ? toInputDate(mv.date) : todayAR());
         setBranch(mv.branch);
         if (mv.sellerId) setSeller(mv.sellerId);
+        setObservations(mv.observations || '');                // ◄── NUEVO
 
         const mapped = mv.items.map(it => {
           const prod = products.find(p => p._id === String(it.productId));
@@ -117,9 +119,7 @@ export default function SellersMultiSale() {
   const removeRow = idx => setItems(items.filter((_, i) => i !== idx));
 
   /* --------------- totales --------------- */
-  const bruto = items.reduce(
-    (s, it) => s + (Number(it.price) || 0) * Number(it.quantity), 0
-  );
+  const bruto = items.reduce((s, it) => s + (Number(it.price) || 0) * Number(it.quantity), 0);
   const bonusPct = seller?.bonus || 0;
   const bonif = bruto * bonusPct / 100;
   const neto = bruto - bonif;
@@ -129,8 +129,8 @@ export default function SellersMultiSale() {
     e.preventDefault();
     setError('');
 
-    if (!seller?._id)  return setError('Falta seleccionar la vendedora');
-    if (!branch)      return setError('Seleccione la sucursal');
+    if (!seller?._id) return setError('Falta seleccionar la vendedora');
+    if (!branch) return setError('Seleccione la sucursal');
     if (items.some(it => !it.product))
       return setError('Todos los renglones requieren producto');
 
@@ -143,7 +143,7 @@ export default function SellersMultiSale() {
       date,
       sellerId: seller._id,
       isFinalConsumer: false,
-      observations: '',
+      observations,                 // ◄── NUEVO
       total,
       items: items.map(it => ({
         productId: it.product._id,
@@ -160,9 +160,7 @@ export default function SellersMultiSale() {
       }
       setShowModal(true);
     } catch (err) {
-      /* si el backend devuelve { error: 'Stock insuficiente en …' } */
-      setError(err.response?.data?.error ||
-               'Error al guardar la venta');
+      setError(err.response?.data?.error || 'Error al guardar la venta');
     }
   };
 
@@ -170,13 +168,8 @@ export default function SellersMultiSale() {
   return (
     <>
       <h2>{editId ? 'Editar venta a Vendedora' : 'Registrar venta a Vendedora'}</h2>
-      {seller && (
-        <h6 className="text-muted mb-3">
-          {seller.name} {seller.lastname}
-        </h6>
-      )}
+      {seller && <h6 className="text-muted mb-3">{seller.name} {seller.lastname}</h6>}
 
-      {/* ▶▶ Alerta de error sin desmontar la UI ◀◀ */}
       {error && (
         <Alert variant="danger" onClose={() => setError('')} dismissible>
           {error}
@@ -204,109 +197,122 @@ export default function SellersMultiSale() {
             required
           >
             <option value="">Seleccione</option>
-            {SUCURSALES.map(b => (
-              <option key={b}>{b}</option>
-            ))}
+            {SUCURSALES.map(b => <option key={b}>{b}</option>)}
           </Form.Select>
         </Form.Group>
 
         <hr />
 
-                {/* Ítems */}
-                {items.map((it, idx) => (
-                    <div key={idx} className="d-flex gap-2 align-items-start mb-3 flex-wrap">
-                        {/* Producto + autosuggest */}
-                        <div style={{ position: 'relative', flex: '1 1 250px' }}>
-                            <Form.Label>Producto</Form.Label>
-                            <Form.Control
-                                value={it.query}
-                                placeholder="Buscar…"
-                                onChange={e => handleQueryChange(idx, e.target.value)}
-                                autoComplete="off"
-                                required
-                            />
-                            {it.showSug && (
-                                <div className="list-group position-absolute w-100"
-                                    style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}>
-                                    {it.suggestions.map(p => (
-                                        <button key={p._id} type="button"
-                                            className="list-group-item list-group-item-action"
-                                            onClick={() => chooseProduct(idx, p)}>
-                                            {p.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Cantidad */}
-                        <div style={{ width: 100 }}>
-                            <Form.Label>Cantidad</Form.Label>
-                            <Form.Control
-                                pattern="[0-9]*" inputMode="numeric" required
-                                value={it.quantity}
-                                onChange={e => updateItem(idx, { quantity: e.target.value.replace(/[^0-9]/g, '') })}
-                            />
-                        </div>
-
-                        {/* Precio U */}
-                        <div style={{ width: 120, position: 'relative' }}>
-                            <Form.Label>Precio U.</Form.Label>
-                            <Form.Control
-                                style={{ paddingLeft: 25 }} required
-                                value={it.price}
-                                onChange={e => updateItem(idx, { price: e.target.value.replace(/[^0-9.]/g, '') })}
-                            />
-                            <span style={{ position: 'absolute', left: 8, top: 34 }}>$</span>
-                        </div>
-
-                        {/* Subtotal */}
-                        <div style={{ width: 120 }}>
-                            <Form.Label>Subtotal</Form.Label>
-                            <Form.Control plaintext readOnly
-                                value={fmtNum((Number(it.price) || 0) * Number(it.quantity))} />
-                        </div>
-
-                        {/* Eliminar fila */}
-                        {items.length > 1 && (
-                            <Button variant="outline-danger" title="Eliminar" style={{ height: 38, alignSelf: 'end' }}
-                                onClick={() => removeRow(idx)}>🗑️</Button>
-                        )}
-                    </div>
-                ))}
-
-                <Button variant="outline-primary" onClick={addRow} className="mb-4">
-                    + Añadir producto
-                </Button>
-
-                {/* Resumen */}
-                <div className="card shadow-sm mb-4" style={{ maxWidth: 350 }}>
-                    <div className="card-body">
-                        <div className="d-flex justify-content-between mb-2">
-                            <span>Total Bruto:</span><span>${fmtNum(bruto)}</span>
-                        </div>
-                        <div className="d-flex justify-content-between mb-2">
-                            <span>Bonificación ({bonusPct}%):</span><span>${fmtNum(bonif)}</span>
-                        </div>
-                        <hr className="my-2" />
-                        <div className="d-flex justify-content-between fw-bold">
-                            <span>Total Neto:</span><span>${fmtNum(neto)}</span>
-                        </div>
-                    </div>
+        {/* Ítems */}
+        {items.map((it, idx) => (
+          <div key={idx} className="d-flex gap-2 align-items-start mb-3 flex-wrap">
+            {/* Producto + autosuggest */}
+            <div style={{ position: 'relative', flex: '1 1 250px' }}>
+              <Form.Label>Producto</Form.Label>
+              <Form.Control
+                value={it.query}
+                placeholder="Buscar…"
+                onChange={e => handleQueryChange(idx, e.target.value)}
+                autoComplete="off"
+                required
+              />
+              {it.showSug && (
+                <div className="list-group position-absolute w-100"
+                  style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}>
+                  {it.suggestions.map(p => (
+                    <button key={p._id} type="button"
+                      className="list-group-item list-group-item-action"
+                      onClick={() => chooseProduct(idx, p)}>
+                      {p.name}
+                    </button>
+                  ))}
                 </div>
+              )}
+            </div>
 
-                {/* Botones */}
-                <Button type="submit" variant="dark" className="me-2">
-                    {editId ? 'Guardar cambios' : 'Confirmar venta'}
-                </Button>
-                <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
-            </Form>
+            {/* Cantidad */}
+            <div style={{ width: 100 }}>
+              <Form.Label>Cantidad</Form.Label>
+              <Form.Control
+                pattern="[0-9]*" inputMode="numeric" required
+                value={it.quantity}
+                onChange={e => updateItem(idx, { quantity: e.target.value.replace(/[^0-9]/g, '') })}
+              />
+            </div>
 
-            <Modal
-                show={showModal}
-                message={editId ? 'Venta modificada satisfactoriamente' : 'Venta registrada satisfactoriamente'}
-                onClose={() => navigate('/movements')}
-            />
-        </>
-    );
+            {/* Precio U */}
+            <div style={{ width: 120, position: 'relative' }}>
+              <Form.Label>Precio U.</Form.Label>
+              <Form.Control
+                style={{ paddingLeft: 25 }} required
+                value={it.price}
+                onChange={e => updateItem(idx, { price: e.target.value.replace(/[^0-9.]/g, '') })}
+              />
+              <span style={{ position: 'absolute', left: 8, top: 34 }}>$</span>
+            </div>
+
+            {/* Subtotal */}
+            <div style={{ width: 120 }}>
+              <Form.Label>Subtotal</Form.Label>
+              <Form.Control plaintext readOnly
+                value={fmtNum((Number(it.price) || 0) * Number(it.quantity))} />
+            </div>
+
+            {/* Eliminar fila */}
+            {items.length > 1 && (
+              <Button variant="outline-danger" title="Eliminar" style={{ height: 38, alignSelf: 'end' }}
+                onClick={() => removeRow(idx)}>🗑️</Button>
+            )}
+          </div>
+        ))}
+
+        <Button variant="outline-primary" onClick={addRow} className="mb-4">
+          + Añadir producto
+        </Button>
+
+        {/* Resumen */}
+        <div className="card shadow-sm mb-4" style={{ maxWidth: 350 }}>
+          <div className="card-body">
+            <div className="d-flex justify-content-between mb-2">
+              <span>Total Bruto:</span><span>${fmtNum(bruto)}</span>
+            </div>
+            <div className="d-flex justify-content-between mb-2">
+              <span>Bonificación ({bonusPct}%):</span><span>${fmtNum(bonif)}</span>
+            </div>
+            <hr className="my-2" />
+            <div className="d-flex justify-content-between fw-bold">
+              <span>Total Neto:</span><span>${fmtNum(neto)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Botones */}
+        <Button type="submit" variant="dark" className="me-2">
+          {editId ? 'Guardar cambios' : 'Confirmar venta'}
+        </Button>
+        <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
+
+        {/* ───── Observaciones ───── */}
+        <Form.Group className="mb-4" style={{ maxWidth: 500 }}>
+          <Form.Label>Observaciones</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={2}
+            value={observations}
+            onChange={e => setObservations(e.target.value)}
+            placeholder="Opcional"
+          />
+        </Form.Group>
+
+      </Form>
+
+
+
+      <Modal
+        show={showModal}
+        message={editId ? 'Venta modificada satisfactoriamente' : 'Venta registrada satisfactoriamente'}
+        onClose={() => navigate('/movements')}
+      />
+    </>
+  );
 }
