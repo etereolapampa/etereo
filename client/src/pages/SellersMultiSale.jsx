@@ -71,7 +71,6 @@ export default function SellersMultiSale() {
         const { data: mv } = await api.get(`/stock/movements/${editId}`);
         setBranch(mv.branch);
         setDate(mv.date ? toInputDate(mv.date) : todayAR());
-
         setObservations(mv.observations || '');                // ◄── NUEVO
 
         const mapped = mv.items.map(it => {
