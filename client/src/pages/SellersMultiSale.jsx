@@ -69,10 +69,9 @@ export default function SellersMultiSale() {
     const loadMovement = async () => {
       try {
         const { data: mv } = await api.get(`/stock/movements/${editId}`);
-
-        setDate(mv.date ? toInputDate(mv.date) : todayAR());
         setBranch(mv.branch);
-        if (mv.sellerId) setSeller(mv.sellerId);
+        setDate(mv.date ? toInputDate(mv.date) : todayAR());
+
         setObservations(mv.observations || '');                // ◄── NUEVO
 
         const mapped = mv.items.map(it => {
