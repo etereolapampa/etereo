@@ -5,10 +5,11 @@
  *
  * Ej.: '2025-06-11'  →  Wed Jun 11 2025 03:00:00 GMT+0000
  */
-export function parseDateAR (dateString = '') {
-  const [y, m, d] = dateString.split('-').map(Number);
-  // midnight en Argentina = 03:00 UTC
-  return new Date(Date.UTC(y, m - 1, d, 3, 0, 0));
+export function parseDateAR (iso) {
+  // admite "YYYY-MM-DD"  →  genera 00:00 hs en horario ARG (UTC-3)
+  if (!iso?.match(/^\d{4}-\d{2}-\d{2}$/)) return new Date(iso); // fallback
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 3, 0, 0)); // 00 hs AR = 03 UTC
 }
 
 /* helpers opcionales – no indispensables para el back  */

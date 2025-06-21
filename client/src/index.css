@@ -39,3 +39,30 @@ input[type="checkbox"] {
 }
 
 
+/* zebra */
+.group-even > td { background-color: rgba(0,0,0,.05); }
+.group-odd  > td { background-color: #f8f9fa; }
+
+/* desactiva el hover "nativo" de Bootstrap  ------------------- */
+.table-hover tbody tr:hover > * {
+  background-color: inherit !important;        /* hereda el fondo del grupo */
+}
+
+/* color para TODO el grupo cuando el puntero está en cualquiera
+   de sus filas ------------------------------------------------ */
+.group-hover > td {                             /* resto de filas del grupo   */
+  background-color: rgba(0,0,0,.12) !important;
+}
+.table-hover tbody tr.group-hover:hover > * {   /* fila bajo el puntero       */
+  background-color: rgba(0,0,0,.12) !important;
+}
+
+/* ─── Tabla Movements ───────────────────────── */
+.movements-table th,
+.movements-table td {
+  /* horizontal: siempre a la izquierda  */
+  text-align: left !important;
+
+  /* vertical: centrado dentro de la celda */
+  vertical-align: middle !important;
+}
