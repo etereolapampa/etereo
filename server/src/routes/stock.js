@@ -338,27 +338,68 @@ router.get('/movements/:id', async (req, res) => {
   }
 });
 
-/* =========================================================
-   DELETE /stock/movements/:id
-   (ajusta stock global al revés del movimiento)
-   ========================================================= */
+// ================================================================
+// DELETE /stock/movements/:id
+// – ahora soporta ventas múltiples (items[]) sin arrojar “Producto no encontrado”
+// ================================================================
 router.delete('/movements/:id', async (req, res) => {
   try {
-    const m = await Movimiento.findById(req.params.id);
-    if (!m) return res.status(404).json({ error: 'Movimiento no encontrado' });
+    const { id } = req.params;
+    const movement = await Movimiento.findById(id);
 
-    const prod = await Producto.findById(m.productId);
-    if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
+    if (!movement) {
+      return res.status(404).json({ error: 'Movimiento no encontrado' });
+    }
 
-    if (m.type === 'add') prod.stock -= m.quantity;
-    else if (m.type === 'sell') prod.stock += m.quantity || m.items.reduce((s, it) => s + it.quantity, 0);
-    else if (m.type === 'shortage') prod.stock += m.quantity;
-    await prod.save();
+    /* ──────────────────────────────────────────────
+       1) DEVOLVER STOCK GLOBAL SEGÚN EL TIPO
+       ────────────────────────────────────────────── */
+    const isMulti = Array.isArray(movement.items) && movement.items.length > 0;
 
-    await Movimiento.findByIdAndDelete(req.params.id);
+    if (movement.type === 'add') {
+      // la carga se revierte restando
+      await Producto.findByIdAndUpdate(
+        movement.productId,
+        { $inc: { stock: -movement.quantity } }
+      );
+
+    } else if (movement.type === 'shortage') {
+      // faltante ⇒ se devuelve
+      await Producto.findByIdAndUpdate(
+        movement.productId,
+        { $inc: { stock:  movement.quantity } }
+      );
+
+    } else if (movement.type === 'transfer') {
+      // transferencia: el stock global NO cambia
+      /* nada que hacer */
+
+    } else if (movement.type === 'sell') {
+      if (isMulti) {
+        // 🛒 venta múltiple → devolver cada ítem
+        for (const it of movement.items) {
+          await Producto.findByIdAndUpdate(
+            it.productId,
+            { $inc: { stock: it.quantity } }
+          );
+        }
+      } else {
+        // 🛒 venta simple
+        await Producto.findByIdAndUpdate(
+          movement.productId,
+          { $inc: { stock: movement.quantity } }
+        );
+      }
+    }
+
+    /* ──────────────────────────────────────────────
+       2) ELIMINAR EL MOVIMIENTO
+       ────────────────────────────────────────────── */
+    await Movimiento.findByIdAndDelete(id);
+
     res.json({ message: 'Movimiento eliminado correctamente' });
-  } catch (err) {
-    console.error('DELETE /stock/movements/:id →', err);
+  } catch (error) {
+    console.error('Error al eliminar movimiento:', error);
     res.status(500).json({ error: 'Error al eliminar el movimiento' });
   }
 });
