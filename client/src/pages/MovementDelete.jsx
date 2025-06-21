@@ -45,7 +45,7 @@ export default function MovementDelete() {
     navigate('/movements');
   };
 
-const formatDate = formatDateAR;
+  const formatDate = formatDateAR;
 
 
   if (loading) return <div>Cargando...</div>;
@@ -59,6 +59,9 @@ const formatDate = formatDateAR;
     return 'Faltante';
   };
 
+  // helper: ¿es venta múltiple?
+  const isMulti = m => Array.isArray(m.items) && m.items.length > 0;
+
   return (
     <Container fluid className="py-4">
       <h2 className="mb-4">Eliminar Movimiento</h2>
@@ -68,8 +71,23 @@ const formatDate = formatDateAR;
           <Card.Text className="mb-4">
             <strong>Fecha:</strong> {formatDate(movement.date)}<br />
             <strong>Tipo:</strong> {getMovementType(movement.type, movement.origin, movement.destination, movement.sellerId)}<br />
-            <strong>Producto:</strong> {movement.product?.name}<br />
-            <strong>Cantidad:</strong> {movement.quantity}<br />
+            {isMulti(movement) ? (
+              <>
+                <strong>Productos:</strong>
+                <ul className="mt-2">
+                  {movement.items.map(it => (
+                    <li key={it._id}>
+                      {it.productId?.name || 'Producto eliminado'} — Cant: {it.quantity}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <>
+                <strong>Producto:</strong> {movement.product?.name || '—'}<br />
+                <strong>Cantidad:</strong> {movement.quantity}<br />
+              </>
+            )}
             <strong>Sucursal:</strong> {movement.branch || movement.origin}<br />
             {movement.destination && <><strong>Destino:</strong> {movement.destination}<br /></>}
             {movement.seller && <><strong>Vendedor:</strong> {movement.seller.name} {movement.seller.lastname}<br /></>}
@@ -86,7 +104,7 @@ const formatDate = formatDateAR;
         </Card.Body>
       </Card>
 
-      <Modal 
+      <Modal
         show={showModal}
         message={modalMessage}
         onClose={handleModalClose}

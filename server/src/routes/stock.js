@@ -326,7 +326,8 @@ router.get('/movements/:id', async (req, res) => {
   try {
     const m = await Movimiento.findById(req.params.id)
       .populate('productId', 'name price')
-      .populate('sellerId', 'name lastname');
+      .populate('sellerId', 'name lastname')
+      .populate('items.productId', 'name price');   // ← ★ NUEVO
 
     if (!m) return res.status(404).json({ error: 'Movimiento no encontrado' });
 
