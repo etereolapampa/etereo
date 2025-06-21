@@ -286,12 +286,6 @@ export default function SellersMultiSale() {
           </div>
         </div>
 
-        {/* Botones */}
-        <Button type="submit" variant="dark" className="me-2">
-          {editId ? 'Guardar cambios' : 'Confirmar venta'}
-        </Button>
-        <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
-
         {/* ───── Observaciones ───── */}
         <Form.Group className="mb-4" style={{ maxWidth: 500 }}>
           <Form.Label>Observaciones</Form.Label>
@@ -303,6 +297,14 @@ export default function SellersMultiSale() {
             placeholder="Opcional"
           />
         </Form.Group>
+
+        {/* Botones */}
+        <Button type="submit" variant="dark" className="me-2">
+          {editId ? 'Guardar cambios' : 'Confirmar venta'}
+        </Button>
+        <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
+
+
 
       </Form>
 
