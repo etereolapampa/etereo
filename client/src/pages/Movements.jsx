@@ -11,6 +11,7 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import Modal from '../components/Modal';          // ⬅️  ¡nuevo!
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR, formatDateAR } from '../utils/date';
 
@@ -50,6 +51,9 @@ export default function Movements() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hoverGroup, setHoverGroup] = useState(null);   // ← NUEVO
+
+  const [deleteTarget, setDeleteTarget] = useState(null);   // movimiento a borrar
+  const [deleteError, setDeleteError] = useState('');
 
 
   /* carga inicial ---------------- */
@@ -207,7 +211,7 @@ export default function Movements() {
     return baseFilteredMovements.filter(m => m.observations?.trim());
   }, [baseFilteredMovements, hasObservations]);
 
-    const mobileMovs = useMemo(
+  const mobileMovs = useMemo(
     () => filteredMovements.filter(m => !isMulti(m) || m._row === 0),
     [filteredMovements]
   );
@@ -229,8 +233,31 @@ export default function Movements() {
       ? m.items.reduce((s, it) => s + it.quantity * it.price, 0)
       : getQty(m) * getPrice(m);
 
+  /* ─────────────────────────────────────────────────────────
+     🔄 2) FUNCIÓN para abrir el modal ( reemplaza al navigate )
+  ────────────────────────────────────────────────────────── */
+  const handleAskDelete = mov => setDeleteTarget(mov);
+
+  /* ─────────────────────────────────────────────────────────
+     🔄 3) CONFIRMAR eliminación
+  ────────────────────────────────────────────────────────── */
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteError('');
+    try {
+      await api.delete(`/stock/movements/${deleteTarget._id}`);
+      // quitamos de la lista local sin recargar:
+      setMovements(prev => prev.filter(m => m._id !== deleteTarget._id));
+      setDeleteTarget(null);
+    } catch (err) {
+      setDeleteError(err.response?.data?.error || 'Error al eliminar');
+    }
+  };
+
   /* acciones Editar/Eliminar ----- */
-  const handleDelete = id => navigate(`/movements/${id}/delete`);
+  const handleDelete = id => handleAskDelete(   // 👈  ahora abre modal
+    filteredMovements.find(m => m._id === id)
+  );
 
   const handleEdit = m => {
     if (isMulti(m)) {
@@ -256,6 +283,50 @@ export default function Movements() {
   let groupIdx = -1;
   let currentParentId = null; // sólo para zebra
 
+  /* ═════════════  Render de datos para el modal  ══════════════ */
+  const renderDeleteMsg = mov => {
+    if (!mov) return null;
+
+    const isVentaMulti = isMulti(mov);
+    const prodLines = isVentaMulti
+      ? mov.items.map(it => {
+        const prod = products.find(p => p._id === it.productId);
+        return `· ${prod?.name || '—'}  —  ${it.quantity} u.`;
+      }).join('\n')
+      : `· ${getProduct(mov)?.name || '—'}  —  ${getQty(mov)} u.`;
+
+    const vendedor = mov.type === 'sell'
+      ? mov.sellerId
+        ? `${mov.sellerId.name} ${mov.sellerId.lastname}`
+        : (mov.destination || 'Consumidor Final')
+      : mov.destination || '—';
+
+    return (
+      <>
+        <p className="mb-2">
+          ¿Seguro que deseas eliminar el siguiente movimiento?
+        </p>
+
+        <div style={{ whiteSpace: 'pre-line' }}>
+          <strong>Fecha:</strong> {formatDateAR(mov.date)}{'\n'}
+          <strong>Tipo: </strong>{getMovementType(mov)}{'\n'}
+          <strong>Sucursal:</strong> {mov.branch || mov.origin}{'\n'}
+          <strong>Destino / Vendedor:</strong> {vendedor}{'\n'}
+          <strong>Producto(s):</strong>{'\n'}{prodLines}
+        </div>
+
+        {mov.observations && (
+          <p className="mt-2 fst-italic">
+            <strong>Obs.:</strong> {mov.observations}
+          </p>
+        )}
+
+        {deleteError && (
+          <div className="alert alert-danger mt-2">{deleteError}</div>
+        )}
+      </>
+    );
+  };
 
 
   return (
@@ -530,6 +601,19 @@ export default function Movements() {
           </Card>
         ))}
       </div>
+      {/* ════════════════════════════════════════════════════
+       MODAL DE CONFIRMACIÓN
+       ════════════════════════════════════════════════════ */}
+      <Modal
+        show={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        message={renderDeleteMsg(deleteTarget)}
+      >
+        <Button variant="danger" onClick={confirmDelete}>
+          Eliminar
+        </Button>
+      </Modal>
+
     </Container>
   );
 }

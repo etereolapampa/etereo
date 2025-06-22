@@ -1,18 +1,24 @@
+// client/src/components/Modal.jsx
 import React from 'react';
-import { Modal as BootstrapModal, Button } from 'react-bootstrap';
+import { Modal as BsModal, Button } from 'react-bootstrap';
 
-export default function Modal({ show, message, onClose }) {
+/* ───────── Modal genérico reutilizable ───────── */
+export default function Modal({ show, onClose, message, children }) {
   return (
-    <BootstrapModal show={show} onHide={onClose} centered>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Confirmación</BootstrapModal.Title>
-      </BootstrapModal.Header>
-      <BootstrapModal.Body>{message}</BootstrapModal.Body>
-      <BootstrapModal.Footer>
-        <Button variant="dark" onClick={onClose}>
-          Cerrar
+    <BsModal show={show} onHide={onClose} centered>
+      <BsModal.Header closeButton>
+        <BsModal.Title>Confirmación</BsModal.Title>
+      </BsModal.Header>
+
+      <BsModal.Body>{message}</BsModal.Body>
+
+      <BsModal.Footer className="gap-2">
+        {/* ⬇️  cualquier cosa que pasemos como <Modal>…aquí…</Modal> */}
+        {children}
+        <Button variant="secondary" onClick={onClose}>
+          Cancelar
         </Button>
-      </BootstrapModal.Footer>
-    </BootstrapModal>
+      </BsModal.Footer>
+    </BsModal>
   );
-} 
+}

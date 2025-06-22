@@ -45,7 +45,7 @@ export default function App() {
         <Route path="stock/transfer" element={<StockTransfer />} />
         <Route path="stock/shortage" element={<StockShortage />} />
         <Route path="movements" element={<Movements />} />
-        <Route path="movements/:id/delete" element={<MovementDelete />} />
+        {/* <Route path="movements/:id/delete" element={<MovementDelete />} /> */}
         <Route path="stats" element={<Stats />} />
         <Route path="sellers/:id/sale" element={<SellerMultiSale />} />
       </Route>

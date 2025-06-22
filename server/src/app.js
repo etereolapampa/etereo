@@ -36,10 +36,9 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Configuración de conexión a MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/BDEtereo';
+const MONGODB_URI = process.env.MONGODB_URI ;
 mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+  serverSelectionTimeoutMS: 10000 
 })
   .then(() => console.log('MongoDB conectado'))
   .catch(err => console.error('Error al conectar a MongoDB:', err));
