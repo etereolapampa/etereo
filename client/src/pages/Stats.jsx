@@ -1,22 +1,47 @@
 // src/pages/Stats.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { Form, Table, Row, Col, Card } from 'react-bootstrap';
 import api from '../api';
 import { useSucursales } from '../hooks/useStaticData';
-import * as XLSX from 'xlsx'; // Importar la librería xlsx
+import * as XLSX from 'xlsx';
+
+/* ──────────────────────────────────────────────
+   Helpers ─ ventas múltiples y utilidades varias
+─────────────────────────────────────────────── */
+const isMulti = m => Array.isArray(m.items) && m.items.length > 0;
+
+const expandMovements = list =>
+  list.flatMap(m =>
+    isMulti(m)
+      ? m.items.map(it => ({ ...m, _item: it })) // “desarma” la venta múltiple
+      : m
+  );
+
+const getProdId = m => {
+  const pid = m._item ? m._item.productId : m.productId;
+  if (!pid) return null;
+  return typeof pid === 'object' ? pid._id : pid;
+};
+
+const getQty = m => (m._item ? m._item.quantity : m.quantity) || 0;
+/* ──────────────────────────────────────────── */
 
 export default function Stats() {
-  const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-  const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
+  const MONTHS = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  const { sucursales,
+    loading: loadingSucursales,
+    error: errorSucursales } = useSucursales();
+
+  /* ───────── estado ───────── */
   const [movements, setMovements] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [sellers, setSellers] = useState([]);
-  const [stockData, setStockData] = useState([]); // Estado para los datos de stock
-  const [stats, setStats] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [stockData, setStockData] = useState([]);
 
   const [concept, setConcept] = useState('Ventas');
   const [year, setYear] = useState(new Date().getFullYear());
@@ -27,85 +52,71 @@ export default function Stats() {
   const [showFinalConsumer, setShowFinalConsumer] = useState(false);
   const [rowGroup, setRowGroup] = useState('Producto');
 
-  // Función para obtener el tipo de movimiento con nombres amigables
-  const getMovementType = (movement) => {
-    if (movement.type === 'add') return 'Carga';
-    if (movement.type === 'sell') return 'Venta';
-    if (movement.type === 'transfer') return 'Mudanza';
-    if (movement.type === 'shortage') return 'Faltante';
-    return 'Otro';
-  };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  /* ───────── carga inicial ───────── */
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         setLoading(true);
-        
-        // Hacer las peticiones secuencialmente
-        const mRes = await api.get('/stock/movements');
-        await new Promise(resolve => setTimeout(resolve, 1));
-        
-        const pRes = await api.get('/products');
-        await new Promise(resolve => setTimeout(resolve, 1));
-        
-        const cRes = await api.get('/categories');
-        await new Promise(resolve => setTimeout(resolve, 1));
-        
-        const sRes = await api.get('/sellers');
-        await new Promise(resolve => setTimeout(resolve, 1));
-        
-        const stockRes = await api.get('/stock');
-
-        console.log('Movements data:', mRes.data[0]);
-        console.log('Products data:', pRes.data[0]);
-        console.log('Categories data:', cRes.data[0]);
-        console.log('Sellers data:', sRes.data[0]);
-
-      setMovements(mRes.data);
-      setProducts(pRes.data);
-      setCategories(cRes.data);
-      setSellers(sRes.data);
+        const [mRes, pRes, cRes, sRes, stockRes] = await Promise.all([
+          api.get('/stock/movements'),
+          api.get('/products'),
+          api.get('/categories'),
+          api.get('/sellers'),
+          api.get('/stock')
+        ]);
+        setMovements(mRes.data);
+        setProducts(pRes.data);
+        setCategories(cRes.data);
+        setSellers(sRes.data);
         setStockData(stockRes.data);
       } catch (err) {
-        console.error('Error fetching data:', err);
-      setError(err.response?.data?.error || 'Error al cargar los datos');
+        setError(err.response?.data?.error || 'Error al cargar los datos');
       } finally {
-      setLoading(false);
+        setLoading(false);
       }
-    };
-
-    fetchData();
+    })();
   }, []);
 
-  const data = useMemo(() => {
-    // Filtrar movimientos por año, tipo y categoría/producto seleccionado
-    const filtered = movements.filter(m => {
+  /* ───────── core: cálculo de tabla + opciones ───────── */
+  const { data: tableData, availableOptions } = useMemo(() => {
+    /* 1) aplanamos ventas múltiples */
+    const flat = expandMovements(movements);
+
+    /* 2) filtrado general */
+    const filtered = flat.filter(m => {
+      const prodId = getProdId(m);
+      if (!prodId) return false;
+
       const date = new Date(m.date);
-      const productMatch = products.find(p => p._id === m.productId._id);
-      const categoryMatch = !category || (productMatch && productMatch.categoryId._id === category);
-      const productFilterMatch = !product || m.productId._id === product;
-      const sellerMatch = !seller || (m.sellerId && m.sellerId._id === seller);
-      const branchMatch = !branch || m.branch === branch;
-      const finalConsumerMatch = !showFinalConsumer || !m.sellerId;
-
-      // Solo procesar movimientos del año seleccionado
       if (date.getFullYear() !== year) return false;
-      
-      // Solo procesar si coincide con la categoría y producto seleccionados
-      if (!categoryMatch || !productFilterMatch || !sellerMatch || !branchMatch || !finalConsumerMatch) return false;
 
-      // Clasificar el tipo de movimiento
-      if (concept === 'Ventas') {
-        return m.type === 'sell'; // Solo ventas
-      } else if (concept === 'Faltantes') {
-        return m.type === 'shortage'; // Solo faltantes
-      }
-      
+      const productMatch = products.find(p => p._id === prodId);
+      const categoryMatch = !category ||
+        (productMatch &&
+          productMatch.categoryId._id === category);
+      const productFilterMatch = !product || prodId === product;
+      const sellerMatch = !seller ||
+        (m.sellerId && m.sellerId._id === seller);
+      const branchMatch = !branch || m.branch === branch;
+      const finalConsMatch = !showFinalConsumer || !m.sellerId;
+
+      if (!categoryMatch || !productFilterMatch ||
+        !sellerMatch || !branchMatch ||
+        !finalConsMatch) return false;
+
+      if (concept === 'Ventas')
+        return m.type === 'sell';
+      if (concept === 'Faltantes')
+        return m.type === 'shortage';
+
       return false;
     });
 
-    // Calcular opciones disponibles para los filtros
-    const availableOptions = {
+    /* 3) opciones disponibles para los selects (según filtrado) */
+    const opts = {
       categories: new Set(),
       products: new Set(),
       sellers: new Set(),
@@ -113,202 +124,197 @@ export default function Stats() {
     };
 
     filtered.forEach(m => {
-      const product = products.find(p => p._id === m.productId._id);
-      if (product) {
-        availableOptions.products.add(product._id);
-        const category = categories.find(c => c._id === product.categoryId._id);
-        if (category) availableOptions.categories.add(category._id);
+      const prodId = getProdId(m);
+      const prod = products.find(p => p._id === prodId);
+      if (prod) {
+        opts.products.add(prod._id);
+        opts.categories.add(prod.categoryId._id);
       }
-      if (m.sellerId) availableOptions.sellers.add(m.sellerId._id);
-      if (m.branch) availableOptions.branches.add(m.branch);
+      if (m.sellerId) opts.sellers.add(m.sellerId._id);
+      if (m.branch) opts.branches.add(m.branch);
     });
 
-    // Agrupar por el campo seleccionado y mes
+    /* 4) agrupado   ----------------------------------------- */
     const grouped = {};
     filtered.forEach(m => {
+      /* campo clave según rowGroup */
       let key;
       if (rowGroup === 'Producto') {
-        const p = products.find(p => p._id === m.productId._id);
-        key = p?.name || 'Desconocido';
+        const prod = products.find(p => p._id === getProdId(m));
+        key = prod?.name || 'Desconocido';
       } else if (rowGroup === 'Vendedor') {
-        if (!m.sellerId) {
-          key = 'Consumidor Final';
-        } else {
-          const v = sellers.find(v => v._id === m.sellerId._id);
-          console.log('Looking for seller:', { movementId: m._id, sellerId: m.sellerId._id, found: v });
-          key = v ? `${v.name} ${v.lastname}` : 'Vendedor eliminado';
+        if (!m.sellerId) key = 'Consumidor Final';
+        else {
+          const s = sellers.find(s => s._id === m.sellerId._id);
+          key = s ? `${s.name} ${s.lastname}` : 'Vendedor eliminado';
         }
       } else if (rowGroup === 'Categoría') {
-        const p = products.find(p => p._id === m.productId._id);
-        const c = categories.find(c => c._id === p?.categoryId._id);
-        key = c?.name || 'Categoría eliminada';
+        const prod = products.find(p => p._id === getProdId(m));
+        const cat = categories.find(c => c._id === prod?.categoryId._id);
+        key = cat?.name || 'Categoría eliminada';
       } else if (rowGroup === 'Sucursal') {
-        key = m.branch || 'Desconocida';
+        key = m.branch || '—';
       }
 
-      if (!grouped[key]) {
-        grouped[key] = Array(12).fill(0);
-      }
-      // Extraer el mes directamente de la fecha en formato YYYY-MM-DD
-      const month = parseInt(m.date.split('-')[1]) - 1;
-      grouped[key][month] += m.quantity;
+      if (!grouped[key]) grouped[key] = Array(12).fill(0);
+      const monthIdx = new Date(m.date).getMonth(); // 0-11
+      grouped[key][monthIdx] += getQty(m);
     });
 
-    // Convertir a array y calcular totales
-    return {
-      data: Object.entries(grouped)
-        .map(([name, months]) => ({
-          name,
-          months,
-          total: months.reduce((sum, val) => sum + val, 0)
-        }))
-        .filter(row => row.total > 0)
-        .sort((a, b) => b.total - a.total),
-      availableOptions
-    };
-  }, [movements, products, categories, sellers, year, concept, category, product, rowGroup, sucursales, seller, branch, showFinalConsumer]);
+    /* 5) a tabla + totales */
+    const table = Object.entries(grouped).map(([name, months]) => ({
+      name,
+      months,
+      total: months.reduce((s, n) => s + n, 0)
+    })).filter(r => r.total > 0)
+      .sort((a, b) => b.total - a.total);
 
-  // Agregar console.log para debug
-  console.log('Movements:', movements);
-  console.log('Filtered:', movements.filter(m => {
-    const date = new Date(m.date);
-    const isVenta = m.sellerId != null;
-    const isTransferencia = m.destination != null;
-    const productMatch = products.find(p => p._id === m.productId._id);
-    const categoryMatch = !category || (productMatch && productMatch.categoryId._id === Number(category));
-    const productFilterMatch = !product || m.productId._id === Number(product);
-    const sellerMatch = !seller || m.sellerId === Number(seller);
-    const branchMatch = !branch || m.branch === branch;
-    const finalConsumerMatch = !showFinalConsumer || !m.sellerId;
+    return { data: table, availableOptions: opts };
+  }, [
+    movements, products, categories, sellers,
+    concept, year, category, product, seller,
+    branch, showFinalConsumer, rowGroup
+  ]);
 
-    return date.getFullYear() === year &&
-           ((concept === 'Ventas' && isVenta) || 
-            (concept === 'Faltantes' && !isVenta && !isTransferencia)) &&
-           categoryMatch &&
-           productFilterMatch &&
-           sellerMatch &&
-           branchMatch &&
-           finalConsumerMatch;
-  }));
-  console.log('Data:', data);
-
-  // Función para exportar a Excel
+  /* --------------- exportar a Excel (sin cambios salvo getQty) ---- */
   const exportToExcel = () => {
-    // Crear un nuevo libro de trabajo
+    /* ========== crear libro ========== */
     const wb = XLSX.utils.book_new();
 
-    // Pestaña Productos
-    const productsHeaders = ['Nombre', 'Categoría', 'Precio'];
-    const productsData = products.map(p => [
-      p.name,
-      categories.find(c => c._id === p.categoryId._id)?.name || 'Sin Categoría',
-      p.price
-    ]);
-    const productsWs = XLSX.utils.aoa_to_sheet([productsHeaders, ...productsData]);
-    XLSX.utils.book_append_sheet(wb, productsWs, 'Productos');
+    /* ───────── 1) Pestaña MOVIMIENTOS ───────── */
+    const movHeaders = [
+      'Fecha', 'Tipo', 'Categoría', 'Producto',
+      'Cantidad', 'Precio U.', 'Total',
+      'Sucursal', 'Destino/Vendedor', 'Observaciones'
+    ];
 
-    // Pestaña Vendedores
-    const sellersHeaders = ['Nombre', 'Apellido', 'DNI', 'Teléfono', 'Localidad', 'Bonificación'];
-    const sellersData = sellers.map(s => [
-      s.name,
-      s.lastname,
-      s.dni || '-',
-      s.phone || '-',
-      s.city?.name || '-',
-      s.bonus || 0
-    ]);
-    const sellersWs = XLSX.utils.aoa_to_sheet([sellersHeaders, ...sellersData]);
-    XLSX.utils.book_append_sheet(wb, sellersWs, 'Vendedores');
+    const movRows = movements.map(m => {
+      /* helpers ↓ */
+      const prod = products.find(p => p._id === m.productId?._id);
+      const cat = categories.find(c => c._id === prod?.categoryId?._id);
+      const sellerObj = m.sellerId
+        ? sellers.find(s => s._id === m.sellerId?._id)
+        : null;
 
-    // Pestaña Stock
-    const stockHeaders = ['Producto', 'Categoría', 'Stock Total', ...sucursales.map(b => b.nombre)];
-    const stockDataFormatted = products.map(p => {
-      const stockInfo = stockData.find(s => s._id === p._id);
-      return [
-        p.name,
-        categories.find(c => c._id === p.categoryId._id)?.name || 'Sin Categoría',
-        p.stock,
-        ...sucursales.map(branch => {
-          return stockInfo?.stockByBranch?.[branch.nombre] || 0;
-        })
-      ];
-    });
-    const stockWs = XLSX.utils.aoa_to_sheet([stockHeaders, ...stockDataFormatted]);
-    XLSX.utils.book_append_sheet(wb, stockWs, 'Stock');
-
-    // Pestaña Movimientos (usando los movimientos cargados en esta página)
-    const movementsHeaders = ['Fecha', 'Tipo', 'Categoría', 'Producto', 'Cantidad', 'Precio', 'Sucursal', 'Destino', 'Vendedor', 'Observaciones'];
-    const movementsDataFormatted = movements.map(m => {
-      const product = products.find(p => p._id === m.productId._id);
-      const category = categories.find(c => c._id === product?.categoryId._id);
-      const seller = m.sellerId ? sellers.find(s => s._id === m.sellerId._id) : null;
-      let sellerName = '';
-      if (m.type === 'sell') {
-         if (m.sellerId) {
-           sellerName = seller ? `${seller.name} ${seller.lastname}` : 'Vendedor eliminado';
-         } else {
-           sellerName = m.destination || 'Consumidor Final';
-         }
+      /* destino / vendedor */
+      let dest = '-';
+      if (m.type === 'transfer') dest = m.destination || '-';
+      else if (m.type === 'sell') {
+        dest = sellerObj
+          ? `${sellerObj.name} ${sellerObj.lastname}`
+          : (m.destination || 'Consumidor Final');
       }
 
-      // Formatear la fecha a YYYY-MM-DD
-      const formattedDate = new Date(m.date).toISOString().split('T')[0];
+      /* nombre tipo legible */
+      const tipo = (
+        m.type === 'add' ? 'Carga' :
+          m.type === 'sell' ? 'Venta' :
+            m.type === 'transfer' ? 'Mudanza' :
+              m.type === 'shortage' ? 'Faltante' :
+                'Otro'
+      );
+
+      const fecha = new Date(m.date).toISOString().slice(0, 10);
 
       return [
-        formattedDate,
-        getMovementType(m),
-        category?.name || '-',
-        product?.name || '-',
-        m.quantity,
-        product?.price || '-',
-        m.branch || m.origin || '-',
-        m.type === 'transfer' ? (m.destination || '-') : '-',
-        sellerName || '-',
+        fecha, tipo,
+        cat?.name || '-',            // categoría
+        prod?.name || '-',           // producto
+        m.quantity ??                 // cantidad
+        (Array.isArray(m.items) ?               // venta múltiple
+          m.items.reduce((s, it) => s + it.quantity, 0) :
+          0),
+        prod?.price ?? '-',          // precio unitario de referencia
+        m.total ?? '-',              // total tal cual se guardó
+        m.branch || m.origin || '-', // sucursal
+        dest,                        // destino/vendedor
         m.observations || '-'
       ];
     });
-    const movementsWs = XLSX.utils.aoa_to_sheet([movementsHeaders, ...movementsDataFormatted]);
-    XLSX.utils.book_append_sheet(wb, movementsWs, 'Movimientos');
 
-    // Escribir el archivo y descargarlo
-    XLSX.writeFile(wb, `datos_etereo_${new Date().toISOString().slice(0,10)}.xlsx`);
+    const wsMov = XLSX.utils.aoa_to_sheet([movHeaders, ...movRows]);
+    XLSX.utils.book_append_sheet(wb, wsMov, 'Movimientos');
+
+    /* ───────── 2) Pestaña STOCK ───────── */
+    const branchNames = sucursales.map(s => s.nombre); // ['Santa Rosa', 'Macachín', …]
+    const stockHeaders = [
+      'Producto', 'Categoría', 'Stock total', ...branchNames
+    ];
+
+    const stockRows = products.map(p => {
+      const cat = categories.find(c => c._id === p.categoryId?._id);
+      return [
+        p.name,
+        cat?.name || '-',
+        p.stock,
+        ...branchNames.map(b => p.stockByBranch?.[b] ?? 0)
+      ];
+    });
+
+    const wsStock = XLSX.utils.aoa_to_sheet([stockHeaders, ...stockRows]);
+    XLSX.utils.book_append_sheet(wb, wsStock, 'Stock');
+
+    /* ───────── 3) Pestaña VENDEDORES ───────── */
+    const vendHeaders = [
+      'Nombre', 'Apellido', 'DNI', 'Teléfono',
+      'Localidad', 'Provincia', 'Bonificación %', 'Email'
+    ];
+
+    const vendRows = sellers.map(v => [
+      v.name,
+      v.lastname,
+      v.dni,
+      v.phone ?? '-',
+      v.city?.name ?? '-',
+      v.city?.province ?? '-',
+      v.bonus ?? 0,
+      v.email ?? '-'
+    ]);
+
+    const wsVend = XLSX.utils.aoa_to_sheet([vendHeaders, ...vendRows]);
+    XLSX.utils.book_append_sheet(wb, wsVend, 'Vendedores');
+
+    /* ========== descargar ========== */
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `etereo_${today}.xlsx`);
   };
 
-  if (loadingSucursales || loading) {
-    return <div>Cargando...</div>;
-  }
 
+  /* --------------- UI --------------- */
+  if (loadingSucursales || loading) {
+    return <div>Cargando…</div>;
+  }
   if (errorSucursales || error) {
     return <div className="alert alert-danger">{errorSucursales || error}</div>;
   }
 
-  // Obtener las opciones disponibles para los filtros
-  const { availableOptions } = data;
-  const filteredData = data.data;
+  const filteredData = tableData;
 
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Estadísticas</h2>
-        <button className="btn btn-success" onClick={exportToExcel}>Exportar a Excel</button>
+        <button className="btn btn-success" onClick={exportToExcel}>
+          Exportar a Excel
+        </button>
       </div>
 
-      <div className="p-3 rounded mb-4 border" style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
+      {/* --- Filtros principales (idénticos, sólo aprovechan availableOptions) --- */}
+      <div className="p-3 rounded mb-4 border"
+        style={{ backgroundColor: 'rgba(0,0,0,.05)' }}>
         <h4 className="mb-3">Filtros</h4>
         <Form>
           <Row className="g-2">
             <Col md={3}>
               <Form.Label>Concepto</Form.Label>
-              <Form.Select
-                value={concept}
+              <Form.Select value={concept}
                 onChange={e => {
                   setConcept(e.target.value);
                   if (e.target.value === 'Faltantes') {
                     setRowGroup('Producto');
                     setSeller('');
                   }
-                }}
-              >
+                }}>
                 <option>Ventas</option>
                 <option>Faltantes</option>
               </Form.Select>
@@ -316,65 +322,46 @@ export default function Stats() {
 
             <Col md={3}>
               <Form.Label>Año</Form.Label>
-              <Form.Select
-                value={year}
-                onChange={e => setYear(Number(e.target.value))}
-              >
-                {[2023, 2024, 2025].map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
+              <Form.Select value={year}
+                onChange={e => setYear(Number(e.target.value))}>
+                {[2023, 2024, 2025].map(y =>
+                  <option key={y}>{y}</option>)}
               </Form.Select>
             </Col>
 
             <Col md={3}>
               <Form.Label>Categoría</Form.Label>
-              <Form.Select
-                value={category}
+              <Form.Select value={category}
                 onChange={e => {
                   setCategory(e.target.value);
                   setProduct('');
-                }}
-              >
+                }}>
                 <option value="">Todas</option>
-                {categories
-                  .filter(c => availableOptions.categories.has(c._id))
-                  .map(c => (
-                    <option key={c._id} value={c._id}>{c.name}</option>
-                  ))}
+                {categories.filter(c => availableOptions.categories.has(c._id))
+                  .map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
               </Form.Select>
             </Col>
 
             <Col md={3}>
               <Form.Label>Producto</Form.Label>
-              <Form.Select
-                value={product}
-                onChange={(e) => setProduct(e.target.value)}
-                className="mb-2"
-              >
-                <option value="">Todos los productos</option>
+              <Form.Select value={product}
+                onChange={e => setProduct(e.target.value)}>
+                <option value="">Todos</option>
                 {products
-                  .filter(p => 
-                    availableOptions.products.has(p._id) && 
-                    (!category || p.categoryId._id === category)
-                  )
-                  .map(p => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
-                  ))}
+                  .filter(p => availableOptions.products.has(p._id) &&
+                    (!category || p.categoryId._id === category))
+                  .map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
               </Form.Select>
             </Col>
 
             <Col md={3}>
               <Form.Label>Sucursal</Form.Label>
-              <Form.Select
-                value={branch}
-                onChange={e => setBranch(e.target.value)}
-              >
+              <Form.Select value={branch}
+                onChange={e => setBranch(e.target.value)}>
                 <option value="">Todas</option>
                 {sucursales
                   .filter(b => availableOptions.branches.has(b.nombre))
-                  .map(b => (
-                    <option key={b.id} value={b.nombre}>{b.nombre}</option>
-                  ))}
+                  .map(b => <option key={b.id} value={b.nombre}>{b.nombre}</option>)}
               </Form.Select>
             </Col>
 
@@ -382,32 +369,24 @@ export default function Stats() {
               <>
                 <Col md={3}>
                   <Form.Label>Vendedor</Form.Label>
-                  <Form.Select
-                    value={seller}
-                    onChange={(e) => setSeller(e.target.value)}
-                    className="mb-2"
-                  >
-                    <option value="">Todos los vendedores</option>
-                    {sellers
-                      .filter(s => availableOptions.sellers.has(s._id))
-                      .map(s => (
-                        <option key={s._id} value={s._id}>{`${s.name} ${s.lastname}`}</option>
-                      ))}
+                  <Form.Select value={seller}
+                    onChange={e => setSeller(e.target.value)}>
+                    <option value="">Todos</option>
+                    {sellers.filter(s => availableOptions.sellers.has(s._id))
+                      .map(s => <option key={s._id} value={s._id}>
+                        {s.name} {s.lastname}
+                      </option>)}
                   </Form.Select>
                 </Col>
                 <Col md={3} className="d-flex align-items-center">
-                  <Form.Check
-                    type="checkbox"
+                  <Form.Check type="checkbox"
+                    className="mt-4"
                     label="Consumidor Final"
                     checked={showFinalConsumer}
                     onChange={e => {
                       setShowFinalConsumer(e.target.checked);
-                      if (e.target.checked) {
-                        setSeller('');
-                      }
-                    }}
-                    style={{ marginTop: '2rem' }}
-                  />
+                      if (e.target.checked) setSeller('');
+                    }} />
                 </Col>
               </>
             )}
@@ -415,14 +394,13 @@ export default function Stats() {
         </Form>
       </div>
 
+      {/* Agrupar por */}
       <Form className="mb-4">
         <Row className="g-2">
           <Col md={3}>
             <Form.Label>Agrupar por</Form.Label>
-            <Form.Select
-              value={rowGroup}
-              onChange={e => setRowGroup(e.target.value)}
-            >
+            <Form.Select value={rowGroup}
+              onChange={e => setRowGroup(e.target.value)}>
               <option>Producto</option>
               {concept === 'Ventas' && <option>Vendedor</option>}
               <option>Categoría</option>
@@ -432,47 +410,44 @@ export default function Stats() {
         </Row>
       </Form>
 
-      {/* ==== Vista de Tabla (Desktop) ==== */}
+      {/* tabla desktop */}
       <div className="d-none d-md-block">
         <Table striped hover>
           <thead>
             <tr>
-              <th>{rowGroup === 'Localidad' ? 'Destino' : rowGroup}</th>
-              {MONTHS.map((month, i) => (
-                <th key={i} className="text-end">{month}</th>
-              ))}
+              <th>{rowGroup}</th>
+              {MONTHS.map(m => <th key={m} className="text-end">{m}</th>)}
               <th className="text-end">Total</th>
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((row, i) => (
-              <tr key={i} className="border-bottom">
-                <td>{row.name}</td>
-                {row.months.map((quantity, j) => (
-                  <td key={j} className="text-end">{quantity || '-'}</td>
-                ))}
-                <td className="text-end fw-bold">{row.total}</td>
+            {filteredData.map(r => (
+              <tr key={r.name}>
+                <td>{r.name}</td>
+                {r.months.map((q, i) =>
+                  <td key={i} className="text-end">{q || '-'}</td>)}
+                <td className="text-end fw-bold">{r.total}</td>
               </tr>
             ))}
           </tbody>
         </Table>
       </div>
 
-      {/* ==== Vista de Cards (Mobile) ==== */}
+      {/* cards mobile */}
       <div className="d-md-none">
-        {filteredData.map((row, i) => (
-          <Card key={i} className="mb-4 shadow-sm">
+        {filteredData.map(r => (
+          <Card key={r.name} className="mb-3 shadow-sm">
             <Card.Body>
-              <div className="fw-bold mb-3">{row.name}</div>
+              <div className="fw-bold mb-3">{r.name}</div>
               <div className="d-flex flex-wrap gap-2 border-bottom pb-3 mb-3">
-                {row.months.map((quantity, j) => (
-                  <div key={j} className="text-center" style={{ minWidth: '60px' }}>
-                    <div className="small text-muted">{MONTHS[j]}</div>
-                    <div className="fw-bold">{quantity || '-'}</div>
+                {r.months.map((q, i) => (
+                  <div key={i} style={{ minWidth: 60 }} className="text-center">
+                    <div className="small text-muted">{MONTHS[i]}</div>
+                    <div className="fw-bold">{q || '-'}</div>
                   </div>
                 ))}
               </div>
-              <div className="text-start fw-bold">Total: {row.total}</div>
+              <div className="fw-bold">Total: {r.total}</div>
             </Card.Body>
           </Card>
         ))}

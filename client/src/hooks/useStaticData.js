@@ -28,8 +28,8 @@ export function useLocalidades() {
   useEffect(() => {
     const fetchLocalidades = async () => {
       try {
-        const { data } = await api.get('/data/localidades');
-        setLocalidades(data);
+        const data = await api.get('/localities');   // ⬅️  NUEVA ruta
+        setLocalidades({ localidades: data.data });      
       } catch (err) {
         setError(err.response?.data?.error || 'Error al cargar localidades');
       } finally {

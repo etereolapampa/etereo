@@ -18,9 +18,11 @@ import Datos from './pages/Datos';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import PrivateRoute from './components/PrivateRoute';
-import MovementDelete from './pages/MovementDelete';
 import PriceAdjustment from './pages/PriceAdjustment';
 import SellerMultiSale from './pages/SellersMultiSale';
+import LocalityList from './pages/Localities';
+import LocalityForm from './pages/LocalityForm';
+import LocalityDelete from './pages/LocalityDelete.jsx';
 
 export default function App() {
   return (
@@ -45,9 +47,12 @@ export default function App() {
         <Route path="stock/transfer" element={<StockTransfer />} />
         <Route path="stock/shortage" element={<StockShortage />} />
         <Route path="movements" element={<Movements />} />
-        {/* <Route path="movements/:id/delete" element={<MovementDelete />} /> */}
         <Route path="stats" element={<Stats />} />
         <Route path="sellers/:id/sale" element={<SellerMultiSale />} />
+        <Route path="localities" element={<LocalityList />} />
+        <Route path="localities/new" element={<LocalityForm />} />
+        <Route path="localities/:id/edit" element={<LocalityForm />} />
+        <Route path="localities/:id/delete" element={<LocalityDelete />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

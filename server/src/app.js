@@ -18,6 +18,8 @@ import productsRouter from './routes/products.js';
 import stockRouter from './routes/stock.js';
 import sellersRouter from './routes/sellers.js';
 import dataRouter from './routes/data.js';
+import localitiesRouter from './routes/localities.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -50,6 +52,8 @@ app.use('/products', verifyToken, productsRouter);
 app.use('/stock', verifyToken, stockRouter);
 app.use('/sellers', verifyToken, sellersRouter);
 app.use('/data', verifyToken, dataRouter);
+app.use('/localities', verifyToken, localitiesRouter);
+
 
 app.get('/', (_, res) =>
   res.json({ message: 'Etereo API 🟢 funcionando con MongoDB' })

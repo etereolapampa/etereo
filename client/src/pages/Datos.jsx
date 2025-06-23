@@ -186,11 +186,15 @@ export default function Datos() {
         <Col lg={4}>
           <h2 className="mb-4">Datos: Vendedores</h2>
 
-          <div className="mb-3">
+          <div className="mb-3 d-flex gap-2 flex-wrap">
             <Link to="/sellers/new" className="btn btn-dark">
               Crear Vendedor
             </Link>
+            <Link to="/localities" className="btn btn-primary">
+              Localidades
+            </Link>
           </div>
+
 
           <Form.Control
             className="mb-4"

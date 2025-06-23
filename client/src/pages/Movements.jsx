@@ -14,12 +14,11 @@ import api from '../api';
 import Modal from '../components/Modal';          // ⬅️  ¡nuevo!
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR, formatDateAR } from '../utils/date';
+import { isMulti } from '../utils/movements';   // si no la tenías exportada
 
 /* ───────────── Helpers globales ───────────── */
 const formatDate = formatDateAR;
 const initialMonth = todayAR().slice(0, 7); // YYYY-MM
-
-export const isMulti = m => Array.isArray(m.items) && m.items.length > 0;
 
 /** Convierte movimientos múltiples en filas individuales. */
 const expandMovements = list =>
@@ -565,35 +564,58 @@ export default function Movements() {
       {/* ███ Vista Cards (Mobile) ███ */}
       <div className="d-md-none">
         {mobileMovs.map(m => (
-          <Card key={m._id + (m._row ?? '')} className="mb-3">
+          <Card key={m._id} className="mb-3">
             <Card.Header className="d-flex justify-content-between">
               <div>
                 <strong>{formatDate(m.date)}</strong><br />
                 <small>{getMovementType(m)}</small>
               </div>
-              {(!isMulti(m) || m._row === 0) && (
-                <div className="d-flex gap-1">
-                  <Button variant="outline-primary" size="sm"
-                    onClick={() => handleEdit(m)}>✏️</Button>
-                  <Button variant="outline-danger" size="sm"
-                    onClick={() => handleDelete(m._id)}>🗑️</Button>
-                </div>
-              )}
-            </Card.Header>
-            <Card.Body>
-              <div><strong>Producto:</strong> {getProduct(m)?.name || '—'}</div>
-              <div><strong>Categoría:</strong> {getProduct(m)?.categoryId?.name || '—'}</div>
-              <div><strong>Cantidad:</strong> {getQty(m)}</div>
-              <div><strong>Precio&nbsp;U.:</strong> ${getPrice(m).toFixed(2)}</div>
 
-              {/* TOTAL mostrado 1 única vez por venta múltiple */}
-              {(!isMulti(m) || m._row === 0) && (
-                <div className="fw-bold mt-1">
-                  <strong>Total:</strong> ${getTotal(m).toFixed(2)}
-                </div>
+              {/* acciones solo una vez por venta */}
+              <div className="d-flex gap-1">
+                <Button variant="outline-primary" size="sm"
+                  onClick={() => handleEdit(m)}>✏️</Button>
+                <Button variant="outline-danger" size="sm"
+                  onClick={() => handleDelete(m._id)}>🗑️</Button>
+              </div>
+            </Card.Header>
+
+            <Card.Body>
+              {/* ───────────────────────────────
+            Si ES venta múltiple → listar
+           ─────────────────────────────── */}
+              {isMulti(m) ? (
+                <>
+                  {m.items.map((it, idx) => {
+                    const prod = products.find(p => p._id === it.productId);
+                    return (
+                      <div key={idx} className={idx ? 'mt-3 pt-2 border-top' : ''}>
+                        <div><strong>Producto:</strong> {prod?.name || '—'}</div>
+                        <div><strong>Categoría:</strong> {prod?.categoryId?.name || '—'}</div>
+                        <div><strong>Cantidad:</strong> {it.quantity}</div>
+                        <div><strong>Precio&nbsp;U.:</strong> ${it.price.toFixed(2)}</div>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                /* venta simple */
+                <>
+                  <div><strong>Producto:</strong> {getProduct(m)?.name || '—'}</div>
+                  <div><strong>Categoría:</strong> {getProduct(m)?.categoryId?.name || '—'}</div>
+                  <div><strong>Cantidad:</strong> {getQty(m)}</div>
+                  <div><strong>Precio&nbsp;U.:</strong> ${getPrice(m).toFixed(2)}</div>
+                </>
               )}
-              <div><strong>Sucursal:</strong> {m.branch || m.origin}</div>
+
+              {/* total solo una vez por movimiento */}
+              <div className="fw-bold mt-3">
+                <strong>Total:</strong> ${getTotal(m).toFixed(2)}
+              </div>
+
+              <div className="mt-2"><strong>Sucursal:</strong> {m.branch || m.origin}</div>
               <div><strong>Destino:</strong> {getDestination(m)}</div>
+
               {m.observations && (
                 <div className="mt-2"><em>{m.observations}</em></div>
               )}
@@ -601,6 +623,7 @@ export default function Movements() {
           </Card>
         ))}
       </div>
+
       {/* ════════════════════════════════════════════════════
        MODAL DE CONFIRMACIÓN
        ════════════════════════════════════════════════════ */}
