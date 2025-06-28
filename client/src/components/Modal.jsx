@@ -16,7 +16,7 @@ export default function Modal({ show, onClose, message, children }) {
         {/* ⬇️  cualquier cosa que pasemos como <Modal>…aquí…</Modal> */}
         {children}
         <Button variant="secondary" onClick={onClose}>
-          Cancelar
+          Cerrar
         </Button>
       </BsModal.Footer>
     </BsModal>

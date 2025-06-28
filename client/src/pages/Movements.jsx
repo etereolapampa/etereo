@@ -15,6 +15,8 @@ import Modal from '../components/Modal';          // ⬅️  ¡nuevo!
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR, formatDateAR } from '../utils/date';
 import { isMulti } from '../utils/movements';   // si no la tenías exportada
+import { downloadReceipt } from '../utils/receipt';
+
 
 /* ───────────── Helpers globales ───────────── */
 const formatDate = formatDateAR;
@@ -550,6 +552,9 @@ export default function Movements() {
                             onClick={() => handleEdit(m)}>✏️</Button>
                           <Button size="sm" variant="outline-danger"
                             onClick={() => handleDelete(m._id)}>🗑️</Button>
+                          <Button size="sm" variant="outline-success"
+                            title="Descargar comprobante"
+                            onClick={() => downloadReceipt(m._id)}>⬇️</Button>
                         </div>
                       </td>
                     </>
@@ -577,6 +582,9 @@ export default function Movements() {
                   onClick={() => handleEdit(m)}>✏️</Button>
                 <Button variant="outline-danger" size="sm"
                   onClick={() => handleDelete(m._id)}>🗑️</Button>
+                <Button size="sm" variant="outline-success"
+                  title="Descargar comprobante"
+                  onClick={() => downloadReceipt(m._id)}>⬇️</Button>
               </div>
             </Card.Header>
 
@@ -623,6 +631,7 @@ export default function Movements() {
           </Card>
         ))}
       </div>
+
 
       {/* ════════════════════════════════════════════════════
        MODAL DE CONFIRMACIÓN

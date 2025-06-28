@@ -32,7 +32,10 @@ export default function SellerForm() {
         try {
           const response = await api.get(`/sellers/${id}`);
           const vendedorData = response.data;
-          setForm(vendedorData);
+          setForm({
+            ...vendedorData,
+            city: vendedorData.city?._id        // 👈 sólo el id
+          });
 
           // Si el vendedor tiene una localidad, buscar su nombre
           if (vendedorData.city && localidades.localidades.length > 0) {
@@ -52,7 +55,7 @@ export default function SellerForm() {
 
   const handleChange = key => e => {
     const value = e.target.value;
-    setForm(prev => ({ ...prev, [key]: value }));
+    if (key !== 'city') setForm(prev => ({ ...prev, [key]: value }));
     if (key === 'city') {
       setCityInput(value);
       if (value.trim() === '') {
@@ -106,7 +109,7 @@ export default function SellerForm() {
       setError('Teléfono debe ser solo números');
       return;
     }
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)){
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       setError('Correo inválido');
       return;
     }

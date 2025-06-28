@@ -10,8 +10,10 @@
   },
   "type": "module",
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.72",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "express-rate-limit": "^7.0.0",

@@ -6,6 +6,8 @@ import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR, formatDateAR } from '../utils/date';
+import { downloadReceipt } from '../utils/receipt';
+
 
 const today = todayAR;
 const formatDate = formatDateAR;
@@ -13,8 +15,8 @@ const formatDate = formatDateAR;
 /** Convierte 'DD/MM/YYYY' → 'YYYY-MM-DD'  (o deja pasar si ya es ISO) */
 const toInputDate = (str = '') =>
   str.includes('/')
-    ? str.split('/').reverse().map(p => p.padStart(2,'0')).join('-')
-    : str.slice(0,10);
+    ? str.split('/').reverse().map(p => p.padStart(2, '0')).join('-')
+    : str.slice(0, 10);
 
 
 export default function StockSale() {
@@ -386,11 +388,15 @@ export default function StockSale() {
         </div>
       </div>
 
-      <Modal
+      <Modal>
         show={showModal}
         message={isEdit ? 'Venta actualizada satisfactoriamente' : 'Venta registrada satisfactoriamente'}
         onClose={handleModalClose}
-      />
+        <Button variant="primary"
+          onClick={() => downloadReceipt(editId || newMovementId)}>
+          Descargar comprobante
+        </Button>
+      </Modal>
     </>
   );
 }

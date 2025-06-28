@@ -1,11 +1,17 @@
 // server/src/routes/stock.js
-import express   from 'express';
-import mongoose  from 'mongoose';
+import express from 'express';
+import mongoose from 'mongoose';
 
-import Producto   from '../models/Producto.js';
+import Producto from '../models/Producto.js';
 import Movimiento from '../models/Movimiento.js';
-import Vendedor   from '../models/Vendedor.js';
+import Vendedor from '../models/Vendedor.js';
 import { parseDateAR } from '../utils/date.js';
+
+import { createCanvas, loadImage } from '@napi-rs/canvas';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+
 
 const router = express.Router();
 
@@ -16,11 +22,11 @@ const getArgentinaDate = () => new Date();
 const formatDate = d =>
   d
     ? new Date(d).toLocaleDateString('es-AR', {
-        timeZone: 'America/Argentina/Buenos_Aires',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      })
+      timeZone: 'America/Argentina/Buenos_Aires',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
     : '';
 
 /* =========================================================
@@ -367,7 +373,7 @@ router.delete('/movements/:id', async (req, res) => {
       // faltante ⇒ se devuelve
       await Producto.findByIdAndUpdate(
         movement.productId,
-        { $inc: { stock:  movement.quantity } }
+        { $inc: { stock: movement.quantity } }
       );
 
     } else if (movement.type === 'transfer') {
@@ -515,5 +521,170 @@ router.get('/', async (_req, res) => {
     res.status(500).json({ error: 'Error al obtener el stock' });
   }
 });
+
+/* =========================================================
+   GET /stock/movements/:id/receipt.png
+   – Genera el comprobante (PNG) con altura dinámica
+   ========================================================= */
+router.get('/movements/:id/receipt.png', async (req, res) => {
+  /* ---------- 1)  Buscar movimiento + productos ------------ */
+  const mov = await Movimiento.findById(req.params.id)
+    .populate('productId')
+    .populate('sellerId')
+    .populate('items.productId');
+
+  if (!mov) return res.status(404).json({ error: 'Movimiento no encontrado' });
+
+  const rows = mov.items?.length
+    ? mov.items
+    : [{ productId: mov.productId, quantity: mov.quantity, price: mov.price }];
+
+  // Garantizar nombre de producto en cada fila
+  for (const r of rows) {
+    if (r.productId?.name) {
+      r._prod = r.productId;
+    } else {
+      r._prod = await Producto.findById(r.productId);
+    }
+    r._subtotal = r.quantity * r.price;         // lo usamos más abajo
+  }
+
+  const unidades = rows.reduce((s, r) => s + Number(r.quantity), 0);
+  const tipoES = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
+
+  /* ---------- 2)  Cálculo de alto dinámico ----------------- */
+  const P       = 40;         // margen horizontal
+  const W       = 600;        // ancho fijo
+  const FOOTER  = 60;         // margen inferior extra
+
+  const headerLines  = 3 + (mov.destination ? 1 : 0) + (mov.sellerId ? 1 : 0);
+  const detailLines  = rows.length;
+  const bonusLine    = mov.sellerId?.bonus ? 1 : 0;
+  const obsLine      = mov.observations   ? 1 : 0;
+
+  const H =
+      110 +                       // cabecera fija
+      headerLines * 24 +
+      30 + 26 +                   // separador + título “Detalle”
+      detailLines * 22 +
+      6 + 28 +                    // separador detalle
+      (24 + 10 + 24) +            // mín. de totales
+      bonusLine * 24 +
+      3  + 28 + 24 +              // separador + línea neto
+      obsLine * 24 +
+      FOOTER;
+
+  /* ---------- 3)  Canvas & contexto ------------------------ */
+  const c   = createCanvas(W, H);
+  const ctx = c.getContext('2d');
+
+  /* ----- fondo & cabecera visual --------------------------- */
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#212529';               // header dark
+  ctx.fillRect(0, 0, W, 70);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Comprobante', W / 2, 45);
+
+  /* ---------- 4)  Encabezado de datos ---------------------- */
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#000';
+  ctx.font = '14px Arial';
+
+  let y = 110;
+
+  const line = (label, value) => {
+    ctx.font = 'bold 14px Arial'; ctx.fillText(label, P, y);
+    ctx.font = '14px Arial';      ctx.fillText(value, P + 140, y);
+    y += 24;
+  };
+
+  line('Fecha:',     format(mov.date, 'dd/MM/yyyy', { locale: es }));
+  line('Tipo:',      tipoES);
+  line('Sucursal:',  mov.branch || mov.origin);
+  if (mov.destination) line('Destino:', mov.destination);
+  if (mov.sellerId)    line('Vendedora:', `${mov.sellerId.name} ${mov.sellerId.lastname}`);
+
+  ctx.strokeStyle = '#ccc';
+  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+  y += 30;
+
+  /* ---------- 5)  Detalle de productos --------------------- */
+  const COL_UNITS      = 360;
+  const COL_UNIT_PRICE = 440;
+  const COL_SUBTOTAL   = W - P;
+
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText('Detalle', P, y);
+  y += 26;
+
+  ctx.font = '14px Arial';
+  rows.forEach(r => {
+    ctx.textAlign = 'left';
+    ctx.fillText(`• ${r._prod?.name}`, P, y);
+
+    ctx.textAlign = 'right';
+    ctx.fillText(`${r.quantity} u.`,            COL_UNITS,      y);
+    ctx.fillText(`$${r.price.toFixed(2)}`,      COL_UNIT_PRICE, y);
+    ctx.fillText(`$${r._subtotal.toFixed(2)}`,  COL_SUBTOTAL,   y);
+
+    y += 22;
+  });
+
+  ctx.textAlign = 'left';
+  y += 6;
+  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+  y += 28;
+
+  /* ---------- 6)  Totales ---------------------------------- */
+  const bonusPct = mov.sellerId?.bonus || 0;
+  const comision = mov.total ? (mov.total * bonusPct) / 100 : 0;
+  const neto     = mov.total ? mov.total - comision : null;
+
+  const lineTotal = (label, value, col = COL_SUBTOTAL) => {
+    ctx.font = 'bold 14px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, P, y);
+
+    ctx.textAlign = 'right';
+    ctx.fillText(value, col, y);
+
+    y += 24;
+  };
+
+  lineTotal('Total unidades:', `${unidades} u.`, COL_UNITS);
+  y += 10;                       // espacio en blanco
+
+  lineTotal('Total bruto:', `$${mov.total?.toFixed(2) || '-'}`);
+
+  if (bonusPct) {
+    lineTotal(`Comisión (${bonusPct}%):`, `-$${comision.toFixed(2)}`);
+  }
+
+  y += 3;
+  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+  y += 28;
+
+  lineTotal('Total neto:', neto !== null ? `$${neto.toFixed(2)}` : '-');
+
+  /* ---------- 7)  Observaciones (opcional) ----------------- */
+  if (mov.observations) {
+    y += 24;
+    ctx.font = 'italic 13px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Obs.: ${mov.observations}`, P, y);
+  }
+
+  /* ---------- 8)  Enviar PNG al cliente -------------------- */
+  const png = await c.encode('png');
+  res.setHeader('Content-Type',        'image/png');
+  res.setHeader('Content-Disposition', `attachment; filename=comprobante_${mov._id}.png`);
+  res.end(Buffer.from(png));
+});
+
 
 export default router;

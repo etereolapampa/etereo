@@ -40,7 +40,8 @@ router.post('/', async (req, res) => {
       dni,
       city,
       phone: Number(phone),
-      bonus: Number(bonus) || 0
+      bonus: Number(bonus) || 0,
+      email
     });
 
     await newVendedor.save();
@@ -61,16 +62,24 @@ router.put('/:id', async (req, res) => {
 
     const vendedor = await Vendedor.findByIdAndUpdate(
       req.params.id,
-      { name, lastname, dni, city, phone: Number(phone), bonus: Number(bonus) || 0 },
+      {
+        name,
+        lastname,
+        dni,
+        city,
+        phone: Number(phone),
+        bonus: Number(bonus) || 0,
+        email                       // 👈  añadido
+      },
       { new: true }
     );
 
-    if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
-    res.json(vendedor);
+if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
+res.json(vendedor);
   } catch (error) {
-    console.error('Error al actualizar vendedor:', error);
-    res.status(500).json({ error: 'Error al actualizar el vendedor' });
-  }
+  console.error('Error al actualizar vendedor:', error);
+  res.status(500).json({ error: 'Error al actualizar el vendedor' });
+}
 });
 
 // Eliminar seller

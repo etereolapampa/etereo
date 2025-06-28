@@ -9,11 +9,12 @@ import { Button, Form, Alert } from 'react-bootstrap';
 import api from '../api';
 import Modal from '../components/Modal';
 import { todayAR } from '../utils/date';
+import { downloadReceipt } from '../utils/receipt';
 
 const SUCURSALES = ['Santa Rosa', 'Macachín'];
 
 /* ───── helpers ───── */
-const fmtNum   = v => (v ? Number(v).toFixed(2) : '');
+const fmtNum = v => (v ? Number(v).toFixed(2) : '');
 const defaultRow = {
   product: null,
   quantity: 1,
@@ -87,9 +88,9 @@ export default function SellersMultiSale() {
 
           return {
             product: prodObject,
-            query:   prodObject?.name || '',
+            query: prodObject?.name || '',
             quantity: it.quantity,
-            price:   fmtNum(it.price),
+            price: fmtNum(it.price),
             suggestions: [],
             showSug: false
           };
@@ -123,14 +124,15 @@ export default function SellersMultiSale() {
     });
   };
 
-  const addRow    = () => setItems([...items, defaultRow]);
+  const addRow = () => setItems([...items, defaultRow]);
   const removeRow = idx => setItems(items.filter((_, i) => i !== idx));
 
   /* ───────── totales ───────── */
-  const bruto  = items.reduce((s, it) => s + (Number(it.price) || 0) * Number(it.quantity), 0);
+  const bruto = items.reduce((s, it) => s + (Number(it.price) || 0) * Number(it.quantity), 0);
   const bonPct = seller?.bonus || 0;
-  const bonif  = bruto * bonPct / 100;
-  const neto   = bruto - bonif;
+  const bonif = bruto * bonPct / 100;
+  const neto = bruto - bonif;
+  const totalUnits = items.reduce((s, it) => s + Number(it.quantity), 0);
 
   /* ───────── submit ───────── */
   const handleSubmit = async e => {
@@ -138,7 +140,7 @@ export default function SellersMultiSale() {
     setError('');
 
     if (!seller?._id) return setError('Falta seleccionar la vendedora');
-    if (!branch)     return setError('Seleccione la sucursal');
+    if (!branch) return setError('Seleccione la sucursal');
     if (items.some(it => !it.product))
       return setError('Todos los renglones requieren producto');
 
@@ -146,7 +148,7 @@ export default function SellersMultiSale() {
       (s, it) => s + Number(it.quantity) * Number(it.price), 0);
 
     const payload = {
-      type : 'sell',
+      type: 'sell',
       branch,
       date,
       sellerId: seller._id,
@@ -155,14 +157,19 @@ export default function SellersMultiSale() {
       total,
       items: items.map(it => ({
         productId: it.product._id,
-        quantity : Number(it.quantity),
-        price    : Number(it.price)
+        quantity: Number(it.quantity),
+        price: Number(it.price)
       }))
     };
 
     try {
-      if (editId) await api.put(`/stock/movements/${editId}`, payload);
-      else        await api.post('/stock/sale', payload);
+      if (editId) {
+        await api.put(`/stock/movements/${editId}`, payload);
+        setNewMovementId(editId);
+      } else {
+        const { data } = await api.post('/stock/sale', payload);
+        setNewMovementId(data._id);               // 👈 nuevo estado
+      }
       setShowModal(true);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al guardar la venta');
@@ -296,6 +303,9 @@ export default function SellersMultiSale() {
         <div className="card shadow-sm mb-4" style={{ maxWidth: 350 }}>
           <div className="card-body">
             <div className="d-flex justify-content-between mb-2">
+              <span>Total unidades:</span><span>{totalUnits}</span>
+            </div>
+            <div className="d-flex justify-content-between mb-2">
               <span>Total Bruto:</span><span>${fmtNum(bruto)}</span>
             </div>
             <div className="d-flex justify-content-between mb-2">
@@ -327,11 +337,15 @@ export default function SellersMultiSale() {
         <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
       </Form>
 
-      <Modal
+      <Modal>
         show={showModal}
         message={editId ? 'Venta modificada satisfactoriamente' : 'Venta registrada satisfactoriamente'}
         onClose={() => navigate('/movements')}
-      />
+        <Button variant="primary"
+          onClick={() => downloadReceipt(editId || newMovementId)}>
+          Descargar comprobante
+        </Button>
+      </Modal>
     </>
   );
 }

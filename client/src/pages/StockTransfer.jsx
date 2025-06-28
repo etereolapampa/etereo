@@ -5,8 +5,10 @@ import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR, formatDateAR } from '../utils/date';
+import { downloadReceipt } from '../utils/receipt';
 
-const today      = todayAR;
+
+const today = todayAR;
 const formatDate = formatDateAR;
 
 export default function StockTransfer() {
@@ -14,14 +16,14 @@ export default function StockTransfer() {
   const [searchParams] = useSearchParams();
   const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
 
-  const [date, setDate]                 = useState(today());
+  const [date, setDate] = useState(today());
   const [sourceBranch, setSourceBranch] = useState('');
   const [destinationBranch, setDestinationBranch] = useState('');
-  const [quantity, setQuantity]         = useState(1);
+  const [quantity, setQuantity] = useState(1);
   const [observations, setObservations] = useState('');
-  const [error, setError]               = useState('');
-  const [showModal, setShowModal]       = useState(false);
-  const [product, setProduct]           = useState(null);
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [product, setProduct] = useState(null);
 
   const isEdit = searchParams.get('edit');
 
@@ -76,24 +78,24 @@ export default function StockTransfer() {
     e.preventDefault();
     setError('');
 
-    if (!product)              return setError('Producto no encontrado');
-    if (!sourceBranch)         return setError('Selecciona una sucursal de origen');
-    if (!destinationBranch)    return setError('Selecciona una sucursal de destino');
+    if (!product) return setError('Producto no encontrado');
+    if (!sourceBranch) return setError('Selecciona una sucursal de origen');
+    if (!destinationBranch) return setError('Selecciona una sucursal de destino');
     if (sourceBranch === destinationBranch) return setError('Origen y destino no pueden ser iguales');
 
     const payload = {
-      productId  : product._id,
-      quantity   : Number(quantity),
-      origin     : sourceBranch,
+      productId: product._id,
+      quantity: Number(quantity),
+      origin: sourceBranch,
       destination: destinationBranch,
       date,
       observations,
-      type       : 'transfer'
+      type: 'transfer'
     };
 
     try {
       if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else        await api.post('/stock/transfer', payload);
+      else await api.post('/stock/transfer', payload);
 
       setShowModal(true);
     } catch (err) {
@@ -109,9 +111,9 @@ export default function StockTransfer() {
   };
 
   /* render */
-  if (loadingSucursales)       return <div>Cargando sucursales...</div>;
+  if (loadingSucursales) return <div>Cargando sucursales...</div>;
   if (errorSucursales || error) return <div className="alert alert-danger">{errorSucursales || error}</div>;
-  if (!product)                return <div className="alert alert-danger">Cargando producto...</div>;
+  if (!product) return <div className="alert alert-danger">Cargando producto...</div>;
 
   return (
     <>
@@ -202,11 +204,15 @@ export default function StockTransfer() {
         </button>
       </form>
 
-      <Modal
+      <Modal>
         show={showModal}
         message={isEdit ? 'Transferencia actualizada satisfactoriamente' : 'Transferencia registrada satisfactoriamente'}
         onClose={handleModalClose}
-      />
+        <Button variant="primary"
+          onClick={() => downloadReceipt(editId || newMovementId)}>
+          Descargar comprobante
+        </Button>
+      </Modal>
     </>
   );
 }

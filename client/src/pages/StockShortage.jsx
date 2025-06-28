@@ -5,8 +5,10 @@ import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR, formatDateAR } from '../utils/date';
+import { downloadReceipt } from '../utils/receipt';
 
-const today      = todayAR;
+
+const today = todayAR;
 const formatDate = formatDateAR;
 
 export default function StockShortage() {
@@ -14,13 +16,13 @@ export default function StockShortage() {
   const [searchParams] = useSearchParams();
   const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
 
-  const [date, setDate]           = useState(today());
-  const [branch, setBranch]       = useState('');
-  const [quantity, setQuantity]   = useState(1);
+  const [date, setDate] = useState(today());
+  const [branch, setBranch] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [observations, setObservations] = useState('');
-  const [error, setError]         = useState('');
+  const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [product, setProduct]     = useState(null);
+  const [product, setProduct] = useState(null);
 
   const isEdit = searchParams.get('edit');
 
@@ -62,17 +64,17 @@ export default function StockShortage() {
     if (!branch) return setError('Selecciona una sucursal');
 
     const payload = {
-      productId : product._id,
-      quantity  : Number(quantity),
+      productId: product._id,
+      quantity: Number(quantity),
       branch,
       date,
       observations,
-      type      : 'shortage'
+      type: 'shortage'
     };
 
     try {
       if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else        await api.post('/stock/shortage', payload);
+      else await api.post('/stock/shortage', payload);
 
       setShowModal(true);
     } catch (err) {
@@ -88,9 +90,9 @@ export default function StockShortage() {
   };
 
   /* render */
-  if (loadingSucursales)       return <div>Cargando sucursales...</div>;
+  if (loadingSucursales) return <div>Cargando sucursales...</div>;
   if (errorSucursales || error) return <div className="alert alert-danger">{errorSucursales || error}</div>;
-  if (!product)                return <div className="alert alert-danger">Cargando producto...</div>;
+  if (!product) return <div className="alert alert-danger">Cargando producto...</div>;
 
   return (
     <>
@@ -164,11 +166,15 @@ export default function StockShortage() {
         </button>
       </form>
 
-      <Modal
+      <Modal>
         show={showModal}
         message={isEdit ? 'Faltante actualizado satisfactoriamente' : 'Faltante registrado satisfactoriamente'}
         onClose={handleModalClose}
-      />
+        <Button variant="primary"
+          onClick={() => downloadReceipt(editId || newMovementId)}>
+          Descargar comprobante
+        </Button>
+      </Modal>
     </>
   );
 }

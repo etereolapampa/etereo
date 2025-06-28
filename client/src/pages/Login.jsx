@@ -25,7 +25,7 @@ export default function Login() {
   };
 
   return (
-    <div className="vh-100 d-flex justify-content-center align-items-center bg-light">
+    <div className="vh-100 d-flex justify-content-center align-items-center bg-light" style={{display: 'flex', flexDirection: 'column'}}>
       <div className="card shadow-sm" style={{ width: '380px' }}>
         <div className="card-body">
           <h2 className="card-title text-center mb-4">Iniciar sesión</h2>
@@ -54,8 +54,17 @@ export default function Login() {
             <button type="submit" className="btn btn-dark w-100">
               Entrar
             </button>
+            <br />
+            <br />
           </form>
+
         </div>
+
+      </div>
+      <div className="text-center small text-muted">
+        <br />
+        <br />        
+        <a href="https://www.instagram.com/enssoldig/" style={{ textDecoration: 'none', color: 'unset' }}>© Desarrollado por ENS Soluciones Digitales</a>
       </div>
     </div>
   );

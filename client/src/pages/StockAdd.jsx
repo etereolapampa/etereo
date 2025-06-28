@@ -5,6 +5,8 @@ import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR } from '../utils/date';
+import { downloadReceipt } from '../utils/receipt';
+
 
 /* ───────────────── helpers ────────────────── */
 /** Convierte 'DD/MM/YYYY' → 'YYYY-MM-DD' (o deja pasar si ya es ISO) */
@@ -19,13 +21,13 @@ export default function StockAdd() {
   const [searchParams] = useSearchParams();
   const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
 
-  const [date,        setDate]        = useState(todayAR());
-  const [product,     setProduct]     = useState(null);
-  const [quantity,    setQuantity]    = useState(1);
-  const [branch,      setBranch]      = useState('');
-  const [observations,setObservations]= useState('');
-  const [error,       setError]       = useState('');
-  const [showModal,   setShowModal]   = useState(false);
+  const [date, setDate] = useState(todayAR());
+  const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [branch, setBranch] = useState('');
+  const [observations, setObservations] = useState('');
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const isEdit = searchParams.get('edit');
 
@@ -68,21 +70,21 @@ export default function StockAdd() {
     e.preventDefault();
     setError('');
 
-    if (!product)        return setError('Producto no encontrado');
-    if (!branch)         return setError('Selecciona una sucursal');
+    if (!product) return setError('Producto no encontrado');
+    if (!branch) return setError('Selecciona una sucursal');
 
     const payload = {
-      productId   : product._id,
-      quantity    : Number(quantity),
+      productId: product._id,
+      quantity: Number(quantity),
       branch,
       date,
       observations,
-      type        : 'add'
+      type: 'add'
     };
 
     try {
       if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else        await api.post('/stock/add',          payload);
+      else await api.post('/stock/add', payload);
 
       setShowModal(true);
     } catch (err) {
@@ -91,9 +93,9 @@ export default function StockAdd() {
   };
 
   /* ───────────── render ───────────── */
-  if (loadingSucursales)  return <div>Cargando sucursales...</div>;
-  if (errorSucursales)    return <div className="alert alert-danger">{errorSucursales}</div>;
-  if (!product)           return <div className="alert alert-danger">Cargando producto...</div>;
+  if (loadingSucursales) return <div>Cargando sucursales...</div>;
+  if (errorSucursales) return <div className="alert alert-danger">{errorSucursales}</div>;
+  if (!product) return <div className="alert alert-danger">Cargando producto...</div>;
 
   return (
     <>
@@ -173,11 +175,15 @@ export default function StockAdd() {
         </button>
       </form>
 
-      <Modal
+      <Modal>
         show={showModal}
         message={isEdit ? 'Carga actualizada satisfactoriamente' : 'Carga registrada satisfactoriamente'}
         onClose={() => navigate('/stock')}
-      />
+        <Button variant="primary"
+          onClick={() => downloadReceipt(editId || newMovementId)}>
+          Descargar comprobante
+        </Button>
+      </Modal>
     </>
   );
 }
