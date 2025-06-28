@@ -1,68 +1,67 @@
 // src/pages/StockAdd.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from 'react-bootstrap';          // 🆕  importa Button
 import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
 import { todayAR } from '../utils/date';
 import { downloadReceipt } from '../utils/receipt';
 
-
 /* ───────────────── helpers ────────────────── */
-/** Convierte 'DD/MM/YYYY' → 'YYYY-MM-DD' (o deja pasar si ya es ISO) */
 const toInputDate = (str = '') =>
   str.includes('/')
     ? str.split('/').reverse().map(p => p.padStart(2, '0')).join('-')
-    : str.slice(0, 10);                // ‘2025-06-11T…’ → ‘2025-06-11’
+    : str.slice(0, 10);
 
 /* ───────────────── componente ──────────────── */
 export default function StockAdd() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
+  const { sucursales, loading: loadingSucursales, error: errorSucursales } =
+    useSucursales();
 
-  const [date, setDate] = useState(todayAR());
-  const [product, setProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [branch, setBranch] = useState('');
-  const [observations, setObservations] = useState('');
-  const [error, setError] = useState('');
+  const [date, setDate]           = useState(todayAR());
+  const [product, setProduct]     = useState(null);
+  const [quantity, setQuantity]   = useState(1);
+  const [branch, setBranch]       = useState('');
+  const [observations, setObs]    = useState('');
+  const [error, setError]         = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [newMovementId, setNewMovementId] = useState(null);      // 🆕 id p/recibo
 
   const isEdit = searchParams.get('edit');
 
   /* ───────────── cargar movimiento + producto ───────────── */
   useEffect(() => {
-    const loadData = async () => {
+    (async () => {
       try {
         if (isEdit) {
-          // ========== MODO EDICIÓN ==========
-          const { data: movement } = await api.get(`/stock/movements/${isEdit}`);
+          /* ===== EDICIÓN ===== */
+          const { data: mv } = await api.get(`/stock/movements/${isEdit}`);
 
-          setDate(toInputDate(movement.date));      // 👈 ahora sí aparece en el input
-          setQuantity(movement.quantity);
-          setBranch(movement.branch);
-          setObservations(movement.observations || '');
+          setDate(toInputDate(mv.date));
+          setQuantity(mv.quantity);
+          setBranch(mv.branch);
+          setObs(mv.observations || '');
 
-          // movement.productId viene populateado
-          const prodId = movement.productId?._id || movement.productId;
-          const { data: productData } = await api.get(`/products/${prodId}`);
-          setProduct(productData);
+          const prodId = mv.productId?._id || mv.productId;
+          const { data: prod } = await api.get(`/products/${prodId}`);
+          setProduct(prod);
+
+          setNewMovementId(isEdit);                 // usar este id en el recibo
         } else {
-          // ========== ALTA NORMAL ==========
+          /* ===== ALTA NUEVA ===== */
           const prodId = searchParams.get('productId');
           if (!prodId) return setError('Falta productId en la URL');
 
-          const { data: productData } = await api.get(`/products/${prodId}`);
-          setProduct(productData);
+          const { data: prod } = await api.get(`/products/${prodId}`);
+          setProduct(prod);
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         setError('No se pudo cargar el movimiento o el producto');
       }
-    };
-
-    loadData();
+    })();
   }, [isEdit, searchParams]);
 
   /* ───────────── enviar formulario ───────────── */
@@ -70,22 +69,27 @@ export default function StockAdd() {
     e.preventDefault();
     setError('');
 
-    if (!product) return setError('Producto no encontrado');
-    if (!branch) return setError('Selecciona una sucursal');
+    if (!product)  return setError('Producto no encontrado');
+    if (!branch)   return setError('Selecciona una sucursal');
 
     const payload = {
       productId: product._id,
-      quantity: Number(quantity),
+      quantity : Number(quantity),
       branch,
       date,
-      observations,
+      observations: observations,
       type: 'add'
     };
 
     try {
-      if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else await api.post('/stock/add', payload);
-
+      if (isEdit) {
+        await api.put(`/stock/movements/${isEdit}`, payload);
+        setNewMovementId(isEdit);                             // id ya conocido
+      } else {
+        const { data } = await api.post('/stock/add', payload);
+        // el backend responde { product, movement }
+        setNewMovementId(data.movement._id);                  // id recién creado
+      }
       setShowModal(true);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrar la carga');
@@ -93,9 +97,9 @@ export default function StockAdd() {
   };
 
   /* ───────────── render ───────────── */
-  if (loadingSucursales) return <div>Cargando sucursales...</div>;
-  if (errorSucursales) return <div className="alert alert-danger">{errorSucursales}</div>;
-  if (!product) return <div className="alert alert-danger">Cargando producto...</div>;
+  if (loadingSucursales) return <div>Cargando sucursales…</div>;
+  if (errorSucursales)   return <div className="alert alert-danger">{errorSucursales}</div>;
+  if (!product)          return <div className="alert alert-danger">Cargando producto…</div>;
 
   return (
     <>
@@ -157,7 +161,7 @@ export default function StockAdd() {
             className="form-control"
             style={{ maxWidth: 350 }}
             value={observations}
-            onChange={e => setObservations(e.target.value)}
+            onChange={e => setObs(e.target.value)}
             rows={2}
             placeholder="Opcional"
           />
@@ -175,12 +179,21 @@ export default function StockAdd() {
         </button>
       </form>
 
-      <Modal>
+      {/* ───────── Modal de confirmación ───────── */}
+      <Modal
         show={showModal}
-        message={isEdit ? 'Carga actualizada satisfactoriamente' : 'Carga registrada satisfactoriamente'}
+        message={
+          isEdit
+            ? 'Carga actualizada satisfactoriamente'
+            : 'Carga registrada satisfactoriamente'
+        }
         onClose={() => navigate('/stock')}
-        <Button variant="primary"
-          onClick={() => downloadReceipt(editId || newMovementId)}>
+      >
+        <Button
+          variant="primary"
+          onClick={() => downloadReceipt(newMovementId)}
+          disabled={!newMovementId}
+        >
           Descargar comprobante
         </Button>
       </Modal>

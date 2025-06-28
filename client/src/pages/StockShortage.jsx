@@ -1,62 +1,67 @@
-// client/src/pages/StockShortage.jsx
+// src/pages/StockShortage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from 'react-bootstrap';           // 🆕  IMPORTA Button
 import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
-import { todayAR, formatDateAR } from '../utils/date';
+import { todayAR } from '../utils/date';
 import { downloadReceipt } from '../utils/receipt';
 
-
-const today = todayAR;
-const formatDate = formatDateAR;
+/* helpers */
+const toInputDate = (str = '') =>
+  str.includes('/')
+    ? str.split('/').reverse().map(p => p.padStart(2, '0')).join('-')
+    : str.slice(0, 10);
 
 export default function StockShortage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
+  const { sucursales, loading: loadingSucursales, error: errorSucursales } =
+    useSucursales();
 
-  const [date, setDate] = useState(today());
-  const [branch, setBranch] = useState('');
-  const [quantity, setQuantity] = useState(1);
-  const [observations, setObservations] = useState('');
-  const [error, setError] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [product, setProduct] = useState(null);
+  const [date, setDate]             = useState(todayAR());
+  const [branch, setBranch]         = useState('');
+  const [quantity, setQuantity]     = useState(1);
+  const [observations, setObs]      = useState('');
+  const [error, setError]           = useState('');
+  const [showModal, setShowModal]   = useState(false);
+  const [product, setProduct]       = useState(null);
+  const [newMovementId, setNewMovementId] = useState(null);   // 🆕  id p/recibo
 
   const isEdit = searchParams.get('edit');
 
-  /* carga inicial */
+  /* ───── carga inicial ───── */
   useEffect(() => {
-    const productIdFromURL = searchParams.get('productId');
-
-    const loadData = async () => {
+    (async () => {
       try {
         if (isEdit) {
-          const { data: movement } = await api.get(`/stock/movements/${isEdit}`);
+          const { data: mv } = await api.get(`/stock/movements/${isEdit}`);
 
-          setDate(formatDate(movement.date));
-          setBranch(movement.branch);
-          setQuantity(movement.quantity);
-          setObservations(movement.observations || '');
+          setDate(toInputDate(mv.date));
+          setBranch(mv.branch);
+          setQuantity(mv.quantity);
+          setObs(mv.observations || '');
 
-          const prodId = movement.productId?._id || movement.productId;
-          const { data: prodData } = await api.get(`/products/${prodId}`);
-          setProduct(prodData);
-        } else if (productIdFromURL) {
-          const { data: prodData } = await api.get(`/products/${productIdFromURL}`);
-          setProduct(prodData);
+          const prodId = mv.productId?._id || mv.productId;
+          const { data: prod } = await api.get(`/products/${prodId}`);
+          setProduct(prod);
+
+          setNewMovementId(isEdit);
+        } else {
+          const prodId = searchParams.get('productId');
+          if (!prodId) return setError('Falta productId en la URL');
+
+          const { data: prod } = await api.get(`/products/${prodId}`);
+          setProduct(prod);
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         setError('No se pudo cargar el movimiento o el producto');
       }
-    };
-
-    loadData();
+    })();
   }, [isEdit, searchParams]);
 
-  /* submit */
+  /* ───── submit ───── */
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
@@ -64,18 +69,22 @@ export default function StockShortage() {
     if (!branch) return setError('Selecciona una sucursal');
 
     const payload = {
-      productId: product._id,
-      quantity: Number(quantity),
+      productId   : product._id,
+      quantity    : Number(quantity),
       branch,
       date,
-      observations,
-      type: 'shortage'
+      observations: observations,
+      type        : 'shortage'
     };
 
     try {
-      if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else await api.post('/stock/shortage', payload);
-
+      if (isEdit) {
+        await api.put(`/stock/movements/${isEdit}`, payload);
+        setNewMovementId(isEdit);
+      } else {
+        const { data } = await api.post('/stock/shortage', payload);
+        setNewMovementId(data.movement._id);
+      }
       setShowModal(true);
     } catch (err) {
       const msg = err.response?.data?.error;
@@ -84,15 +93,11 @@ export default function StockShortage() {
     }
   };
 
-  const handleModalClose = () => {
-    setShowModal(false);
-    navigate('/stock');
-  };
-
-  /* render */
-  if (loadingSucursales) return <div>Cargando sucursales...</div>;
-  if (errorSucursales || error) return <div className="alert alert-danger">{errorSucursales || error}</div>;
-  if (!product) return <div className="alert alert-danger">Cargando producto...</div>;
+  /* ───── render ───── */
+  if (loadingSucursales) return <div>Cargando sucursales…</div>;
+  if (errorSucursales || error)
+    return <div className="alert alert-danger">{errorSucursales || error}</div>;
+  if (!product) return <div className="alert alert-danger">Cargando producto…</div>;
 
   return (
     <>
@@ -153,7 +158,7 @@ export default function StockShortage() {
             style={{ maxWidth: 350 }}
             rows={2}
             value={observations}
-            onChange={e => setObservations(e.target.value)}
+            onChange={e => setObs(e.target.value)}
             placeholder="Opcional"
           />
         </div>
@@ -161,17 +166,30 @@ export default function StockShortage() {
         <button type="submit" className="btn btn-danger me-2">
           {isEdit ? 'Guardar Cambios' : 'Confirmar Faltante'}
         </button>
-        <button type="button" className="btn btn-secondary" onClick={() => navigate('/stock')}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => navigate('/stock')}
+        >
           Cancelar
         </button>
       </form>
 
-      <Modal>
+      {/* ───── Modal ───── */}
+      <Modal
         show={showModal}
-        message={isEdit ? 'Faltante actualizado satisfactoriamente' : 'Faltante registrado satisfactoriamente'}
-        onClose={handleModalClose}
-        <Button variant="primary"
-          onClick={() => downloadReceipt(editId || newMovementId)}>
+        message={
+          isEdit
+            ? 'Faltante actualizado satisfactoriamente'
+            : 'Faltante registrado satisfactoriamente'
+        }
+        onClose={() => navigate('/stock')}
+      >
+        <Button
+          variant="primary"
+          onClick={() => downloadReceipt(newMovementId)}
+          disabled={!newMovementId}
+        >
           Descargar comprobante
         </Button>
       </Modal>

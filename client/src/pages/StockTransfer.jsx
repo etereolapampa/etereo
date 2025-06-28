@@ -1,22 +1,29 @@
-// client/src/pages/StockTransfer.jsx
+// src/pages/StockTransfer.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from 'react-bootstrap';          // 🆕
 import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
-import { todayAR, formatDateAR } from '../utils/date';
+import { todayAR } from '../utils/date';
 import { downloadReceipt } from '../utils/receipt';
 
-
-const today = todayAR;
-const formatDate = formatDateAR;
+/* helpers */
+const toInputDate = str =>
+  str.includes('/')
+    ? str.split('/').reverse().map(p => p.padStart(2, '0')).join('-')
+    : str.slice(0, 10);
 
 export default function StockTransfer() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { sucursales, loading: loadingSucursales, error: errorSucursales } = useSucursales();
+  const {
+    sucursales,
+    loading: loadingSucursales,
+    error: errorSucursales
+  } = useSucursales();
 
-  const [date, setDate] = useState(today());
+  const [date, setDate] = useState(todayAR());
   const [sourceBranch, setSourceBranch] = useState('');
   const [destinationBranch, setDestinationBranch] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -24,46 +31,46 @@ export default function StockTransfer() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [product, setProduct] = useState(null);
+  const [newMovementId, setNewMovementId] = useState(null);   // 🆕
 
   const isEdit = searchParams.get('edit');
 
-  /* helpers */
-  const getOtherBranch = branch => (
-    sucursales.find(b => b.nombre !== branch)?.nombre || ''
-  );
+  /* ───── helpers sucursal ───── */
+  const getOtherBranch = branch =>
+    sucursales.find(b => b.nombre !== branch)?.nombre || '';
 
-  /* carga inicial */
+  /* ───── carga inicial ───── */
   useEffect(() => {
-    const productIdFromURL = searchParams.get('productId');
-
-    const loadData = async () => {
+    (async () => {
       try {
         if (isEdit) {
-          const { data: movement } = await api.get(`/stock/movements/${isEdit}`);
+          const { data: mv } = await api.get(`/stock/movements/${isEdit}`);
 
-          setDate(formatDate(movement.date));
-          setSourceBranch(movement.origin);
-          setDestinationBranch(movement.destination);
-          setQuantity(movement.quantity);
-          setObservations(movement.observations || '');
+          setDate(toInputDate(mv.date));
+          setSourceBranch(mv.origin);
+          setDestinationBranch(mv.destination);
+          setQuantity(mv.quantity);
+          setObservations(mv.observations || '');
 
-          const prodId = movement.productId?._id || movement.productId;
-          const { data: prodData } = await api.get(`/products/${prodId}`);
-          setProduct(prodData);
-        } else if (productIdFromURL) {
-          const { data: prodData } = await api.get(`/products/${productIdFromURL}`);
-          setProduct(prodData);
+          const prodId = mv.productId?._id || mv.productId;
+          const { data: prod } = await api.get(`/products/${prodId}`);
+          setProduct(prod);
+
+          setNewMovementId(isEdit);               // para el recibo
+        } else {
+          const prodId = searchParams.get('productId');
+          if (!prodId) return setError('Falta productId en la URL');
+
+          const { data: prod } = await api.get(`/products/${prodId}`);
+          setProduct(prod);
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         setError('No se pudo cargar el movimiento o el producto');
       }
-    };
+    })();
+  }, [isEdit, searchParams, sucursales]);
 
-    loadData();
-  }, [isEdit, searchParams]);
-
-  /* handlers sucursal */
+  /* ───── handlers sucursal ───── */
   const handleSourceChange = branch => {
     setSourceBranch(branch);
     if (branch) setDestinationBranch(getOtherBranch(branch));
@@ -73,30 +80,36 @@ export default function StockTransfer() {
     if (branch) setSourceBranch(getOtherBranch(branch));
   };
 
-  /* submit */
+  /* ───── submit ───── */
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
     if (!product) return setError('Producto no encontrado');
     if (!sourceBranch) return setError('Selecciona una sucursal de origen');
-    if (!destinationBranch) return setError('Selecciona una sucursal de destino');
-    if (sourceBranch === destinationBranch) return setError('Origen y destino no pueden ser iguales');
+    if (!destinationBranch)
+      return setError('Selecciona una sucursal de destino');
+    if (sourceBranch === destinationBranch)
+      return setError('Origen y destino no pueden ser iguales');
 
     const payload = {
-      productId: product._id,
-      quantity: Number(quantity),
-      origin: sourceBranch,
+      productId  : product._id,
+      quantity   : Number(quantity),
+      origin     : sourceBranch,
       destination: destinationBranch,
       date,
       observations,
-      type: 'transfer'
+      type       : 'transfer'
     };
 
     try {
-      if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else await api.post('/stock/transfer', payload);
-
+      if (isEdit) {
+        await api.put(`/stock/movements/${isEdit}`, payload);
+        setNewMovementId(isEdit);
+      } else {
+        const { data } = await api.post('/stock/transfer', payload);
+        setNewMovementId(data.movement._id);     // ⬅ viene del backend
+      }
       setShowModal(true);
     } catch (err) {
       const msg = err.response?.data?.error;
@@ -105,21 +118,20 @@ export default function StockTransfer() {
     }
   };
 
-  const handleModalClose = () => {
-    setShowModal(false);
-    navigate('/stock');
-  };
-
-  /* render */
-  if (loadingSucursales) return <div>Cargando sucursales...</div>;
-  if (errorSucursales || error) return <div className="alert alert-danger">{errorSucursales || error}</div>;
-  if (!product) return <div className="alert alert-danger">Cargando producto...</div>;
+  /* ───── UI ───── */
+  if (loadingSucursales) return <div>Cargando sucursales…</div>;
+  if (errorSucursales || error)
+    return (
+      <div className="alert alert-danger">{errorSucursales || error}</div>
+    );
+  if (!product) return <div className="alert alert-danger">Cargando producto…</div>;
 
   return (
     <>
       <h2>{isEdit ? 'Editar Transferencia' : 'Registrar Transferencia'}</h2>
       <h6 className="text-muted mb-4">{product.name}</h6>
 
+      {/* ===== form ===== */}
       <form onSubmit={handleSubmit}>
         {/* fecha */}
         <div className="mb-3">
@@ -146,7 +158,9 @@ export default function StockTransfer() {
           >
             <option value="">Seleccione</option>
             {sucursales.map(b => (
-              <option key={b.id} value={b.nombre}>{b.nombre}</option>
+              <option key={b.id} value={b.nombre}>
+                {b.nombre}
+              </option>
             ))}
           </select>
         </div>
@@ -163,7 +177,9 @@ export default function StockTransfer() {
           >
             <option value="">Seleccione</option>
             {sucursales.map(b => (
-              <option key={b.id} value={b.nombre}>{b.nombre}</option>
+              <option key={b.id} value={b.nombre}>
+                {b.nombre}
+              </option>
             ))}
           </select>
         </div>
@@ -178,7 +194,9 @@ export default function StockTransfer() {
             pattern="[0-9]*"
             style={{ maxWidth: 350 }}
             value={quantity}
-            onChange={e => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={e =>
+              setQuantity(e.target.value.replace(/[^0-9]/g, ''))
+            }
             required
           />
         </div>
@@ -199,17 +217,30 @@ export default function StockTransfer() {
         <button type="submit" className="btn btn-dark me-2">
           {isEdit ? 'Guardar Cambios' : 'Confirmar Transferencia'}
         </button>
-        <button type="button" className="btn btn-secondary" onClick={() => navigate('/stock')}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => navigate('/stock')}
+        >
           Cancelar
         </button>
       </form>
 
-      <Modal>
+      {/* ===== Modal ===== */}
+      <Modal
         show={showModal}
-        message={isEdit ? 'Transferencia actualizada satisfactoriamente' : 'Transferencia registrada satisfactoriamente'}
+        message={
+          isEdit
+            ? 'Transferencia actualizada satisfactoriamente'
+            : 'Transferencia registrada satisfactoriamente'
+        }
         onClose={handleModalClose}
-        <Button variant="primary"
-          onClick={() => downloadReceipt(editId || newMovementId)}>
+      >
+        <Button
+          variant="primary"
+          onClick={() => downloadReceipt(newMovementId)}
+          disabled={!newMovementId}
+        >
           Descargar comprobante
         </Button>
       </Modal>
