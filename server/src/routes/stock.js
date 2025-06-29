@@ -522,12 +522,30 @@ router.get('/', async (_req, res) => {
   }
 });
 
-/* =========================================================
-   GET /stock/movements/:id/receipt.png
-   – Genera el comprobante (PNG) con altura dinámica
-   ========================================================= */
+/* ────────────────────────────────────────────────────────────
+   Helper: dibuja texto con salto de línea automático
+───────────────────────────────────────────────────────────── */
+function wrapText(ctx, text, x, y, maxWidth) {
+  const words = text.split(' ');
+  let line = '';
+
+  words.forEach((w, i) => {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxWidth && i > 0) {
+      ctx.fillText(line.trimEnd(), x, y);
+      y += 22;                       // alto de línea
+      line = w + ' ';
+    } else {
+      line = test;
+    }
+  });
+
+  ctx.fillText(line.trimEnd(), x, y);
+  return y;                          // y de la última línea escrita
+}
+
 router.get('/movements/:id/receipt.png', async (req, res) => {
-  /* ---------- 1)  Buscar movimiento + productos ------------ */
+  /* ═════════════════════ 1) DATOS ═════════════════════ */
   const mov = await Movimiento.findById(req.params.id)
     .populate('productId')
     .populate('sellerId')
@@ -535,156 +553,171 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
 
   if (!mov) return res.status(404).json({ error: 'Movimiento no encontrado' });
 
+  // Normalizar filas ── (venta múltiple o movimiento simple)
   const rows = mov.items?.length
     ? mov.items
     : [{ productId: mov.productId, quantity: mov.quantity, price: mov.price }];
 
-  // Garantizar nombre de producto en cada fila
   for (const r of rows) {
-    if (r.productId?.name) {
-      r._prod = r.productId;
-    } else {
-      r._prod = await Producto.findById(r.productId);
-    }
-    r._subtotal = r.quantity * r.price;         // lo usamos más abajo
+    /* producto completo (populate o 2ª query) */
+    r._prod = r.productId?.name
+      ? r.productId
+      : await Producto.findById(r.productId);
+
+    /* precio unitario:  r.price (si lo trae)  ↔  fallback al del producto */
+    const unitPrice  = r.price ?? r._prod?.price ?? null;
+    r.price          = unitPrice;                 // lo reutilizamos después
+    r._subtotal      = (unitPrice ?? 0) * r.quantity;
   }
 
-  const unidades = rows.reduce((s, r) => s + Number(r.quantity), 0);
-  const tipoES = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
+  const unidades   = rows.reduce((s, r) => s + Number(r.quantity), 0);
+  const tipoES     = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
 
-  /* ---------- 2)  Cálculo de alto dinámico ----------------- */
-  const P       = 40;         // margen horizontal
-  const W       = 600;        // ancho fijo
-  const FOOTER  = 60;         // margen inferior extra
+  /* ═════════════════════ 2) LAYOUT ═════════════════════ */
+  const P         = 40;         // margen horizontal
+  const W         = 600;        // ancho total
+  const FOOTER    = 60;         // margen inferior adicional
 
-  const headerLines  = 3 + (mov.destination ? 1 : 0) + (mov.sellerId ? 1 : 0);
-  const detailLines  = rows.length;
-  const bonusLine    = mov.sellerId?.bonus ? 1 : 0;
-  const obsLine      = mov.observations   ? 1 : 0;
+  /* columnas fijas — achicamos la de “Detalle” (NAME_W) */
+  const NAME_W    = 250;                      // ← si se superpone, bajar un poco más
+  const COL_QTY   = P + NAME_W + 10;          // unidades
+  const COL_PUNIT = COL_QTY + 70;             // precio unit.
+  const COL_SUBT  = W - P;                    // subtotal
 
-  const H =
-      110 +                       // cabecera fija
-      headerLines * 24 +
-      30 + 26 +                   // separador + título “Detalle”
-      detailLines * 22 +
-      6 + 28 +                    // separador detalle
-      (24 + 10 + 24) +            // mín. de totales
-      bonusLine * 24 +
-      3  + 28 + 24 +              // separador + línea neto
-      obsLine * 24 +
-      FOOTER;
+  /* función wrap de texto para nombre de producto */
+  const textLines = (ctx, txt, maxW) => {
+    const words = txt.split(' ');
+    const lines = [];
+    let w = '';
+    words.forEach(word => {
+      const test = w ? `${w} ${word}` : word;
+      if (ctx.measureText(test).width > maxW) {
+        lines.push(w);
+        w = word;
+      } else {
+        w = test;
+      }
+    });
+    if (w) lines.push(w);
+    return lines;
+  };
 
-  /* ---------- 3)  Canvas & contexto ------------------------ */
+  /* alto dinámico  (22 px por línea de producto) */
+  const headerLines = 3 + (mov.destination ? 1 : 0) + (mov.sellerId ? 1 : 0);
+  const bonusLine   = mov.sellerId?.bonus ? 1 : 0;
+  const obsLine     = mov.observations   ? 1 : 0;
+
+  const prodLines   = (() => {
+    // suma las líneas que ocupa cada nombre envuelto
+    // necesitamos un ctx temporal solo para el cálculo
+    const tmp = createCanvas(1,1).getContext('2d');
+    tmp.font = '14px Arial';
+    return rows.reduce((s,r)=> s + textLines(tmp,r._prod.name,NAME_W).length, 0);
+  })();
+
+  const H = 110 + headerLines*24 +
+            30  + 26            +               // separador + “Detalle”
+            prodLines*22         +
+            6   + 28 +                            // separador detalle
+            (24 + 10 + 24) + bonusLine*24 +       // totales brutos + comisión
+            3 + 28 + 24           +               // separador + neto
+            obsLine * 24 +
+            FOOTER;
+
+  /* ═════════════════════ 3) CANVAS ═════════════════════ */
   const c   = createCanvas(W, H);
   const ctx = c.getContext('2d');
 
-  /* ----- fondo & cabecera visual --------------------------- */
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, W, H);
+  /* ── fondo + cabecera visual ── */
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#212529'; ctx.fillRect(0, 0, W, 70);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center'; ctx.fillText('Comprobante', W/2, 45);
 
-  ctx.fillStyle = '#212529';               // header dark
-  ctx.fillRect(0, 0, W, 70);
-
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 24px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('Comprobante', W / 2, 45);
-
-  /* ---------- 4)  Encabezado de datos ---------------------- */
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#000';
-  ctx.font = '14px Arial';
-
+  /* ═════════════════════ 4) ENCABEZADO ═════════════════ */
+  ctx.textAlign = 'left'; ctx.fillStyle = '#000'; ctx.font = '14px Arial';
   let y = 110;
-
-  const line = (label, value) => {
-    ctx.font = 'bold 14px Arial'; ctx.fillText(label, P, y);
-    ctx.font = '14px Arial';      ctx.fillText(value, P + 140, y);
-    y += 24;
-  };
-
-  line('Fecha:',     format(mov.date, 'dd/MM/yyyy', { locale: es }));
-  line('Tipo:',      tipoES);
-  line('Sucursal:',  mov.branch || mov.origin);
+  const line = (lbl,val) => { ctx.font='bold 14px Arial'; ctx.fillText(lbl,P,y);
+                              ctx.font='14px Arial';      ctx.fillText(val,P+140,y);
+                              y+=24; };
+  line('Fecha:',    format(mov.date,'dd/MM/yyyy',{ locale: es }));
+  line('Tipo:',     tipoES);
+  line('Sucursal:', mov.branch || mov.origin);
   if (mov.destination) line('Destino:', mov.destination);
   if (mov.sellerId)    line('Vendedora:', `${mov.sellerId.name} ${mov.sellerId.lastname}`);
 
-  ctx.strokeStyle = '#ccc';
-  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
-  y += 30;
+  ctx.strokeStyle='#ccc'; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke();
+  y+=30;
 
-  /* ---------- 5)  Detalle de productos --------------------- */
-  const COL_UNITS      = 360;
-  const COL_UNIT_PRICE = 440;
-  const COL_SUBTOTAL   = W - P;
+  /* ═════════════════════ 5) DETALLE ════════════════════ */
+  ctx.font='bold 14px Arial'; ctx.fillText('Detalle',P,y); y+=26;
 
-  ctx.font = 'bold 14px Arial';
-  ctx.fillText('Detalle', P, y);
-  y += 26;
+  ctx.font='14px Arial';
 
-  ctx.font = '14px Arial';
-  rows.forEach(r => {
-    ctx.textAlign = 'left';
-    ctx.fillText(`• ${r._prod?.name}`, P, y);
+  rows.forEach(r=>{
+    const lines = textLines(ctx,r._prod.name,NAME_W);
+    ctx.textAlign='left';
+    lines.forEach((ln,i)=> {
+      ctx.fillText(i===0?`• ${ln}`:`  ${ln}`,P,y+i*22);
+    });
 
-    ctx.textAlign = 'right';
-    ctx.fillText(`${r.quantity} u.`,            COL_UNITS,      y);
-    ctx.fillText(`$${r.price.toFixed(2)}`,      COL_UNIT_PRICE, y);
-    ctx.fillText(`$${r._subtotal.toFixed(2)}`,  COL_SUBTOTAL,   y);
+    ctx.textAlign='right';
+    ctx.fillText(`${r.quantity} u.`,        COL_QTY,  y);
+    const unitPrice = r.price;
+    ctx.fillText(
+      unitPrice!==null ? `$${unitPrice.toFixed(2)}` : '—',
+      COL_PUNIT, y
+    );
+    ctx.fillText(
+      unitPrice!==null ? `$${r._subtotal.toFixed(2)}` : '—',
+      COL_SUBT,  y
+    );
 
-    y += 22;
+    y += lines.length*22;
   });
 
-  ctx.textAlign = 'left';
-  y += 6;
-  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
-  y += 28;
+  ctx.textAlign='left'; y+=6;
+  ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke();
+  y+=28;
 
-  /* ---------- 6)  Totales ---------------------------------- */
-  const bonusPct = mov.sellerId?.bonus || 0;
-  const comision = mov.total ? (mov.total * bonusPct) / 100 : 0;
-  const neto     = mov.total ? mov.total - comision : null;
+  /* ═════════════════════ 6) TOTALES ════════════════════ */
+  const bonusPct   = mov.sellerId?.bonus || 0;
+  const totalBruto = mov.total ?? rows.reduce((s,r)=>s+r._subtotal,0);
+  const comision   = totalBruto * bonusPct / 100;
+  const neto       = totalBruto - comision;
 
-  const lineTotal = (label, value, col = COL_SUBTOTAL) => {
-    ctx.font = 'bold 14px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(label, P, y);
-
-    ctx.textAlign = 'right';
-    ctx.fillText(value, col, y);
-
-    y += 24;
+  const totalLine = (lbl,val,col=COL_SUBT)=>{
+    ctx.font='bold 14px Arial'; ctx.textAlign='left'; ctx.fillText(lbl,P,y);
+    ctx.textAlign='right';      ctx.fillText(val,col,y); y+=24;
   };
 
-  lineTotal('Total unidades:', `${unidades} u.`, COL_UNITS);
-  y += 10;                       // espacio en blanco
+  totalLine('Total unidades:', `${unidades} u.`, COL_QTY);
+  y+=10;
+  totalLine('Total bruto:', `$${totalBruto.toFixed(2)}`);
 
-  lineTotal('Total bruto:', `$${mov.total?.toFixed(2) || '-'}`);
-
-  if (bonusPct) {
-    lineTotal(`Comisión (${bonusPct}%):`, `-$${comision.toFixed(2)}`);
+  if (bonusPct){
+    totalLine(`Comisión (${bonusPct}%):`, `-$${comision.toFixed(2)}`);
   }
 
-  y += 3;
-  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
-  y += 28;
+  y+=3; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke();
+  y+=28;
+  totalLine('Total neto:', `$${neto.toFixed(2)}`);
 
-  lineTotal('Total neto:', neto !== null ? `$${neto.toFixed(2)}` : '-');
-
-  /* ---------- 7)  Observaciones (opcional) ----------------- */
-  if (mov.observations) {
-    y += 24;
-    ctx.font = 'italic 13px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Obs.: ${mov.observations}`, P, y);
+  /* ═════════════════════ 7) OBSERVACIONES ═══════════════ */
+  if (mov.observations){
+    y+=24;
+    ctx.font='italic 13px Arial'; ctx.textAlign='left';
+    ctx.fillText(`Obs.: ${mov.observations}`,P,y);
   }
 
-  /* ---------- 8)  Enviar PNG al cliente -------------------- */
+  /* ═════════════════════ 8) RESPUESTA ═══════════════════ */
   const png = await c.encode('png');
-  res.setHeader('Content-Type',        'image/png');
-  res.setHeader('Content-Disposition', `attachment; filename=comprobante_${mov._id}.png`);
+  res.setHeader('Content-Type','image/png');
+  res.setHeader('Content-Disposition',`attachment; filename=comprobante_${mov._id}.png`);
   res.end(Buffer.from(png));
 });
+
+
 
 
 export default router;

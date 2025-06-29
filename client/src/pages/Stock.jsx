@@ -15,6 +15,10 @@ import api from '../api';
 
 const SUCURSALES = ['Santa Rosa', 'Macachín'];
 
+// ─── suma las existencias de todas las sucursales ───
+const totalFromBranches = prod =>
+  Object.values(prod.stockByBranch || {}).reduce((s, n) => s + n, 0);
+
 export default function Stock() {
   const navigate = useNavigate();
 
@@ -92,7 +96,7 @@ export default function Stock() {
       return categories.find((c) => c._id === prod.categoryId)?.name || '';
     }
     if (sort.field === 'stock') {
-      return branchFilter ? (prod.stockByBranch[branchFilter] || 0) : prod.stock;
+   return branchFilter ? (prod.stockByBranch[branchFilter] || 0) : totalFromBranches(prod);
     }
     if (SUCURSALES.includes(sort.field)) {
       return prod.stockByBranch[sort.field] || 0;
@@ -208,7 +212,7 @@ export default function Stock() {
                   {SUCURSALES.map((b) => (
                     <td key={b}>{p.stockByBranch[b] || 0}</td>
                   ))}
-                  <td>{p.stock}</td>
+                  <td>{totalFromBranches(p)}</td>
                   <td>
                     <div className="d-flex gap-1">
                       <Button
@@ -256,7 +260,7 @@ export default function Stock() {
       <div className="d-md-none">
         {sorted.map((p) => {
           const cat = categories.find((c) => c._id === p.categoryId);
-          const hasStock = p.stock > 0;
+          const hasStock = totalFromBranches(p) > 0;
           return (
             <Card key={p._id} className="mb-3">
               <Card.Header className="d-flex justify-content-between align-items-center">

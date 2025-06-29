@@ -1,7 +1,7 @@
 // client/src/pages/StockSale.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Form } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';     // 🆕  Button
 import api from '../api';
 import Modal from '../components/Modal';
 import { useSucursales } from '../hooks/useStaticData';
@@ -35,6 +35,7 @@ export default function StockSale() {
   const [observations, setObservations] = useState('');
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [newMovementId, setNewMovementId] = useState(null);   // 🆕
 
   const [sellers, setSellers] = useState([]);
   const [product, setProduct] = useState(null);
@@ -150,8 +151,13 @@ export default function StockSale() {
     };
 
     try {
-      if (isEdit) await api.put(`/stock/movements/${isEdit}`, payload);
-      else await api.post('/stock/sale', payload);
+      if (isEdit) {
+        await api.put(`/stock/movements/${isEdit}`, payload);
+        setNewMovementId(isEdit);
+      } else {
+        const { data } = await api.post('/stock/sale', payload);
+        setNewMovementId(data.movement._id);  // ← el backend responde { movement }
+      }
 
       setShowModal(true);
     } catch (err) {
@@ -388,12 +394,17 @@ export default function StockSale() {
         </div>
       </div>
 
-      <Modal>
+      <Modal
         show={showModal}
-        message={isEdit ? 'Venta actualizada satisfactoriamente' : 'Venta registrada satisfactoriamente'}
+        message={isEdit ? 'Venta actualizada satisfactoriamente'
+                        : 'Venta registrada satisfactoriamente'}
         onClose={handleModalClose}
-        <Button variant="primary"
-          onClick={() => downloadReceipt(editId || newMovementId)}>
+      >
+        <Button
+          variant="primary"
+          onClick={() => downloadReceipt(newMovementId)}
+          disabled={!newMovementId}
+        >
           Descargar comprobante
         </Button>
       </Modal>

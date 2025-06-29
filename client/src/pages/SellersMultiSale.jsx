@@ -46,7 +46,8 @@ export default function SellersMultiSale() {
   const [observations, setObservations] = useState('');
 
   const [error, setError] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [newMovementId, setNewMovementId] = useState(null);   // 🆕
+  const [showModal, setShowModal] = useState(false);          // 🆕 faltaba
 
   /* ───────────────────── cargar datos base ─────────────────── */
   useEffect(() => {
@@ -168,7 +169,7 @@ export default function SellersMultiSale() {
         setNewMovementId(editId);
       } else {
         const { data } = await api.post('/stock/sale', payload);
-        setNewMovementId(data._id);               // 👈 nuevo estado
+        setNewMovementId(data.movement._id);
       }
       setShowModal(true);
     } catch (err) {
@@ -263,12 +264,12 @@ export default function SellersMultiSale() {
             <div style={{ width: 120, position: 'relative' }}>
               <Form.Label>Precio U.</Form.Label>
               <Form.Control
-                style={{ paddingLeft: 25 }}
+                // style={{ paddingLeft: 25 }}
                 required
                 value={it.price}
                 onChange={e => updateItem(idx, { price: e.target.value.replace(/[^0-9.]/g, '') })}
               />
-              <span style={{ position: 'absolute', left: 8, top: 34 }}>$</span>
+              {/* <span style={{ position: 'absolute', left: 8, top: '55%' }}>$</span> */}
             </div>
 
             {/* subtotal */}
@@ -337,12 +338,16 @@ export default function SellersMultiSale() {
         <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
       </Form>
 
-      <Modal>
+      <Modal
         show={showModal}
-        message={editId ? 'Venta modificada satisfactoriamente' : 'Venta registrada satisfactoriamente'}
+        message={editId ? 'Venta modificada satisfactoriamente': 'Venta registrada satisfactoriamente'}
         onClose={() => navigate('/movements')}
-        <Button variant="primary"
-          onClick={() => downloadReceipt(editId || newMovementId)}>
+      >
+        <Button
+          variant="primary"
+          onClick={() => downloadReceipt(newMovementId)}
+          disabled={!newMovementId}
+        >
           Descargar comprobante
         </Button>
       </Modal>
