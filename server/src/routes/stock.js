@@ -579,8 +579,8 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
   const FOOTER    = 60;         // margen inferior adicional
 
   /* columnas fijas — achicamos la de “Detalle” (NAME_W) */
-  const NAME_W    = 250;                      // ← si se superpone, bajar un poco más
-  const COL_QTY   = P + NAME_W + 10;          // unidades
+  const NAME_W    = 300;                      // ← si se superpone, bajar un poco más
+  const COL_QTY   = P + NAME_W + 50;          // unidades
   const COL_PUNIT = COL_QTY + 70;             // precio unit.
   const COL_SUBT  = W - P;                    // subtotal
 
