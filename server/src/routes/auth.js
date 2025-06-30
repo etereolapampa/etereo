@@ -54,7 +54,6 @@ router.post('/login',
     }
     try {
       const { username, password } = req.body;
-      console.log('Intento de login recibido:', { username, password });
       
       if (!username || !password) {
         return res.status(400).json({ error: 'username y password son obligatorios' });
@@ -62,18 +61,13 @@ router.post('/login',
 
       const user = await Usuario.findOne({ username });
       if (!user) {
-        console.log('Usuario no encontrado:', username);
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
-      console.log('Usuario encontrado:', { _id: user._id, username: user.username });
-      console.log('Hash almacenado:', user.password);
 
       const match = await bcrypt.compare(password, user.password);
-      console.log('Resultado de comparación de contraseñas:', match);
 
       if (!match) {
-        console.log('Contraseña incorrecta para usuario:', username);
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
@@ -82,7 +76,6 @@ router.post('/login',
         process.env.JWT_SECRET,
         { expiresIn: '8h' }
       );
-      console.log('Token generado exitosamente');
       res.json({ token });
     } catch (error) {
       console.error('Error al iniciar sesión:', error);

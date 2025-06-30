@@ -4,6 +4,8 @@ const ProductoSchema = new mongoose.Schema({
   name:        { type: String, required: true },
   price:       { type: Number, required: true },
   stock:       { type: Number, required: true, default: 0 },
+  stockSantaRosa:       { type: Number, required: true, default: 0 },
+  stockMacachin:       { type: Number, required: true, default: 0 },
   categoryId:  { type: mongoose.Schema.Types.ObjectId, ref: 'Categoria', required: true },
 
   /*  ⇨  Renombrado: era branchStock  */

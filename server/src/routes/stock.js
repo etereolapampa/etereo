@@ -1,6 +1,5 @@
 // server/src/routes/stock.js
 import express from 'express';
-import mongoose from 'mongoose';
 
 import Producto from '../models/Producto.js';
 import Movimiento from '../models/Movimiento.js';
@@ -8,13 +7,12 @@ import Vendedor from '../models/Vendedor.js';
 import { parseDateAR } from '../utils/date.js';
 
 import { createCanvas, loadImage } from '@napi-rs/canvas';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-
-
 const router = express.Router();
-
 const SUCURSALES = ['Santa Rosa', 'Macachín'];
 
 /* ───────── helpers fecha ───────── */
@@ -22,12 +20,28 @@ const getArgentinaDate = () => new Date();
 const formatDate = d =>
   d
     ? new Date(d).toLocaleDateString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })
+        timeZone: 'America/Argentina/Buenos_Aires',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
     : '';
+
+/* ╭──────────────────────────────────────────────╮
+   │  NUEVO helper centralizado de stock          │
+   ╰──────────────────────────────────────────────╯ */
+const adjustStock = (product, branch, delta) => {
+  if (branch === 'Macachín') product.stockMacachin += delta;
+  else if (branch === 'Santa Rosa') product.stockSantaRosa += delta;
+  product.stock += delta;                            // global para compatibilidad
+};
+
+const adjustStockBulk = async (_id, branch, delta) => {
+  const inc = { stock: delta };
+  if (branch === 'Macachín') inc.stockMacachin = delta;
+  else if (branch === 'Santa Rosa') inc.stockSantaRosa = delta;
+  await Producto.findByIdAndUpdate(_id, { $inc: inc });
+};
 
 /* =========================================================
    POST /stock/add  (carga de stock)
@@ -36,16 +50,15 @@ router.post('/add', async (req, res) => {
   try {
     const { productId, quantity, branch, observations = '', date } = req.body;
 
-    if (!productId || !Number.isInteger(quantity) || quantity <= 0 || !branch) {
+    if (!productId || !Number.isInteger(quantity) || quantity <= 0 || !branch)
       return res
         .status(400)
         .json({ error: 'productId, quantity (int>0) y branch son obligatorios' });
-    }
 
     const product = await Producto.findById(productId);
     if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
 
-    product.stock += quantity;
+    adjustStock(product, branch, quantity);
     await product.save();
 
     const movement = await Movimiento.create({
@@ -70,7 +83,7 @@ router.post('/add', async (req, res) => {
    ========================================================= */
 router.post('/sale', async (req, res) => {
   try {
-    /* ── venta MÚLTIPLE (items[]) ────────────────────────── */
+    /* ────────────── venta MÚLTIPLE ────────────── */
     if (Array.isArray(req.body.items) && req.body.items.length) {
       const { items, branch, sellerId, observations = '', date } = req.body;
       if (!branch) return res.status(400).json({ error: 'branch es obligatorio' });
@@ -85,7 +98,7 @@ router.post('/sale', async (req, res) => {
         if (prod.stock < it.quantity)
           return res.status(400).json({ error: `Stock global insuficiente para ${prod.name}` });
 
-        /* stock sucursal */
+        /* disponibilidad por sucursal */
         const disponible =
           (
             await Movimiento.aggregate([
@@ -108,7 +121,7 @@ router.post('/sale', async (req, res) => {
             .status(400)
             .json({ error: `Stock insuficiente en ${branch} para ${prod.name}` });
 
-        prod.stock -= it.quantity;
+        adjustStock(prod, branch, -it.quantity);
         await prod.save();
         total += it.quantity * it.price;
       }
@@ -127,7 +140,7 @@ router.post('/sale', async (req, res) => {
       return res.json({ movement, total });
     }
 
-    /* ── venta SIMPLE ───────────────────────────────────── */
+    /* ────────────── venta SIMPLE ────────────── */
     const {
       productId,
       quantity,
@@ -154,7 +167,6 @@ router.post('/sale', async (req, res) => {
     if (prod.stock < quantity)
       return res.status(400).json({ error: 'Stock global insuficiente' });
 
-    /* stock sucursal */
     const disponible =
       (
         await Movimiento.aggregate([
@@ -175,7 +187,7 @@ router.post('/sale', async (req, res) => {
     if (disponible < quantity)
       return res.status(400).json({ error: `Stock insuficiente en ${branch}` });
 
-    prod.stock -= quantity;
+    adjustStock(prod, branch, -quantity);
     await prod.save();
 
     const movement = await Movimiento.create({
@@ -228,7 +240,7 @@ router.post('/shortage', async (req, res) => {
     if (disponible < quantity)
       return res.status(400).json({ error: `Stock insuficiente en ${branch}` });
 
-    prod.stock -= quantity;
+    adjustStock(prod, branch, -quantity);
     await prod.save();
 
     const movement = await Movimiento.create({
@@ -280,6 +292,10 @@ router.post('/transfer', async (req, res) => {
 
     if (disponible < quantity)
       return res.status(400).json({ error: `Stock insuficiente en ${origin}` });
+
+    adjustStock(prod, origin, -quantity);
+    adjustStock(prod, destination, quantity);
+    await prod.save();
 
     const movement = await Movimiento.create({
       productId,
@@ -333,7 +349,7 @@ router.get('/movements/:id', async (req, res) => {
     const m = await Movimiento.findById(req.params.id)
       .populate('productId', 'name price')
       .populate('sellerId', 'name lastname')
-      .populate('items.productId', 'name price');   // ← ★ NUEVO
+      .populate('items.productId', 'name price'); // ← ★ NUEVO
 
     if (!m) return res.status(404).json({ error: 'Movimiento no encontrado' });
 
@@ -344,65 +360,37 @@ router.get('/movements/:id', async (req, res) => {
   }
 });
 
-// ================================================================
-// DELETE /stock/movements/:id
-// – ahora soporta ventas múltiples (items[]) sin arrojar “Producto no encontrado”
-// ================================================================
+/* ================================================================
+   DELETE /stock/movements/:id
+   ================================================================ */
 router.delete('/movements/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const movement = await Movimiento.findById(id);
+    if (!movement) return res.status(404).json({ error: 'Movimiento no encontrado' });
 
-    if (!movement) {
-      return res.status(404).json({ error: 'Movimiento no encontrado' });
-    }
+    const undoSimple = async (mov, delta, branch) =>
+      adjustStockBulk(mov.productId, branch, delta);
 
-    /* ──────────────────────────────────────────────
-       1) DEVOLVER STOCK GLOBAL SEGÚN EL TIPO
-       ────────────────────────────────────────────── */
-    const isMulti = Array.isArray(movement.items) && movement.items.length > 0;
-
+    /* ── revertir según tipo ── */
     if (movement.type === 'add') {
-      // la carga se revierte restando
-      await Producto.findByIdAndUpdate(
-        movement.productId,
-        { $inc: { stock: -movement.quantity } }
-      );
-
+      await undoSimple(movement, -movement.quantity, movement.branch);
     } else if (movement.type === 'shortage') {
-      // faltante ⇒ se devuelve
-      await Producto.findByIdAndUpdate(
-        movement.productId,
-        { $inc: { stock: movement.quantity } }
-      );
-
+      await undoSimple(movement, movement.quantity, movement.branch);
     } else if (movement.type === 'transfer') {
-      // transferencia: el stock global NO cambia
-      /* nada que hacer */
-
+      await undoSimple(movement, movement.quantity, movement.branch);      // vuelve al origen
+      await undoSimple(movement, -movement.quantity, movement.destination); // sale del destino
     } else if (movement.type === 'sell') {
-      if (isMulti) {
-        // 🛒 venta múltiple → devolver cada ítem
+      if (movement.items?.length) {
         for (const it of movement.items) {
-          await Producto.findByIdAndUpdate(
-            it.productId,
-            { $inc: { stock: it.quantity } }
-          );
+          await adjustStockBulk(it.productId, movement.branch, it.quantity);
         }
       } else {
-        // 🛒 venta simple
-        await Producto.findByIdAndUpdate(
-          movement.productId,
-          { $inc: { stock: movement.quantity } }
-        );
+        await undoSimple(movement, movement.quantity, movement.branch);
       }
     }
 
-    /* ──────────────────────────────────────────────
-       2) ELIMINAR EL MOVIMIENTO
-       ────────────────────────────────────────────── */
     await Movimiento.findByIdAndDelete(id);
-
     res.json({ message: 'Movimiento eliminado correctamente' });
   } catch (error) {
     console.error('Error al eliminar movimiento:', error);
@@ -411,39 +399,38 @@ router.delete('/movements/:id', async (req, res) => {
 });
 
 /* =========================================================
-   PUT /stock/movements/:id  (EDITAR CUALQUIER MOVIMIENTO)
-   – Maneja: add | shortage | transfer | venta simple | venta múltiple
-   – Devuelve updated movement
+   PUT /stock/movements/:id (EDITAR)
    ========================================================= */
 router.put('/movements/:id', async (req, res) => {
   try {
     const id = req.params.id.trim();
-    const body = { ...req.body }; // clonamos
+    const body = { ...req.body };
 
     const original = await Movimiento.findById(id);
     if (!original) return res.status(404).json({ error: 'Movimiento no encontrado' });
 
-    /* ── 1. REVERTIR STOCK GLOBAL SEGÚN EL MOV ORIGINAL ── */
-    const undoStock = async mov => {
+    /* ── 1. deshacer stock viejo ── */
+    const revert = async mov => {
       if (mov.type === 'sell') {
         if (mov.items?.length) {
           for (const it of mov.items) {
-            await Producto.findByIdAndUpdate(it.productId, { $inc: { stock: it.quantity } });
+            await adjustStockBulk(it.productId, mov.branch, it.quantity);
           }
         } else {
-          await Producto.findByIdAndUpdate(mov.productId, { $inc: { stock: mov.quantity } });
+          await adjustStockBulk(mov.productId, mov.branch, mov.quantity);
         }
       } else if (mov.type === 'add') {
-        await Producto.findByIdAndUpdate(mov.productId, { $inc: { stock: -mov.quantity } });
+        await adjustStockBulk(mov.productId, mov.branch, -mov.quantity);
       } else if (mov.type === 'shortage') {
-        await Producto.findByIdAndUpdate(mov.productId, { $inc: { stock: mov.quantity } });
+        await adjustStockBulk(mov.productId, mov.branch, mov.quantity);
+      } else if (mov.type === 'transfer') {
+        await adjustStockBulk(mov.productId, mov.branch, mov.quantity);
+        await adjustStockBulk(mov.productId, mov.destination, -mov.quantity);
       }
-      // transfer no modifica stock global
     };
-    await undoStock(original);
+    await revert(original);
 
-    /* ── 2. VALIDAR / CALCULAR el NUEVO MOVIMIENTO ─────── */
-    // ► venta múltiple
+    /* ── 2. validar / aplicar nuevo ── */
     if (Array.isArray(body.items) && body.items.length) {
       let total = 0;
       for (const it of body.items) {
@@ -451,30 +438,30 @@ router.put('/movements/:id', async (req, res) => {
         if (!prod) return res.status(404).json({ error: `Producto ${it.productId} no existe` });
         if (prod.stock < it.quantity)
           return res.status(400).json({ error: `Stock global insuficiente para ${prod.name}` });
-        prod.stock -= it.quantity;
+        adjustStock(prod, body.branch, -it.quantity);
         await prod.save();
         total += it.quantity * it.price;
       }
       body.total = total;
       body.type = 'sell';
-    }
-    // ► venta simple, add, shortage, transfer
-    else if (body.productId && body.quantity) {
+    } else if (body.productId && body.quantity) {
       const prod = await Producto.findById(body.productId);
       if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
       if (prod.stock < body.quantity)
         return res.status(400).json({ error: 'Stock global insuficiente' });
-      prod.stock -= body.type === 'add' ? -body.quantity : body.quantity;
+
+      const delta =
+        body.type === 'add'
+          ? body.quantity
+          : body.type === 'shortage'
+          ? -body.quantity
+          : -body.quantity; // venta simple
+      adjustStock(prod, body.branch, delta);
       await prod.save();
     }
 
-    /* ── 3. normalizar FECHA ───────────────────────────── */
-    if (body.date) {
-      body.date =
-        body.date.length === 10 ? parseDateAR(body.date) : new Date(body.date);
-    }
+    if (body.date) body.date = body.date.length === 10 ? parseDateAR(body.date) : new Date(body.date);
 
-    /* ── 4. ACTUALIZAR el movimiento ───────────────────── */
     const updated = await Movimiento.findByIdAndUpdate(id, body, { new: true });
     res.json(updated);
   } catch (err) {
@@ -489,31 +476,17 @@ router.put('/movements/:id', async (req, res) => {
 router.get('/', async (_req, res) => {
   try {
     const productos = await Producto.find();
-    const movimientos = await Movimiento.find();
 
-    const stock = productos.map(p => {
-      const stockByBranch = Object.fromEntries(SUCURSALES.map(b => [b, 0]));
-
-      movimientos
-        .filter(m => String(m.productId) === String(p._id))
-        .forEach(m => {
-          if (m.type === 'add') stockByBranch[m.branch] += m.quantity;
-          else if (m.type === 'sell' || m.type === 'shortage')
-            stockByBranch[m.branch] -= m.quantity;
-          else if (m.type === 'transfer') {
-            stockByBranch[m.branch] -= m.quantity;
-            stockByBranch[m.destination] += m.quantity;
-          }
-        });
-
-      return {
-        _id: p._id,
-        name: p.name,
-        categoryId: p.categoryId,
-        stock: p.stock,
-        stockByBranch
-      };
-    });
+    const stock = productos.map(p => ({
+      _id: p._id,
+      name: p.name,
+      categoryId: p.categoryId,
+      stock: p.stock,
+      stockByBranch: {
+        'Santa Rosa': p.stockSantaRosa || 0,
+        'Macachín': p.stockMacachin || 0
+      }
+    }));
 
     res.json(stock);
   } catch (err) {
@@ -544,6 +517,16 @@ function wrapText(ctx, text, x, y, maxWidth) {
   return y;                          // y de la última línea escrita
 }
 
+// util para resolver ruta absoluta
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const LOGO_PATH = join(__dirname, '../../assets/LogoEtereo.jpg');
+
+/* lo cargamos UNA sola vez al iniciar el servidor */
+const logoPromise = loadImage(LOGO_PATH).catch(err => {
+  console.error('No se pudo cargar el logo:', err);
+  return null;                       // así evitamos reventar todo
+});
+
 router.get('/movements/:id/receipt.png', async (req, res) => {
   /* ═════════════════════ 1) DATOS ═════════════════════ */
   const mov = await Movimiento.findById(req.params.id)
@@ -565,24 +548,24 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
       : await Producto.findById(r.productId);
 
     /* precio unitario:  r.price (si lo trae)  ↔  fallback al del producto */
-    const unitPrice  = r.price ?? r._prod?.price ?? null;
-    r.price          = unitPrice;                 // lo reutilizamos después
-    r._subtotal      = (unitPrice ?? 0) * r.quantity;
+    const unitPrice = r.price ?? r._prod?.price ?? null;
+    r.price = unitPrice;                 // lo reutilizamos después
+    r._subtotal = (unitPrice ?? 0) * r.quantity;
   }
 
-  const unidades   = rows.reduce((s, r) => s + Number(r.quantity), 0);
-  const tipoES     = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
+  const unidades = rows.reduce((s, r) => s + Number(r.quantity), 0);
+  const tipoES = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
 
   /* ═════════════════════ 2) LAYOUT ═════════════════════ */
-  const P         = 40;         // margen horizontal
-  const W         = 600;        // ancho total
-  const FOOTER    = 60;         // margen inferior adicional
+  const P = 40;         // margen horizontal
+  const W = 600;        // ancho total
+  const FOOTER = 60;         // margen inferior adicional
 
   /* columnas fijas — achicamos la de “Detalle” (NAME_W) */
-  const NAME_W    = 300;                      // ← si se superpone, bajar un poco más
-  const COL_QTY   = P + NAME_W + 50;          // unidades
+  const NAME_W = 300;                      // ← si se superpone, bajar un poco más
+  const COL_QTY = P + NAME_W + 50;          // unidades
   const COL_PUNIT = COL_QTY + 70;             // precio unit.
-  const COL_SUBT  = W - P;                    // subtotal
+  const COL_SUBT = W - P;                    // subtotal
 
   /* función wrap de texto para nombre de producto */
   const textLines = (ctx, txt, maxW) => {
@@ -604,116 +587,152 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
 
   /* alto dinámico  (22 px por línea de producto) */
   const headerLines = 3 + (mov.destination ? 1 : 0) + (mov.sellerId ? 1 : 0);
-  const bonusLine   = mov.sellerId?.bonus ? 1 : 0;
-  const obsLine     = mov.observations   ? 1 : 0;
+  const bonusLine = mov.sellerId?.bonus ? 1 : 0;
+  const obsLine = mov.observations ? 1 : 0;
 
-  const prodLines   = (() => {
+  const prodLines = (() => {
     // suma las líneas que ocupa cada nombre envuelto
     // necesitamos un ctx temporal solo para el cálculo
-    const tmp = createCanvas(1,1).getContext('2d');
+    const tmp = createCanvas(1, 1).getContext('2d');
     tmp.font = '14px Arial';
-    return rows.reduce((s,r)=> s + textLines(tmp,r._prod.name,NAME_W).length, 0);
+    return rows.reduce((s, r) => s + textLines(tmp, r._prod.name, NAME_W).length, 0);
   })();
 
-  const H = 110 + headerLines*24 +
-            30  + 26            +               // separador + “Detalle”
-            prodLines*22         +
-            6   + 28 +                            // separador detalle
-            (24 + 10 + 24) + bonusLine*24 +       // totales brutos + comisión
-            3 + 28 + 24           +               // separador + neto
-            obsLine * 24 +
-            FOOTER;
+  const H = 110 + headerLines * 24 +
+    30 + 26 +               // separador + “Detalle”
+    prodLines * 22 +
+    6 + 28 +                            // separador detalle
+    (24 + 10 + 24) + bonusLine * 24 +       // totales brutos + comisión
+    3 + 28 + 24 +               // separador + neto
+    obsLine * 24 +
+    FOOTER;
 
-  /* ═════════════════════ 3) CANVAS ═════════════════════ */
+  /* 3) Canvas & contexto */
   const c   = createCanvas(W, H);
   const ctx = c.getContext('2d');
 
-  /* ── fondo + cabecera visual ── */
-  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#212529'; ctx.fillRect(0, 0, W, 70);
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Arial';
-  ctx.textAlign = 'center'; ctx.fillText('Comprobante', W/2, 45);
+/* fondo + header */
+ctx.fillStyle = '#fff';
+ctx.fillRect(0, 0, W, H);
+
+ctx.fillStyle = '#212529';
+ctx.fillRect(0, 0, W, 70);
+
+/* ⬇️  NUEVO: título */
+ctx.fillStyle = '#fff';
+ctx.font      = 'bold 24px Arial';
+ctx.textAlign = 'center';
+ctx.fillText('Comprobante', W / 2, 45);
+
+
+/* ----------  Marca de agua  ---------- */
+const logo = await logoPromise;
+if (logo) {
+  /* ① Clip para que el logo NO toque el header */
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 70, W, H - 70);   // (x, y, w, h)  ← desde debajo del header
+  ctx.clip();
+
+  /* ② Dibujo del logo */
+  const MAX_W = Math.min(W * 0.8, 2000);
+  const ratio = logo.width / logo.height;
+  const wmW   = MAX_W;
+  const wmH   = wmW / ratio;
+  const x     = (W - wmW) / 2;
+  const y     = (H - wmH) / 2;
+
+  ctx.globalAlpha = 0.08;       // transparencia suave
+  ctx.drawImage(logo, x, y, wmW, wmH);
+
+  ctx.restore();                // ¡importantísimo!
+}
+/* ----------  Fin marca de agua  ---------- */
+
+
 
   /* ═════════════════════ 4) ENCABEZADO ═════════════════ */
   ctx.textAlign = 'left'; ctx.fillStyle = '#000'; ctx.font = '14px Arial';
   let y = 110;
-  const line = (lbl,val) => { ctx.font='bold 14px Arial'; ctx.fillText(lbl,P,y);
-                              ctx.font='14px Arial';      ctx.fillText(val,P+140,y);
-                              y+=24; };
-  line('Fecha:',    format(mov.date,'dd/MM/yyyy',{ locale: es }));
-  line('Tipo:',     tipoES);
+  const line = (lbl, val) => {
+    ctx.font = 'bold 14px Arial'; ctx.fillText(lbl, P, y);
+    ctx.font = '14px Arial'; ctx.fillText(val, P + 140, y);
+    y += 24;
+  };
+  line('Fecha:', format(mov.date, 'dd/MM/yyyy', { locale: es }));
+  line('Tipo:', tipoES);
   line('Sucursal:', mov.branch || mov.origin);
   if (mov.destination) line('Destino:', mov.destination);
-  if (mov.sellerId)    line('Vendedora:', `${mov.sellerId.name} ${mov.sellerId.lastname}`);
+  if (mov.sellerId) line('Vendedora:', `${mov.sellerId.name} ${mov.sellerId.lastname}`);
 
-  ctx.strokeStyle='#ccc'; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke();
-  y+=30;
+  ctx.strokeStyle = '#ccc'; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+  y += 30;
 
   /* ═════════════════════ 5) DETALLE ════════════════════ */
-  ctx.font='bold 14px Arial'; ctx.fillText('Detalle',P,y); y+=26;
+  ctx.font = 'bold 14px Arial'; ctx.fillText('Detalle', P, y); y += 26;
 
-  ctx.font='14px Arial';
+  ctx.font = '14px Arial';
 
-  rows.forEach(r=>{
-    const lines = textLines(ctx,r._prod.name,NAME_W);
-    ctx.textAlign='left';
-    lines.forEach((ln,i)=> {
-      ctx.fillText(i===0?`• ${ln}`:`  ${ln}`,P,y+i*22);
+  rows.forEach(r => {
+    const lines = textLines(ctx, r._prod.name, NAME_W);
+    ctx.textAlign = 'left';
+    lines.forEach((ln, i) => {
+      ctx.fillText(i === 0 ? `• ${ln}` : `  ${ln}`, P, y + i * 22);
     });
 
-    ctx.textAlign='right';
-    ctx.fillText(`${r.quantity} u.`,        COL_QTY,  y);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${r.quantity} u.`, COL_QTY, y);
     const unitPrice = r.price;
     ctx.fillText(
-      unitPrice!==null ? `$${unitPrice.toFixed(2)}` : '—',
+      unitPrice !== null ? `$${unitPrice.toFixed(2)}` : '—',
       COL_PUNIT, y
     );
     ctx.fillText(
-      unitPrice!==null ? `$${r._subtotal.toFixed(2)}` : '—',
-      COL_SUBT,  y
+      unitPrice !== null ? `$${r._subtotal.toFixed(2)}` : '—',
+      COL_SUBT, y
     );
 
-    y += lines.length*22;
+    y += lines.length * 22;
   });
 
-  ctx.textAlign='left'; y+=6;
-  ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke();
-  y+=28;
+  ctx.textAlign = 'left'; y += 6;
+  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+  y += 28;
 
   /* ═════════════════════ 6) TOTALES ════════════════════ */
-  const bonusPct   = mov.sellerId?.bonus || 0;
-  const totalBruto = mov.total ?? rows.reduce((s,r)=>s+r._subtotal,0);
-  const comision   = totalBruto * bonusPct / 100;
-  const neto       = totalBruto - comision;
+  const bonusPct = mov.sellerId?.bonus || 0;
+  const totalBruto = mov.total ?? rows.reduce((s, r) => s + r._subtotal, 0);
+  const comision = totalBruto * bonusPct / 100;
+  const neto = totalBruto - comision;
 
-  const totalLine = (lbl,val,col=COL_SUBT)=>{
-    ctx.font='bold 14px Arial'; ctx.textAlign='left'; ctx.fillText(lbl,P,y);
-    ctx.textAlign='right';      ctx.fillText(val,col,y); y+=24;
+  const totalLine = (lbl, val, col = COL_SUBT) => {
+    ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left'; ctx.fillText(lbl, P, y);
+    ctx.textAlign = 'right'; ctx.fillText(val, col, y); y += 24;
   };
 
   totalLine('Total unidades:', `${unidades} u.`, COL_QTY);
-  y+=10;
+  y += 10;
   totalLine('Total bruto:', `$${totalBruto.toFixed(2)}`);
 
-  if (bonusPct){
+  if (bonusPct) {
     totalLine(`Comisión (${bonusPct}%):`, `-$${comision.toFixed(2)}`);
   }
 
-  y+=3; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke();
-  y+=28;
+  y += 3; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+  y += 28;
   totalLine('Total neto:', `$${neto.toFixed(2)}`);
 
   /* ═════════════════════ 7) OBSERVACIONES ═══════════════ */
-  if (mov.observations){
-    y+=24;
-    ctx.font='italic 13px Arial'; ctx.textAlign='left';
-    ctx.fillText(`Obs.: ${mov.observations}`,P,y);
+  if (mov.observations) {
+    y += 24;
+    ctx.font = 'italic 13px Arial'; ctx.textAlign = 'left';
+    ctx.fillText(`Obs.: ${mov.observations}`, P, y);
   }
 
   /* ═════════════════════ 8) RESPUESTA ═══════════════════ */
   const png = await c.encode('png');
-  res.setHeader('Content-Type','image/png');
-  res.setHeader('Content-Disposition',`attachment; filename=comprobante_${mov._id}.png`);
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Content-Disposition', `attachment; filename=comprobante_${mov._id}.png`);
   res.end(Buffer.from(png));
 });
 

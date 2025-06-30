@@ -1,0 +1,6096 @@
+[{
+  "_id": {
+    "$oid": "6862093eb6633b0744a2ed2e"
+  },
+  "productId": {
+    "$oid": "6862055ae3b1d770fd0cbfdb"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093eb6633b0744a2ed30"
+  },
+  "productId": {
+    "$oid": "6862055ae3b1d770fd0cbfdb"
+  },
+  "quantity": 15,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed33"
+  },
+  "productId": {
+    "$oid": "6862055ae3b1d770fd0cbfde"
+  },
+  "quantity": 11,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed35"
+  },
+  "productId": {
+    "$oid": "6862055ae3b1d770fd0cbfde"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed38"
+  },
+  "productId": {
+    "$oid": "6862055ae3b1d770fd0cbfe1"
+  },
+  "quantity": 11,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed3a"
+  },
+  "productId": {
+    "$oid": "6862055ae3b1d770fd0cbfe1"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed3d"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbfe4"
+  },
+  "quantity": 16,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed3f"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbfe4"
+  },
+  "quantity": 15,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed42"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbfe7"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed44"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbfe7"
+  },
+  "quantity": 15,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed48"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbfed"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862093fb6633b0744a2ed4a"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbfed"
+  },
+  "quantity": 15,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed4d"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbff0"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed4f"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbff0"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed52"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbff3"
+  },
+  "quantity": 16,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed54"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbff3"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed57"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbff6"
+  },
+  "quantity": 21,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed59"
+  },
+  "productId": {
+    "$oid": "6862055be3b1d770fd0cbff6"
+  },
+  "quantity": 15,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed5c"
+  },
+  "productId": {
+    "$oid": "6862055ce3b1d770fd0cbff9"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620940b6633b0744a2ed5e"
+  },
+  "productId": {
+    "$oid": "6862055ce3b1d770fd0cbff9"
+  },
+  "quantity": 15,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620941b6633b0744a2ed64"
+  },
+  "productId": {
+    "$oid": "6862055ce3b1d770fd0cc005"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620941b6633b0744a2ed67"
+  },
+  "productId": {
+    "$oid": "6862055ce3b1d770fd0cc008"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620941b6633b0744a2ed6a"
+  },
+  "productId": {
+    "$oid": "6862055ce3b1d770fd0cc00b"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620941b6633b0744a2ed6d"
+  },
+  "productId": {
+    "$oid": "6862055ce3b1d770fd0cc00e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620941b6633b0744a2ed76"
+  },
+  "productId": {
+    "$oid": "6862055de3b1d770fd0cc023"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620942b6633b0744a2ed7b"
+  },
+  "productId": {
+    "$oid": "6862055ee3b1d770fd0cc02c"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620942b6633b0744a2ed7f"
+  },
+  "productId": {
+    "$oid": "6862055ee3b1d770fd0cc032"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620942b6633b0744a2ed81"
+  },
+  "productId": {
+    "$oid": "6862055ee3b1d770fd0cc032"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620942b6633b0744a2ed84"
+  },
+  "productId": {
+    "$oid": "6862055ee3b1d770fd0cc035"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620942b6633b0744a2ed87"
+  },
+  "productId": {
+    "$oid": "6862055ee3b1d770fd0cc038"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620942b6633b0744a2ed8a"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc03b"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2ed8e"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc041"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2ed91"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc044"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2ed93"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc044"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2ed96"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc047"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2ed98"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc047"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2ed9c"
+  },
+  "productId": {
+    "$oid": "6862055fe3b1d770fd0cc04d"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620943b6633b0744a2eda0"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc053"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2eda2"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc053"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2eda5"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc056"
+  },
+  "quantity": 23,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2eda7"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc056"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edaa"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc059"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edac"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc059"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edaf"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc05c"
+  },
+  "quantity": 30,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edb1"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc05c"
+  },
+  "quantity": 20,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edb4"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc05f"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edb6"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc05f"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620944b6633b0744a2edb9"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc062"
+  },
+  "quantity": 30,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edbb"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc062"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edbe"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc065"
+  },
+  "quantity": 39,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edc0"
+  },
+  "productId": {
+    "$oid": "68620560e3b1d770fd0cc065"
+  },
+  "quantity": 18,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edc3"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc068"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edc5"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc068"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edc8"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc06b"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edcb"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc06e"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edcd"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc06e"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edd0"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc071"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620945b6633b0744a2edd2"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc071"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2edd5"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc074"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2edd7"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc074"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2edda"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc077"
+  },
+  "quantity": 36,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2eddc"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc077"
+  },
+  "quantity": 20,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2ede0"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc07d"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2ede2"
+  },
+  "productId": {
+    "$oid": "68620561e3b1d770fd0cc07d"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2ede6"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc083"
+  },
+  "quantity": 16,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620946b6633b0744a2ede8"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc083"
+  },
+  "quantity": 8,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edeb"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc086"
+  },
+  "quantity": 9,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2eded"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc086"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edf0"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc089"
+  },
+  "quantity": 9,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edf2"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc089"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edf5"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc08c"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edf7"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc08c"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edfa"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc08f"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edfc"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc08f"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2edff"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc092"
+  },
+  "quantity": 20,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2ee02"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc095"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620947b6633b0744a2ee04"
+  },
+  "productId": {
+    "$oid": "68620562e3b1d770fd0cc095"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee07"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc098"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee09"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc098"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee0c"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc09b"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee0e"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc09b"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee11"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc09e"
+  },
+  "quantity": 19,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee13"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc09e"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee16"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0a1"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee18"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0a1"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee1c"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0a7"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620948b6633b0744a2ee1e"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0a7"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee21"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0aa"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee23"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0aa"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee26"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0ad"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee28"
+  },
+  "productId": {
+    "$oid": "68620563e3b1d770fd0cc0ad"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee2b"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0b0"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee2d"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0b0"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee30"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0b3"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee34"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0b9"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620949b6633b0744a2ee36"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0b9"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094ab6633b0744a2ee3b"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0c2"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094ab6633b0744a2ee3d"
+  },
+  "productId": {
+    "$oid": "68620564e3b1d770fd0cc0c2"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094ab6633b0744a2ee42"
+  },
+  "productId": {
+    "$oid": "68620565e3b1d770fd0cc0cb"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094ab6633b0744a2ee45"
+  },
+  "productId": {
+    "$oid": "68620565e3b1d770fd0cc0ce"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094ab6633b0744a2ee48"
+  },
+  "productId": {
+    "$oid": "68620565e3b1d770fd0cc0d1"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094ab6633b0744a2ee4a"
+  },
+  "productId": {
+    "$oid": "68620565e3b1d770fd0cc0d1"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094bb6633b0744a2ee52"
+  },
+  "productId": {
+    "$oid": "68620566e3b1d770fd0cc0e3"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094bb6633b0744a2ee5e"
+  },
+  "productId": {
+    "$oid": "68620567e3b1d770fd0cc101"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094bb6633b0744a2ee60"
+  },
+  "productId": {
+    "$oid": "68620567e3b1d770fd0cc101"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee64"
+  },
+  "productId": {
+    "$oid": "68620567e3b1d770fd0cc107"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee66"
+  },
+  "productId": {
+    "$oid": "68620567e3b1d770fd0cc107"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee69"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc10a"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee6c"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc10d"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee6e"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc10d"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee71"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc110"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee73"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc110"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee76"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc113"
+  },
+  "quantity": 29,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094cb6633b0744a2ee78"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc113"
+  },
+  "quantity": 12,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee7b"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc116"
+  },
+  "quantity": 29,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee7d"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc116"
+  },
+  "quantity": 20,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee81"
+  },
+  "productId": {
+    "$oid": "68620568e3b1d770fd0cc11c"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee84"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc11f"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee87"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc122"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee8a"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc125"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094db6633b0744a2ee8d"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc128"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2ee90"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc12b"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2ee93"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc12e"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2ee96"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc131"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2ee99"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc134"
+  },
+  "quantity": 64,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2ee9b"
+  },
+  "productId": {
+    "$oid": "68620569e3b1d770fd0cc134"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2ee9e"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc137"
+  },
+  "quantity": 65,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2eea0"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc137"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2eea3"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc13a"
+  },
+  "quantity": 44,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094eb6633b0744a2eea5"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc13a"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eea8"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc13d"
+  },
+  "quantity": 100,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eeac"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc143"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eeaf"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc146"
+  },
+  "quantity": 13,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eeb3"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc14c"
+  },
+  "quantity": 19,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eeb5"
+  },
+  "productId": {
+    "$oid": "6862056ae3b1d770fd0cc14c"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eeba"
+  },
+  "productId": {
+    "$oid": "6862056be3b1d770fd0cc155"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862094fb6633b0744a2eebc"
+  },
+  "productId": {
+    "$oid": "6862056be3b1d770fd0cc155"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eec0"
+  },
+  "productId": {
+    "$oid": "6862056be3b1d770fd0cc15b"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eec3"
+  },
+  "productId": {
+    "$oid": "6862056be3b1d770fd0cc15e"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eec5"
+  },
+  "productId": {
+    "$oid": "6862056be3b1d770fd0cc15e"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eec8"
+  },
+  "productId": {
+    "$oid": "6862056be3b1d770fd0cc161"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eecb"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc164"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eece"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc167"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eed0"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc167"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eed3"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc16a"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620950b6633b0744a2eed5"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc16a"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eed8"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc16d"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eeda"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc16d"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eedd"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc170"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eedf"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc170"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eee3"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc176"
+  },
+  "quantity": 9,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eee5"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc176"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eee8"
+  },
+  "productId": {
+    "$oid": "6862056ce3b1d770fd0cc179"
+  },
+  "quantity": 38,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eeec"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc17f"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620951b6633b0744a2eeee"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc17f"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2eef1"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc182"
+  },
+  "quantity": 16,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2eef3"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc182"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2eef6"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc185"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2eef8"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc185"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2eefb"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc188"
+  },
+  "quantity": 27,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2eefd"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc188"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2ef00"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc18b"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2ef02"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc18b"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620952b6633b0744a2ef05"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc18e"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef08"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc191"
+  },
+  "quantity": 44,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef0a"
+  },
+  "productId": {
+    "$oid": "6862056de3b1d770fd0cc191"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef0d"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc194"
+  },
+  "quantity": 41,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef0f"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc194"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef12"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc197"
+  },
+  "quantity": 33,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef14"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc197"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef17"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc19a"
+  },
+  "quantity": 26,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef19"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc19a"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef1c"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc19d"
+  },
+  "quantity": 57,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620953b6633b0744a2ef1e"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc19d"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef21"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc1a0"
+  },
+  "quantity": 34,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef23"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc1a0"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef26"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc1a3"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef28"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc1a3"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef2b"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc1a6"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef2d"
+  },
+  "productId": {
+    "$oid": "6862056ee3b1d770fd0cc1a6"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef30"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1a9"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef32"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1a9"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef35"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1ac"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620954b6633b0744a2ef37"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1ac"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef3a"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1af"
+  },
+  "quantity": 11,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef3c"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1af"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef3f"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1b2"
+  },
+  "quantity": 47,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef41"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1b2"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef44"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1b5"
+  },
+  "quantity": 75,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef46"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1b5"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef49"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1b8"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef4b"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1b8"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef4e"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1bb"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620955b6633b0744a2ef50"
+  },
+  "productId": {
+    "$oid": "6862056fe3b1d770fd0cc1bb"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef53"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1be"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef55"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1be"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef58"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1c1"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef5a"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1c1"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef5d"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1c4"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef5f"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1c4"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef62"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1c7"
+  },
+  "quantity": 65,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef64"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1c7"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef67"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1ca"
+  },
+  "quantity": 29,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620956b6633b0744a2ef69"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1ca"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef6c"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1cd"
+  },
+  "quantity": 64,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef6e"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1cd"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef71"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1d0"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef73"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1d0"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef76"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1d3"
+  },
+  "quantity": 8,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef78"
+  },
+  "productId": {
+    "$oid": "68620570e3b1d770fd0cc1d3"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef7b"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1d6"
+  },
+  "quantity": 35,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef7d"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1d6"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620957b6633b0744a2ef80"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1d9"
+  },
+  "quantity": 24,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef82"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1d9"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef86"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1df"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef88"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1df"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef8b"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1e2"
+  },
+  "quantity": 11,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef8d"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1e2"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef90"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1e5"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef92"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1e5"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef95"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1e8"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef97"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1e8"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620958b6633b0744a2ef9a"
+  },
+  "productId": {
+    "$oid": "68620571e3b1d770fd0cc1eb"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2ef9e"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1f1"
+  },
+  "quantity": 14,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efa0"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1f1"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efa3"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1f4"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efa5"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1f4"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efa8"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1f7"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efaa"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1f7"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efad"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1fa"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efaf"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1fa"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620959b6633b0744a2efb2"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1fd"
+  },
+  "quantity": 16,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efb4"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc1fd"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efb7"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc200"
+  },
+  "quantity": 8,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efb9"
+  },
+  "productId": {
+    "$oid": "68620572e3b1d770fd0cc200"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efbc"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc203"
+  },
+  "quantity": 9,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efbe"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc203"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efc2"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc209"
+  },
+  "quantity": 9,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efc4"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc209"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efc7"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc20c"
+  },
+  "quantity": 10,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095ab6633b0744a2efc9"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc20c"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efcc"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc20f"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efce"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc20f"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efd1"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc212"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efd4"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc215"
+  },
+  "quantity": 8,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efd6"
+  },
+  "productId": {
+    "$oid": "68620573e3b1d770fd0cc215"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efda"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc21b"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efdd"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc21e"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efdf"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc21e"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095bb6633b0744a2efe2"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc221"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2efe4"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc221"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2efe7"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc224"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2efe9"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc224"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2efec"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc227"
+  },
+  "quantity": 8,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2efee"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc227"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2eff1"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc22a"
+  },
+  "quantity": 11,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2eff3"
+  },
+  "productId": {
+    "$oid": "68620574e3b1d770fd0cc22a"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2eff7"
+  },
+  "productId": {
+    "$oid": "68620575e3b1d770fd0cc230"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095cb6633b0744a2eff9"
+  },
+  "productId": {
+    "$oid": "68620575e3b1d770fd0cc230"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095db6633b0744a2f000"
+  },
+  "productId": {
+    "$oid": "68620575e3b1d770fd0cc23f"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095db6633b0744a2f005"
+  },
+  "productId": {
+    "$oid": "68620576e3b1d770fd0cc248"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095db6633b0744a2f009"
+  },
+  "productId": {
+    "$oid": "68620576e3b1d770fd0cc24e"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095eb6633b0744a2f014"
+  },
+  "productId": {
+    "$oid": "68620577e3b1d770fd0cc269"
+  },
+  "quantity": 21,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095eb6633b0744a2f018"
+  },
+  "productId": {
+    "$oid": "68620578e3b1d770fd0cc26f"
+  },
+  "quantity": 16,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095eb6633b0744a2f01d"
+  },
+  "productId": {
+    "$oid": "68620578e3b1d770fd0cc278"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095fb6633b0744a2f021"
+  },
+  "productId": {
+    "$oid": "68620578e3b1d770fd0cc27e"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095fb6633b0744a2f025"
+  },
+  "productId": {
+    "$oid": "68620579e3b1d770fd0cc284"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095fb6633b0744a2f028"
+  },
+  "productId": {
+    "$oid": "68620579e3b1d770fd0cc287"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095fb6633b0744a2f02b"
+  },
+  "productId": {
+    "$oid": "68620579e3b1d770fd0cc28a"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862095fb6633b0744a2f030"
+  },
+  "productId": {
+    "$oid": "68620579e3b1d770fd0cc293"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620960b6633b0744a2f033"
+  },
+  "productId": {
+    "$oid": "68620579e3b1d770fd0cc296"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620962b6633b0744a2f056"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc2f9"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620962b6633b0744a2f058"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc2f9"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620962b6633b0744a2f05d"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc302"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620962b6633b0744a2f05f"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc302"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620962b6633b0744a2f062"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc305"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f064"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc305"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f067"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc308"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f069"
+  },
+  "productId": {
+    "$oid": "6862057ee3b1d770fd0cc308"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f06d"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc30e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f06f"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc30e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f074"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc317"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f076"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc317"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620963b6633b0744a2f079"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc31a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620964b6633b0744a2f07c"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc31d"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620964b6633b0744a2f07f"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc320"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620964b6633b0744a2f081"
+  },
+  "productId": {
+    "$oid": "6862057fe3b1d770fd0cc320"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620964b6633b0744a2f084"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc323"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620964b6633b0744a2f087"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc326"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620964b6633b0744a2f08a"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc329"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f08e"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc32f"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f090"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc32f"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f093"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc332"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f096"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc335"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f098"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc335"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f09b"
+  },
+  "productId": {
+    "$oid": "68620580e3b1d770fd0cc338"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620965b6633b0744a2f0a1"
+  },
+  "productId": {
+    "$oid": "68620581e3b1d770fd0cc344"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0a5"
+  },
+  "productId": {
+    "$oid": "68620581e3b1d770fd0cc34a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0a8"
+  },
+  "productId": {
+    "$oid": "68620581e3b1d770fd0cc34d"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0ab"
+  },
+  "productId": {
+    "$oid": "68620582e3b1d770fd0cc350"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0ad"
+  },
+  "productId": {
+    "$oid": "68620582e3b1d770fd0cc350"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0b1"
+  },
+  "productId": {
+    "$oid": "68620582e3b1d770fd0cc356"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0b3"
+  },
+  "productId": {
+    "$oid": "68620582e3b1d770fd0cc356"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620966b6633b0744a2f0b6"
+  },
+  "productId": {
+    "$oid": "68620582e3b1d770fd0cc359"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0bb"
+  },
+  "productId": {
+    "$oid": "68620582e3b1d770fd0cc362"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0be"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc365"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0c2"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc36b"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0c5"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc36e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0c8"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc371"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0cc"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc377"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620967b6633b0744a2f0ce"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc377"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620968b6633b0744a2f0d1"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc37a"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620968b6633b0744a2f0d3"
+  },
+  "productId": {
+    "$oid": "68620583e3b1d770fd0cc37a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620968b6633b0744a2f0d7"
+  },
+  "productId": {
+    "$oid": "68620584e3b1d770fd0cc380"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620968b6633b0744a2f0df"
+  },
+  "productId": {
+    "$oid": "68620585e3b1d770fd0cc392"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620968b6633b0744a2f0e2"
+  },
+  "productId": {
+    "$oid": "68620585e3b1d770fd0cc395"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620969b6633b0744a2f0e6"
+  },
+  "productId": {
+    "$oid": "68620585e3b1d770fd0cc39b"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620969b6633b0744a2f0e9"
+  },
+  "productId": {
+    "$oid": "68620585e3b1d770fd0cc39e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620969b6633b0744a2f0ed"
+  },
+  "productId": {
+    "$oid": "68620585e3b1d770fd0cc3a4"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620969b6633b0744a2f0ef"
+  },
+  "productId": {
+    "$oid": "68620585e3b1d770fd0cc3a4"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620969b6633b0744a2f0f2"
+  },
+  "productId": {
+    "$oid": "68620586e3b1d770fd0cc3a7"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620969b6633b0744a2f0f5"
+  },
+  "productId": {
+    "$oid": "68620586e3b1d770fd0cc3aa"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096ab6633b0744a2f0f7"
+  },
+  "productId": {
+    "$oid": "68620586e3b1d770fd0cc3aa"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096ab6633b0744a2f0fc"
+  },
+  "productId": {
+    "$oid": "68620586e3b1d770fd0cc3b3"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096ab6633b0744a2f0ff"
+  },
+  "productId": {
+    "$oid": "68620586e3b1d770fd0cc3b6"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096ab6633b0744a2f102"
+  },
+  "productId": {
+    "$oid": "68620586e3b1d770fd0cc3b9"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096ab6633b0744a2f107"
+  },
+  "productId": {
+    "$oid": "68620587e3b1d770fd0cc3c2"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096bb6633b0744a2f10b"
+  },
+  "productId": {
+    "$oid": "68620587e3b1d770fd0cc3c8"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096bb6633b0744a2f110"
+  },
+  "productId": {
+    "$oid": "68620588e3b1d770fd0cc3d1"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096bb6633b0744a2f113"
+  },
+  "productId": {
+    "$oid": "68620588e3b1d770fd0cc3d4"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096bb6633b0744a2f116"
+  },
+  "productId": {
+    "$oid": "68620588e3b1d770fd0cc3d7"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096bb6633b0744a2f118"
+  },
+  "productId": {
+    "$oid": "68620588e3b1d770fd0cc3d7"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096bb6633b0744a2f11e"
+  },
+  "productId": {
+    "$oid": "68620588e3b1d770fd0cc3e3"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096cb6633b0744a2f122"
+  },
+  "productId": {
+    "$oid": "68620589e3b1d770fd0cc3e9"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096cb6633b0744a2f124"
+  },
+  "productId": {
+    "$oid": "68620589e3b1d770fd0cc3e9"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096cb6633b0744a2f12e"
+  },
+  "productId": {
+    "$oid": "6862058ae3b1d770fd0cc401"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096cb6633b0744a2f130"
+  },
+  "productId": {
+    "$oid": "6862058ae3b1d770fd0cc401"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f135"
+  },
+  "productId": {
+    "$oid": "6862058ae3b1d770fd0cc40a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f137"
+  },
+  "productId": {
+    "$oid": "6862058ae3b1d770fd0cc40a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f13b"
+  },
+  "productId": {
+    "$oid": "6862058ae3b1d770fd0cc410"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f13e"
+  },
+  "productId": {
+    "$oid": "6862058be3b1d770fd0cc413"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f141"
+  },
+  "productId": {
+    "$oid": "6862058be3b1d770fd0cc416"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f145"
+  },
+  "productId": {
+    "$oid": "6862058be3b1d770fd0cc41c"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096db6633b0744a2f147"
+  },
+  "productId": {
+    "$oid": "6862058be3b1d770fd0cc41c"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096eb6633b0744a2f14b"
+  },
+  "productId": {
+    "$oid": "6862058be3b1d770fd0cc422"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096eb6633b0744a2f14e"
+  },
+  "productId": {
+    "$oid": "6862058be3b1d770fd0cc425"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096eb6633b0744a2f151"
+  },
+  "productId": {
+    "$oid": "6862058ce3b1d770fd0cc428"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096eb6633b0744a2f154"
+  },
+  "productId": {
+    "$oid": "6862058ce3b1d770fd0cc42b"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096eb6633b0744a2f15a"
+  },
+  "productId": {
+    "$oid": "6862058ce3b1d770fd0cc437"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096eb6633b0744a2f15c"
+  },
+  "productId": {
+    "$oid": "6862058ce3b1d770fd0cc437"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096fb6633b0744a2f15f"
+  },
+  "productId": {
+    "$oid": "6862058ce3b1d770fd0cc43a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096fb6633b0744a2f162"
+  },
+  "productId": {
+    "$oid": "6862058de3b1d770fd0cc43d"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096fb6633b0744a2f164"
+  },
+  "productId": {
+    "$oid": "6862058de3b1d770fd0cc43d"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096fb6633b0744a2f168"
+  },
+  "productId": {
+    "$oid": "6862058de3b1d770fd0cc443"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6862096fb6633b0744a2f170"
+  },
+  "productId": {
+    "$oid": "6862058ee3b1d770fd0cc455"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620970b6633b0744a2f175"
+  },
+  "productId": {
+    "$oid": "6862058ee3b1d770fd0cc45e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620970b6633b0744a2f179"
+  },
+  "productId": {
+    "$oid": "6862058ee3b1d770fd0cc464"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620970b6633b0744a2f182"
+  },
+  "productId": {
+    "$oid": "6862058fe3b1d770fd0cc479"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620970b6633b0744a2f184"
+  },
+  "productId": {
+    "$oid": "6862058fe3b1d770fd0cc479"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620971b6633b0744a2f187"
+  },
+  "productId": {
+    "$oid": "68620590e3b1d770fd0cc47c"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620971b6633b0744a2f18b"
+  },
+  "productId": {
+    "$oid": "68620590e3b1d770fd0cc482"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620971b6633b0744a2f191"
+  },
+  "productId": {
+    "$oid": "68620590e3b1d770fd0cc48e"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620971b6633b0744a2f196"
+  },
+  "productId": {
+    "$oid": "68620591e3b1d770fd0cc497"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620972b6633b0744a2f199"
+  },
+  "productId": {
+    "$oid": "68620591e3b1d770fd0cc49a"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620972b6633b0744a2f19d"
+  },
+  "productId": {
+    "$oid": "68620591e3b1d770fd0cc4a0"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620972b6633b0744a2f1a0"
+  },
+  "productId": {
+    "$oid": "68620591e3b1d770fd0cc4a3"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620972b6633b0744a2f1a6"
+  },
+  "productId": {
+    "$oid": "68620592e3b1d770fd0cc4af"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620972b6633b0744a2f1ab"
+  },
+  "productId": {
+    "$oid": "68620592e3b1d770fd0cc4b8"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1ae"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4bb"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1b2"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4c1"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1b5"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4c4"
+  },
+  "quantity": 1,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1b9"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4ca"
+  },
+  "quantity": 3,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1bb"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4ca"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1be"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4cd"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620973b6633b0744a2f1c0"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4cd"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620974b6633b0744a2f1c3"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4d0"
+  },
+  "quantity": 2,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620974b6633b0744a2f1c5"
+  },
+  "productId": {
+    "$oid": "68620593e3b1d770fd0cc4d0"
+  },
+  "quantity": 7,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620974b6633b0744a2f1c8"
+  },
+  "productId": {
+    "$oid": "68620594e3b1d770fd0cc4d3"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620974b6633b0744a2f1ca"
+  },
+  "productId": {
+    "$oid": "68620594e3b1d770fd0cc4d3"
+  },
+  "quantity": 5,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620974b6633b0744a2f1cd"
+  },
+  "productId": {
+    "$oid": "68620594e3b1d770fd0cc4d6"
+  },
+  "quantity": 4,
+  "type": "add",
+  "branch": "Macachín",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68620974b6633b0744a2f1cf"
+  },
+  "productId": {
+    "$oid": "68620594e3b1d770fd0cc4d6"
+  },
+  "quantity": 6,
+  "type": "add",
+  "branch": "Santa Rosa",
+  "date": {
+    "$date": "2024-12-31T00:00:00.000Z"
+  },
+  "items": [],
+  "__v": 0
+}]
