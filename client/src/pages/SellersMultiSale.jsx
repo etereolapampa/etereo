@@ -1,11 +1,12 @@
+//  SellersMultiSale.jsx
 //  ─────────────────────────────────────────────────────────────
-//  ⚠️  Atento: sólo se toca ESTE archivo.  El resto del proyecto
-//      queda igual.  (No hay “bloques ocultos” más abajo.)
+//  Componente para registrar / editar ventas de “vendedoras”
+//  con renglones de Producto y Descuento.
 //  ─────────────────────────────────────────────────────────────
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Button, Form, Alert } from 'react-bootstrap';
+import { Button, Form, Alert, Card } from 'react-bootstrap';
 import api from '../api';
 import Modal from '../components/Modal';
 import { todayAR } from '../utils/date';
@@ -15,18 +16,20 @@ const SUCURSALES = ['Santa Rosa', 'Macachín'];
 
 /* ───── helpers ───── */
 const fmtNum = v => (v ? Number(v).toFixed(2) : '');
-const defaultRow = {
-  product: null,
-  quantity: 1,
-  price: '',
-  query: '',
-  suggestions: [],
-  showSug: false
-};
-const toInputDate = (str = '') =>
-  str.includes('/')
+const toInputDate = str =>
+  str && str.includes('/')
     ? str.split('/').reverse().map(p => p.padStart(2, '0')).join('-')
-    : str.slice(0, 10);
+    : (str || '').slice(0, 10);
+
+// estado inicial para el constructor (“draft”)
+const emptyDraft = {
+  mode: 'product',      // 'product' | 'discount'
+  product: null,
+  query: '',
+  description: '',
+  quantity: '',
+  price: ''
+};
 
 /* ───── componente ───── */
 export default function SellersMultiSale() {
@@ -34,43 +37,42 @@ export default function SellersMultiSale() {
   const navigate = useNavigate();
   const { id: sellerIdParam } = useParams();
   const [searchParams] = useSearchParams();
-  const editId = searchParams.get('edit');
+  const editId = searchParams.get('edit');          // ?edit=<movementId>
 
-  /* estado */
+  /* ───────── estado base ───────── */
   const [seller, setSeller] = useState(null);
   const [products, setProducts] = useState([]);
 
-  const [date, setDate] = useState(todayAR());
   const [branch, setBranch] = useState('');
-  const [items, setItems] = useState(editId ? [] : [defaultRow]);
+  const [date, setDate] = useState(todayAR());
+  const [rows, setRows] = useState([]);             // renglones definitivos
+  const [draft, setDraft] = useState(emptyDraft);   // constructor
+  const [suggestions, setSuggestions] = useState([]); // para el autocompletar
   const [observations, setObservations] = useState('');
 
   const [error, setError] = useState('');
-  const [newMovementId, setNewMovementId] = useState(null);   // 🆕
-  const [showModal, setShowModal] = useState(false);          // 🆕 faltaba
+  const [showModal, setShowModal] = useState(false);
+  const [newMovementId, setNewMovementId] = useState(null);
 
   /* ───────────────────── cargar datos base ─────────────────── */
   useEffect(() => {
     (async () => {
       try {
-        const [pRes, vRes] = await Promise.all([
+        const [prodRes, vendRes] = await Promise.all([
           api.get('/products'),
-          sellerIdParam
-            ? api.get(`/sellers/${sellerIdParam}`)
-            : Promise.resolve({ data: null })
+          sellerIdParam ? api.get(`/sellers/${sellerIdParam}`) : Promise.resolve({ data: null })
         ]);
-        setProducts(pRes.data);
-        if (vRes.data) setSeller(vRes.data);
+        setProducts(prodRes.data);
+        if (vendRes.data) setSeller(vendRes.data);
       } catch {
         setError('Error al cargar productos o vendedora');
       }
     })();
   }, [sellerIdParam]);
 
-  /* ─────────────────── precargar movimiento (edit) ─────────── */
+  /* ───────────── precargar venta en modo edición ───────────── */
   useEffect(() => {
-    // esperamos a que estén los productos
-    if (!editId || products.length === 0) return;
+    if (!editId || products.length === 0) return;   // esperamos productos
 
     (async () => {
       try {
@@ -80,87 +82,131 @@ export default function SellersMultiSale() {
         setDate(toInputDate(mv.date));
         setObservations(mv.observations || '');
 
-        /* ⤵⤵⤵  MAPEO items: ahora acepta tanto ObjectId como objeto populateado */
         const mapped = mv.items.map(it => {
-          const prodObject =
-            typeof it.productId === 'object'              // viene populateado
+          if (it.isDiscount) {
+            return {
+              mode: 'discount',
+              description: it.description || '',
+              quantity: 1,
+              price: fmtNum(it.price)          // negativo
+            };
+          }
+          // producto populateado o solo id
+          const prod =
+            typeof it.productId === 'object'
               ? it.productId
               : products.find(p => p._id === String(it.productId));
 
           return {
-            product: prodObject,
-            query: prodObject?.name || '',
+            mode: 'product',
+            product: prod,
+            query: prod?.name || '',
             quantity: it.quantity,
-            price: fmtNum(it.price),
-            suggestions: [],
-            showSug: false
+            price: fmtNum(it.price)
           };
         });
 
-        setItems(mapped.length ? mapped : [defaultRow]);
+        setRows(mapped);
       } catch {
         setError('No se pudo cargar la venta para editar');
       }
     })();
   }, [editId, products]);
 
-  /* ───────── helpers items[] ───────── */
-  const updateItem = (idx, data) =>
-    setItems(items.map((row, i) => (i === idx ? { ...row, ...data } : row)));
+  /* ───────── helpers del constructor (draft) ───────── */
+  const setMode = mode => setDraft({ ...emptyDraft, mode });
 
-  const handleQueryChange = (idx, q) => {
+  const setDraftField = field => value =>
+    setDraft(d => ({ ...d, [field]: value }));
+
+  /** Añade el draft a rows después de validar */
+  const addDraftToRows = () => {
+    if (draft.mode === 'product') {
+      if (!draft.product) return setError('Seleccione un producto');
+      if (!draft.quantity) return setError('Ingrese cantidad');
+      if (!draft.price) return setError('Ingrese precio');
+    } else {
+      if (!draft.description.trim()) return setError('Descripción obligatoria');
+      if (!draft.price || Number(draft.price) >= 0)
+        return setError('El monto del descuento debe ser negativo');
+    }
+    setRows(r => [...r, draft]);
+    setDraft(emptyDraft);
+    setSuggestions([]);
+    setError('');
+  };
+
+  const removeRow = idx => setRows(r => r.filter((_, i) => i !== idx));
+
+  /** autocompletar productos */
+  const handleQueryChange = q => {
+    setDraftField('query')(q);
+    setDraftField('product')(null);
     const sugg = q.trim()
       ? products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()))
       : [];
-    updateItem(idx, { query: q, suggestions: sugg, showSug: !!sugg.length });
+    setSuggestions(sugg);
   };
 
-  const chooseProduct = (idx, prod) => {
-    updateItem(idx, {
+  const chooseProduct = prod => {
+    setDraft({
+      ...draft,
       product: prod,
       query: prod.name,
-      price: fmtNum(prod.price),
-      suggestions: [],
-      showSug: false
+      price: fmtNum(prod.price)
     });
+    setSuggestions([]);
   };
 
-  const addRow = () => setItems([...items, defaultRow]);
-  const removeRow = idx => setItems(items.filter((_, i) => i !== idx));
+  /* ───────── cálculos ───────── */
+  const bruto = rows
+    .filter(r => r.mode === 'product')
+    .reduce((s, r) => s + r.quantity * r.price, 0);
 
-  /* ───────── totales ───────── */
-  const bruto = items.reduce((s, it) => s + (Number(it.price) || 0) * Number(it.quantity), 0);
+  const descTotal = rows
+    .filter(r => r.mode === 'discount')
+    .reduce((s, r) => s + Number(r.price), 0);   // ya es negativo
+
+  const subtotal = bruto + descTotal;            // ⬅️ descuento aplicado al Bruto
   const bonPct = seller?.bonus || 0;
-  const bonif = bruto * bonPct / 100;
-  const neto = bruto - bonif;
-  const totalUnits = items.reduce((s, it) => s + Number(it.quantity), 0);
+  const bonif = subtotal * bonPct / 100;      // % sobre el subtotal
+  const neto = subtotal - bonif;
 
-  /* ───────── submit ───────── */
+  const totalUnits = rows                         // ⬅️ RESTAURAR ESTA LÍNEA
+    .filter(r => r.mode === 'product')
+    .reduce((s, r) => s + Number(r.quantity), 0);
+
+  /* ───────────── submit ───────────── */
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
     if (!seller?._id) return setError('Falta seleccionar la vendedora');
     if (!branch) return setError('Seleccione la sucursal');
-    if (items.some(it => !it.product))
-      return setError('Todos los renglones requieren producto');
-
-    const total = items.reduce(
-      (s, it) => s + Number(it.quantity) * Number(it.price), 0);
+    if (rows.every(r => r.mode !== 'product'))
+      return setError('Agregue al menos un producto');
 
     const payload = {
-      type: 'sell',
       branch,
       date,
       sellerId: seller._id,
       isFinalConsumer: false,
       observations,
-      total,
-      items: items.map(it => ({
-        productId: it.product._id,
-        quantity: Number(it.quantity),
-        price: Number(it.price)
-      }))
+      total: neto,
+      items: rows.map(r =>
+        r.mode === 'product'
+          ? {
+            productId: r.product._id,
+            quantity: Number(r.quantity),
+            price: Number(r.price)
+          }
+          : {
+            isDiscount: true,
+            description: r.description.trim(),
+            quantity: 1,
+            price: Number(r.price)
+          }
+      )
     };
 
     try {
@@ -177,19 +223,23 @@ export default function SellersMultiSale() {
     }
   };
 
-  /* ───────── render ───────── */
+  /* ──────────── render ──────────── */
   return (
     <>
       <h2>{editId ? 'Editar venta a Vendedora' : 'Registrar venta a Vendedora'}</h2>
-      {seller && <h6 className="text-muted mb-3">{seller.name} {seller.lastname}</h6>}
+      {seller && (
+        <h6 className="text-muted mb-3">
+          {seller.name} {seller.lastname}
+        </h6>
+      )}
 
       {error && (
-        <Alert variant="danger" onClose={() => setError('')} dismissible>
+        <Alert variant="danger" dismissible onClose={() => setError('')}>
           {error}
         </Alert>
       )}
 
-      {/* ═════ FORM ═════ */}
+      {/* ═════════ FORM ═════════ */}
       <Form onSubmit={handleSubmit}>
         {/* cabecera */}
         <Form.Group className="mb-3" style={{ maxWidth: 350 }}>
@@ -204,117 +254,169 @@ export default function SellersMultiSale() {
 
         <Form.Group className="mb-3" style={{ maxWidth: 350 }}>
           <Form.Label>Sucursal</Form.Label>
-          <Form.Select
-            value={branch}
-            onChange={e => setBranch(e.target.value)}
-            required
-          >
+          <Form.Select value={branch} onChange={e => setBranch(e.target.value)} required>
             <option value="">Seleccione</option>
-            {SUCURSALES.map(b => <option key={b}>{b}</option>)}
+            {SUCURSALES.map(b => (
+              <option key={b}>{b}</option>
+            ))}
           </Form.Select>
         </Form.Group>
 
         <hr />
 
-        {/* items */}
-        {items.map((it, idx) => (
-          <div key={idx} className="d-flex gap-2 align-items-start mb-3 flex-wrap">
-            {/* producto */}
-            <div style={{ position: 'relative', flex: '1 1 250px' }}>
-              <Form.Label>Producto</Form.Label>
-              <Form.Control
-                value={it.query}
-                placeholder="Buscar…"
-                onChange={e => handleQueryChange(idx, e.target.value)}
-                autoComplete="off"
-                required
-              />
-              {it.showSug && (
-                <div
-                  className="list-group position-absolute w-100"
-                  style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}
-                >
-                  {it.suggestions.map(p => (
-                    <button
-                      key={p._id}
-                      type="button"
-                      className="list-group-item list-group-item-action"
-                      onClick={() => chooseProduct(idx, p)}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
+        {/* lista de renglones */}
+        {rows.length === 0 ? (
+          <p className="text-muted">Aún no añadiste renglones.</p>
+        ) : (
+          rows.map((r, idx) => (
+            <div key={idx} className="d-flex gap-3 align-items-center mb-2 flex-wrap">
+              {r.mode === 'product' ? (
+                <>
+                  <span style={{ minWidth: 200 }}>{r.product?.name}</span>
+                  <span>{r.quantity} u.</span>
+                  <span>${fmtNum(r.price)}</span>
+                  <span className="fw-bold">${fmtNum(r.quantity * r.price)}</span>
+                </>
+              ) : (
+                <>
+                  <span style={{ minWidth: 200 }}>Descuento: {r.description}</span>
+                  <span className="text-danger fw-bold">${fmtNum(r.price)}</span>
+                </>
               )}
-            </div>
-
-            {/* cantidad */}
-            <div style={{ width: 100 }}>
-              <Form.Label>Cantidad</Form.Label>
-              <Form.Control
-                pattern="[0-9]*"
-                inputMode="numeric"
-                required
-                value={it.quantity}
-                onChange={e => updateItem(idx, { quantity: e.target.value.replace(/[^0-9]/g, '') })}
-              />
-            </div>
-
-            {/* precio */}
-            <div style={{ width: 120, position: 'relative' }}>
-              <Form.Label>Precio U.</Form.Label>
-              <Form.Control
-                // style={{ paddingLeft: 25 }}
-                required
-                value={it.price}
-                onChange={e => updateItem(idx, { price: e.target.value.replace(/[^0-9.]/g, '') })}
-              />
-              {/* <span style={{ position: 'absolute', left: 8, top: '55%' }}>$</span> */}
-            </div>
-
-            {/* subtotal */}
-            <div style={{ width: 120 }}>
-              <Form.Label>Subtotal</Form.Label>
-              <Form.Control
-                plaintext
-                readOnly
-                value={fmtNum((Number(it.price) || 0) * Number(it.quantity))}
-              />
-            </div>
-
-            {/* borrar fila */}
-            {items.length > 1 && (
               <Button
+                size="sm"
                 variant="outline-danger"
-                title="Eliminar"
-                style={{ height: 38, alignSelf: 'end' }}
                 onClick={() => removeRow(idx)}
+                title="Eliminar"
               >
                 🗑️
               </Button>
-            )}
-          </div>
-        ))}
+            </div>
+          ))
+        )}
 
-        <Button variant="outline-primary" onClick={addRow} className="mb-4">
-          + Añadir producto
-        </Button>
+        {/* ───────── Constructor (draft) ───────── */}
+        <Card className="mb-4">
+          <Card.Body>
+            <div className="d-flex gap-3 mb-3">
+              <Form.Check
+                type="radio"
+                id="modoProd"
+                label="Producto"
+                checked={draft.mode === 'product'}
+                onChange={() => setMode('product')}
+              />
+              <Form.Check
+                type="radio"
+                id="modoDesc"
+                label="Descuento"
+                checked={draft.mode === 'discount'}
+                onChange={() => setMode('discount')}
+              />
+            </div>
+
+            {/* mode = PRODUCT */}
+            {draft.mode === 'product' && (
+              <div className="d-flex gap-3 flex-wrap align-items-end">
+                {/* buscador */}
+                <div style={{ position: 'relative', flex: '2 1 250px' }}>
+                  <Form.Label>Producto</Form.Label>
+                  <Form.Control
+                    value={draft.query}
+                    placeholder="Buscar…"
+                    autoComplete="off"
+                    onChange={e => handleQueryChange(e.target.value)}
+                  />
+                  {suggestions.length > 0 && (
+                    <div
+                      className="list-group position-absolute w-100"
+                      style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}
+                    >
+                      {suggestions.map(p => (
+                        <button
+                          key={p._id}
+                          type="button"
+                          className="list-group-item list-group-item-action"
+                          onClick={() => chooseProduct(p)}
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ width: 100 }}>
+                  <Form.Label>Cant.</Form.Label>
+                  <Form.Control
+                    value={draft.quantity}
+                    onChange={e =>
+                      setDraftField('quantity')(e.target.value.replace(/[^0-9]/g, ''))
+                    }
+                  />
+                </div>
+
+                <div style={{ width: 120 }}>
+                  <Form.Label>Precio U.</Form.Label>
+                  <Form.Control
+                    value={draft.price}
+                    onChange={e =>
+                      setDraftField('price')(e.target.value.replace(/[^0-9.]/g, ''))
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* mode = DISCOUNT */}
+            {draft.mode === 'discount' && (
+              <div className="d-flex gap-3 flex-wrap align-items-end">
+                <div style={{ flex: '2 1 250px' }}>
+                  <Form.Label>Descripción</Form.Label>
+                  <Form.Control
+                    value={draft.description}
+                    onChange={e => setDraftField('description')(e.target.value)}
+                  />
+                </div>
+                <div style={{ width: 120 }}>
+                  <Form.Label>Monto $</Form.Label>
+                  <Form.Control
+                    value={draft.price}
+                    onChange={e =>
+                      setDraftField('price')(e.target.value.replace(/[^0-9.-]/g, ''))
+                    }
+                    placeholder="-100"
+                  />
+                </div>
+              </div>
+            )}
+
+            <Button variant="dark" className="mt-3" onClick={addDraftToRows}>
+              Añadir
+            </Button>
+          </Card.Body>
+        </Card>
 
         {/* resumen */}
         <div className="card shadow-sm mb-4" style={{ maxWidth: 350 }}>
           <div className="card-body">
             <div className="d-flex justify-content-between mb-2">
-              <span>Total unidades:</span><span>{totalUnits}</span>
+              <span>Total unidades:</span>
+              <span>{totalUnits}</span>
             </div>
             <div className="d-flex justify-content-between mb-2">
-              <span>Total Bruto:</span><span>${fmtNum(bruto)}</span>
+              <span>Subtotal (con desc.):</span>
+              <span>${fmtNum(subtotal)}</span>
             </div>
+
             <div className="d-flex justify-content-between mb-2">
-              <span>Bonificación ({bonPct}%):</span><span>${fmtNum(bonif)}</span>
+              <span>Bonificación ({bonPct}%):</span>
+              <span>${fmtNum(bonif)}</span>
             </div>
             <hr className="my-2" />
             <div className="d-flex justify-content-between fw-bold">
-              <span>Total Neto:</span><span>${fmtNum(neto)}</span>
+              <span>Total Neto:</span>
+              <span>${fmtNum(neto)}</span>
             </div>
           </div>
         </div>
@@ -335,18 +437,25 @@ export default function SellersMultiSale() {
         <Button type="submit" variant="dark" className="me-2">
           {editId ? 'Guardar cambios' : 'Confirmar venta'}
         </Button>
-        <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
+        <Button variant="secondary" onClick={() => navigate(-1)}>
+          Cancelar
+        </Button>
       </Form>
 
+      {/* modal OK */}
       <Modal
         show={showModal}
-        message={editId ? 'Venta modificada satisfactoriamente': 'Venta registrada satisfactoriamente'}
+        message={
+          editId
+            ? 'Venta modificada satisfactoriamente'
+            : 'Venta registrada satisfactoriamente'
+        }
         onClose={() => navigate('/movements')}
       >
         <Button
           variant="primary"
-          onClick={() => downloadReceipt(newMovementId)}
           disabled={!newMovementId}
+          onClick={() => downloadReceipt(newMovementId)}
         >
           Descargar comprobante
         </Button>

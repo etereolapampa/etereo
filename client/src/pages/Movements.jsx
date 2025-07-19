@@ -18,6 +18,9 @@ import { isMulti } from '../utils/movements';   // si no la tenías exportada
 import { downloadReceipt } from '../utils/receipt';
 
 
+/** ¿La fila proviene de un ítem con isDiscount === true?  */
+const isDiscountRow = m => isMulti(m) && m._item?.isDiscount;
+
 /* ───────────── Helpers globales ───────────── */
 const formatDate = formatDateAR;
 const initialMonth = todayAR().slice(0, 7); // YYYY-MM
@@ -523,8 +526,14 @@ export default function Movements() {
                   )}
 
                   {/* Producto + categoría */}
-                  <td>{getProduct(m)?.categoryId?.name || '—'}</td>
-                  <td>{getProduct(m)?.name || '—'}</td>
+                  <td>
+                    {isDiscountRow(m) ? 'DESCUENTOS'
+                      : getProduct(m)?.categoryId?.name || '—'}
+                  </td>
+                  <td>
+                    {isDiscountRow(m) ? (m._item?.description || 'Descuento')
+                      : getProduct(m)?.name || '—'}
+                  </td>
 
                   {/* Cantidad, Precio, Total */}
                   <td>{getQty(m)}</td>
@@ -595,6 +604,18 @@ export default function Movements() {
               {isMulti(m) ? (
                 <>
                   {m.items.map((it, idx) => {
+                    if (it.isDiscount) {          // ← NUEVO
+                      return (
+                        <div key={idx} className={idx ? 'mt-3 pt-2 border-top' : ''}>
+                          <div><strong>Producto:</strong> {it.description || 'Descuento'}</div>
+                          <div><strong>Categoría:</strong> DESCUENTOS</div>
+                          {/* los descuentos siempre llevan quantity 1 */}
+                          <div><strong>Precio:</strong> ${it.price.toFixed(2)}</div>
+                        </div>
+                      );
+                    }
+
+                    /* — resto sin cambios — */
                     const prod = products.find(p => p._id === it.productId);
                     return (
                       <div key={idx} className={idx ? 'mt-3 pt-2 border-top' : ''}>
@@ -605,6 +626,7 @@ export default function Movements() {
                       </div>
                     );
                   })}
+
                 </>
               ) : (
                 /* venta simple */

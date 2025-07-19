@@ -1,5 +1,6 @@
 // server/src/routes/stock.js
 import express from 'express';
+import mongoose from 'mongoose';
 
 import Producto from '../models/Producto.js';
 import Movimiento from '../models/Movimiento.js';
@@ -20,11 +21,11 @@ const getArgentinaDate = () => new Date();
 const formatDate = d =>
   d
     ? new Date(d).toLocaleDateString('es-AR', {
-        timeZone: 'America/Argentina/Buenos_Aires',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      })
+      timeZone: 'America/Argentina/Buenos_Aires',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
     : '';
 
 /* ╭──────────────────────────────────────────────╮
@@ -78,6 +79,33 @@ router.post('/add', async (req, res) => {
   }
 });
 
+
+// ─── helpers items ─────────────────────────────────────────
+const validateItem = async (it) => {
+  /* — Descuentos — */
+  if (it.isDiscount) {
+    if (!it.description?.trim()) throw 'Descuento sin descripción';
+    if (typeof it.price !== 'number' || it.price >= 0)
+      throw 'El precio del descuento debe ser NEGATIVO';
+    if (it.quantity !== 1) throw 'El descuento lleva quantity = 1';
+    return null;                               // no necesita más validación
+  }
+
+  /* — Ítems reales — */
+  if (!mongoose.isValidObjectId(it.productId)) throw 'productId inválido';
+  const prod = await Producto.findById(it.productId);
+  if (!prod) throw `Producto ${it.productId} no encontrado`;
+  if (typeof it.price !== 'number' || it.price <= 0)
+    throw 'price inválido';
+  if (!Number.isInteger(it.quantity) || it.quantity <= 0)
+    throw 'quantity inválida';
+  return prod;                                 // lo devolvemos para reutilizar
+};
+// ───────────────────────────────────────────────────────────
+
+
+
+
 /* =========================================================
    POST /stock/sale  (venta simple o múltiple)
    ========================================================= */
@@ -91,45 +119,62 @@ router.post('/sale', async (req, res) => {
       if (sellerId && !(await Vendedor.exists({ _id: sellerId })))
         return res.status(400).json({ error: 'Vendedor no encontrado' });
 
+      /* — VALIDAR todos los ítems y separar descuentos — */
       let total = 0;
       for (const it of items) {
-        const prod = await Producto.findById(it.productId);
-        if (!prod) return res.status(404).json({ error: `Producto ${it.productId} no encontrado` });
-        if (prod.stock < it.quantity)
-          return res.status(400).json({ error: `Stock global insuficiente para ${prod.name}` });
+        const prod = await validateItem(it);        // ← lanza error si algo falla
 
-        /* disponibilidad por sucursal */
-        const disponible =
-          (
-            await Movimiento.aggregate([
-              { $match: { productId: prod._id, branch } },
-              {
-                $group: {
-                  _id: null,
-                  total: {
-                    $sum: {
-                      $cond: [{ $eq: ['$type', 'add'] }, '$quantity', { $multiply: ['$quantity', -1] }]
-                    }
+        /* si es descuento sólo sumo y sigo */
+        if (it.isDiscount) {
+          total += it.quantity * it.price;          // price es NEGATIVO
+          continue;
+        }
+
+        /* ---------- ÍTEM REAL: verificar stock & descontar ---------- */
+        if (prod.stock < it.quantity)
+          return res.status(400).json({
+            error: `Stock global insuficiente para ${prod.name}`
+          });
+
+        /* disponible en sucursal */
+        const disponible = (
+          await Movimiento.aggregate([
+            { $match: { productId: prod._id, branch } },
+            {
+              $group: {
+                _id: null,
+                total: {
+                  $sum: {
+                    $cond: [
+                      { $eq: ['$type', 'add'] },
+                      '$quantity',
+                      { $multiply: ['$quantity', -1] }
+                    ]
                   }
                 }
               }
-            ])
-          )[0]?.total || 0;
+            }
+          ])
+        )[0]?.total || 0;
 
         if (disponible < it.quantity)
-          return res
-            .status(400)
-            .json({ error: `Stock insuficiente en ${branch} para ${prod.name}` });
+          return res.status(400).json({
+            error: `Stock insuficiente en ${branch} para ${prod.name}`
+          });
 
+        /* actualizar stock */
         adjustStock(prod, branch, -it.quantity);
         await prod.save();
-        total += it.quantity * it.price;
+
+        total += it.quantity * it.price;            // acumulo normal
       }
 
+      /* — crear movimiento — */
       const movement = await Movimiento.create({
         type: 'sell',
         branch,
-        date: date?.length === 10 ? parseDateAR(date) : date || getArgentinaDate(),
+        date: date?.length === 10 ? parseDateAR(date)
+          : date || getArgentinaDate(),
         sellerId: sellerId || null,
         isFinalConsumer: !sellerId,
         items,
@@ -140,8 +185,9 @@ router.post('/sale', async (req, res) => {
       return res.json({ movement, total });
     }
 
+
     /* ────────────── venta SIMPLE ────────────── */
-    const {
+    let {
       productId,
       quantity,
       price,
@@ -454,8 +500,8 @@ router.put('/movements/:id', async (req, res) => {
         body.type === 'add'
           ? body.quantity
           : body.type === 'shortage'
-          ? -body.quantity
-          : -body.quantity; // venta simple
+            ? -body.quantity
+            : -body.quantity; // venta simple
       adjustStock(prod, body.branch, delta);
       await prod.save();
     }
@@ -528,213 +574,166 @@ const logoPromise = loadImage(LOGO_PATH).catch(err => {
 });
 
 router.get('/movements/:id/receipt.png', async (req, res) => {
-  /* ═════════════════════ 1) DATOS ═════════════════════ */
-  const mov = await Movimiento.findById(req.params.id)
-    .populate('productId')
-    .populate('sellerId')
-    .populate('items.productId');
+  try {
+    /* ═════════ 1) DATOS ═════════ */
+    const mov = await Movimiento.findById(req.params.id)
+      .populate('productId')
+      .populate('sellerId')
+      .populate('items.productId');
 
-  if (!mov) return res.status(404).json({ error: 'Movimiento no encontrado' });
+    if (!mov)
+      return res.status(404).json({ error: 'Movimiento no encontrado' });
 
-  // Normalizar filas ── (venta múltiple o movimiento simple)
-  const rows = mov.items?.length
-    ? mov.items
-    : [{ productId: mov.productId, quantity: mov.quantity, price: mov.price }];
+    const rows = mov.items?.length
+      ? mov.items
+      : [{ productId: mov.productId, quantity: mov.quantity, price: mov.price }];
 
-  for (const r of rows) {
-    /* producto completo (populate o 2ª query) */
-    r._prod = r.productId?.name
-      ? r.productId
-      : await Producto.findById(r.productId);
+    for (const r of rows) {
 
-    /* precio unitario:  r.price (si lo trae)  ↔  fallback al del producto */
-    const unitPrice = r.price ?? r._prod?.price ?? null;
-    r.price = unitPrice;                 // lo reutilizamos después
-    r._subtotal = (unitPrice ?? 0) * r.quantity;
-  }
-
-  const unidades = rows.reduce((s, r) => s + Number(r.quantity), 0);
-  const tipoES = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
-
-  /* ═════════════════════ 2) LAYOUT ═════════════════════ */
-  const P = 40;         // margen horizontal
-  const W = 600;        // ancho total
-  const FOOTER = 60;         // margen inferior adicional
-
-  /* columnas fijas — achicamos la de “Detalle” (NAME_W) */
-  const NAME_W = 300;                      // ← si se superpone, bajar un poco más
-  const COL_QTY = P + NAME_W + 50;          // unidades
-  const COL_PUNIT = COL_QTY + 70;             // precio unit.
-  const COL_SUBT = W - P;                    // subtotal
-
-  /* función wrap de texto para nombre de producto */
-  const textLines = (ctx, txt, maxW) => {
-    const words = txt.split(' ');
-    const lines = [];
-    let w = '';
-    words.forEach(word => {
-      const test = w ? `${w} ${word}` : word;
-      if (ctx.measureText(test).width > maxW) {
-        lines.push(w);
-        w = word;
-      } else {
-        w = test;
+      /* ─── Descuento ─────────────────────────── */
+      if (r.isDiscount) {
+        // aparece como línea aparte (sin producto real)
+        r._prod = { name: `Descuento: ${r.description || ''}` };
+        r.quantity = 1;
+        r._subtotal = r.price;            // ya viene NEGATIVO
+        continue;                         // salteamos búsqueda en BD
       }
-    });
-    if (w) lines.push(w);
-    return lines;
-  };
 
-  /* alto dinámico  (22 px por línea de producto) */
-  const headerLines = 3 + (mov.destination ? 1 : 0) + (mov.sellerId ? 1 : 0);
-  const bonusLine = mov.sellerId?.bonus ? 1 : 0;
-  const obsLine = mov.observations ? 1 : 0;
+      /* ─── Producto ─────────────────────────── */
+      r._prod = r.productId?.name
+        ? r.productId                     // venía populateado
+        : await Producto.findById(r.productId);
 
-  const prodLines = (() => {
-    // suma las líneas que ocupa cada nombre envuelto
-    // necesitamos un ctx temporal solo para el cálculo
-    const tmp = createCanvas(1, 1).getContext('2d');
-    tmp.font = '14px Arial';
-    return rows.reduce((s, r) => s + textLines(tmp, r._prod.name, NAME_W).length, 0);
-  })();
+      const unit = r.price ?? r._prod?.price ?? 0;
+      r.price = unit;
+      r._subtotal = unit * r.quantity;
+    }
 
-  const H = 110 + headerLines * 24 +
-    30 + 26 +               // separador + “Detalle”
-    prodLines * 22 +
-    6 + 28 +                            // separador detalle
-    (24 + 10 + 24) + bonusLine * 24 +       // totales brutos + comisión
-    3 + 28 + 24 +               // separador + neto
-    obsLine * 24 +
-    FOOTER;
+    /* ═════════ 2) LAYOUT ═════════ */
+    const P = 40, W = 600, HEADER_H = 70, FOOTER = 60;
+    const NAME_W = 300, COL_QTY = P + NAME_W + 50;
+    const COL_UNIT = COL_QTY + 70, COL_SUBT = W - P;
 
-  /* 3) Canvas & contexto */
-  const c   = createCanvas(W, H);
-  const ctx = c.getContext('2d');
+    /* simple wrap de texto */
+    const wrap = (ctx, txt, maxW) => {
+      const words = txt.split(' ');
+      let line = '', lines = [];
+      words.forEach(w => {
+        const test = line ? `${line} ${w}` : w;
+        if (ctx.measureText(test).width > maxW) {
+          lines.push(line); line = w;
+        } else line = test;
+      });
+      if (line) lines.push(line);
+      return lines;
+    };
 
-/* fondo + header */
-ctx.fillStyle = '#fff';
-ctx.fillRect(0, 0, W, H);
-
-ctx.fillStyle = '#212529';
-ctx.fillRect(0, 0, W, 70);
-
-/* ⬇️  NUEVO: título */
-ctx.fillStyle = '#fff';
-ctx.font      = 'bold 24px Arial';
-ctx.textAlign = 'center';
-ctx.fillText('Comprobante', W / 2, 45);
-
-
-/* ----------  Marca de agua  ---------- */
-const logo = await logoPromise;
-if (logo) {
-  /* ① Clip para que el logo NO toque el header */
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 70, W, H - 70);   // (x, y, w, h)  ← desde debajo del header
-  ctx.clip();
-
-  /* ② Dibujo del logo */
-  const MAX_W = Math.min(W * 0.8, 2000);
-  const ratio = logo.width / logo.height;
-  const wmW   = MAX_W;
-  const wmH   = wmW / ratio;
-  const x     = (W - wmW) / 2;
-  const y     = (H - wmH) / 2;
-
-  ctx.globalAlpha = 0.08;       // transparencia suave
-  ctx.drawImage(logo, x, y, wmW, wmH);
-
-  ctx.restore();                // ¡importantísimo!
-}
-/* ----------  Fin marca de agua  ---------- */
-
-
-
-  /* ═════════════════════ 4) ENCABEZADO ═════════════════ */
-  ctx.textAlign = 'left'; ctx.fillStyle = '#000'; ctx.font = '14px Arial';
-  let y = 110;
-  const line = (lbl, val) => {
-    ctx.font = 'bold 14px Arial'; ctx.fillText(lbl, P, y);
-    ctx.font = '14px Arial'; ctx.fillText(val, P + 140, y);
-    y += 24;
-  };
-  line('Fecha:', format(mov.date, 'dd/MM/yyyy', { locale: es }));
-  line('Tipo:', tipoES);
-  line('Sucursal:', mov.branch || mov.origin);
-  if (mov.destination) line('Destino:', mov.destination);
-  if (mov.sellerId) line('Vendedora:', `${mov.sellerId.name} ${mov.sellerId.lastname}`);
-
-  ctx.strokeStyle = '#ccc'; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
-  y += 30;
-
-  /* ═════════════════════ 5) DETALLE ════════════════════ */
-  ctx.font = 'bold 14px Arial'; ctx.fillText('Detalle', P, y); y += 26;
-
-  ctx.font = '14px Arial';
-
-  rows.forEach(r => {
-    const lines = textLines(ctx, r._prod.name, NAME_W);
-    ctx.textAlign = 'left';
-    lines.forEach((ln, i) => {
-      ctx.fillText(i === 0 ? `• ${ln}` : `  ${ln}`, P, y + i * 22);
-    });
-
-    ctx.textAlign = 'right';
-    ctx.fillText(`${r.quantity} u.`, COL_QTY, y);
-    const unitPrice = r.price;
-    ctx.fillText(
-      unitPrice !== null ? `$${unitPrice.toFixed(2)}` : '—',
-      COL_PUNIT, y
-    );
-    ctx.fillText(
-      unitPrice !== null ? `$${r._subtotal.toFixed(2)}` : '—',
-      COL_SUBT, y
+    /* cuántas líneas usan los productos */
+    const meas = createCanvas(1, 1).getContext('2d');
+    meas.font = '14px Arial';
+    const prodLines = rows.reduce(
+      (s, r) => s + wrap(meas, r._prod.name, NAME_W).length, 0
     );
 
-    y += lines.length * 22;
-  });
+    const H = HEADER_H + 110 + prodLines * 22 + 90 +
+      (mov.sellerId?.bonus ? 24 : 0) +
+      (mov.observations ? 24 : 0) +
+      FOOTER;
 
-  ctx.textAlign = 'left'; y += 6;
-  ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
-  y += 28;
+    /* ═════════ 3) CANVAS ═════════ */
+    const c = createCanvas(W, H);
+    const ctx = c.getContext('2d');
 
-  /* ═════════════════════ 6) TOTALES ════════════════════ */
-  const bonusPct = mov.sellerId?.bonus || 0;
-  const totalBruto = mov.total ?? rows.reduce((s, r) => s + r._subtotal, 0);
-  const comision = totalBruto * bonusPct / 100;
-  const neto = totalBruto - comision;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#212529'; ctx.fillRect(0, 0, W, HEADER_H);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center'; ctx.fillText('Comprobante', W / 2, 45);
 
-  const totalLine = (lbl, val, col = COL_SUBT) => {
-    ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left'; ctx.fillText(lbl, P, y);
-    ctx.textAlign = 'right'; ctx.fillText(val, col, y); y += 24;
-  };
+    /* Marca de agua */
+    const logo = await logoPromise;
+    if (logo) {
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, HEADER_H, W, H - HEADER_H); ctx.clip();
+      const wmW = Math.min(W * 0.8, 2000);
+      const wmH = wmW / (logo.width / logo.height);
+      ctx.globalAlpha = 0.08;
+      ctx.drawImage(logo, (W - wmW) / 2, (H - wmH) / 2, wmW, wmH);
+      ctx.restore();
+    }
 
-  totalLine('Total unidades:', `${unidades} u.`, COL_QTY);
-  y += 10;
-  totalLine('Total bruto:', `$${totalBruto.toFixed(2)}`);
+    /* ═════════ 4) ENCABEZADO ═════════ */
+    ctx.textAlign = 'left'; ctx.fillStyle = '#000'; ctx.font = '14px Arial';
+    let y = HEADER_H + 40;
+    const fld = (l, v) => {
+      ctx.font = 'bold 14px Arial'; ctx.fillText(l, P, y);
+      ctx.font = '14px Arial'; ctx.fillText(v, P + 140, y);
+      y += 24;
+    };
+    const tipoES = { add: 'Carga', sell: 'Venta', transfer: 'Mudanza', shortage: 'Faltante' }[mov.type];
+    fld('Fecha:', format(mov.date, 'dd/MM/yyyy', { locale: es }));
+    fld('Tipo:', tipoES);
+    fld('Sucursal:', mov.branch || mov.origin);
+    if (mov.destination) fld('Destino:', mov.destination);
+    if (mov.sellerId) fld('Vendedora:', `${mov.sellerId.name} ${mov.sellerId.lastname}`);
 
-  if (bonusPct) {
-    totalLine(`Comisión (${bonusPct}%):`, `-$${comision.toFixed(2)}`);
+    ctx.strokeStyle = '#ccc'; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
+    y += 30;
+
+    /* ═════════ 5) DETALLE ═════════ */
+    ctx.font = 'bold 14px Arial'; ctx.fillText('Detalle', P, y); y += 26;
+    ctx.font = '14px Arial';
+
+    rows.forEach(r => {
+      const lines = wrap(ctx, r._prod.name, NAME_W);
+      lines.forEach((ln, i) => ctx.fillText((i ? '  ' : '• ') + ln, P, y + i * 22));
+      ctx.textAlign = 'right';
+      ctx.fillText(`${r.quantity} u.`, COL_QTY, y);
+      ctx.fillText(`$${r.price.toFixed(2)}`, COL_UNIT, y);
+      ctx.fillText(`$${r._subtotal.toFixed(2)}`, COL_SUBT, y);
+      ctx.textAlign = 'left';
+      y += lines.length * 22;
+    });
+
+    ctx.beginPath(); ctx.moveTo(P, y + 6); ctx.lineTo(W - P, y + 6); ctx.stroke();
+    y += 34;
+
+    /* ═════════ 6) TOTALES ═════════ */
+    const unidades = rows.reduce((s, r) => s + r.quantity, 0);
+    const bruto = rows.reduce((s, r) => s + r._subtotal, 0);
+    const pct = mov.sellerId?.bonus || 0;
+    const comision = bruto * pct / 100;
+    const neto = bruto - comision;
+
+    const totalLn = (l, v, col = COL_SUBT) => {
+      ctx.font = 'bold 14px Arial'; ctx.textAlign = 'left'; ctx.fillText(l, P, y);
+      ctx.textAlign = 'right'; ctx.fillText(v, col, y); y += 24;
+    };
+
+    totalLn('Total unidades:', `${unidades} u.`, COL_QTY);
+    y += 10;
+    totalLn('Total bruto:', `$${bruto.toFixed(2)}`);
+    if (pct) totalLn(`Comisión (${pct}%):`, `-$${comision.toFixed(2)}`);
+    ctx.beginPath(); ctx.moveTo(P, y + 3); ctx.lineTo(W - P, y + 3); ctx.stroke();
+    y += 31;
+    totalLn('Total neto:', `$${neto.toFixed(2)}`);
+
+    /* ═════════ 7) OBSERVACIONES ═════════ */
+    if (mov.observations) {
+      y += 24;
+      ctx.font = 'italic 13px Arial'; ctx.textAlign = 'left';
+      ctx.fillText(`Obs.: ${mov.observations}`, P, y);
+    }
+
+    /* ═════════ 8) SALIDA ═════════ */
+    const png = await c.encode('png');     // con node‑canvas → c.toBuffer('image/png')
+    res.type('png').send(png);
+
+  } catch (err) {
+    console.error('❌  /movements/:id/receipt.png →', err);
+    res.status(500).json({ error: 'Error generando el comprobante' });
   }
-
-  y += 3; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W - P, y); ctx.stroke();
-  y += 28;
-  totalLine('Total neto:', `$${neto.toFixed(2)}`);
-
-  /* ═════════════════════ 7) OBSERVACIONES ═══════════════ */
-  if (mov.observations) {
-    y += 24;
-    ctx.font = 'italic 13px Arial'; ctx.textAlign = 'left';
-    ctx.fillText(`Obs.: ${mov.observations}`, P, y);
-  }
-
-  /* ═════════════════════ 8) RESPUESTA ═══════════════════ */
-  const png = await c.encode('png');
-  res.setHeader('Content-Type', 'image/png');
-  res.setHeader('Content-Disposition', `attachment; filename=comprobante_${mov._id}.png`);
-  res.end(Buffer.from(png));
 });
+/* ───────────────── Fin endpoint recibo ───────────────── */
 
 
 
