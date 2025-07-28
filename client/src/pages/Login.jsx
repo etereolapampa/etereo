@@ -11,10 +11,8 @@ export default function Login() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    console.log('Intentando login con:', { username, password });
     try {
       const { data } = await api.post('/auth/login', { username, password });
-      console.log('Respuesta del servidor:', data);
       localStorage.setItem('token', data.token);
       nav('/');
     } catch (err) {

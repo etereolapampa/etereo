@@ -70,6 +70,12 @@ export default function StockTransfer() {
     })();
   }, [isEdit, searchParams, sucursales]);
 
+  const handleModalClose = () => {
+    setShowModal(false);
+    navigate('/stock');
+  };
+
+
   /* ───── handlers sucursal ───── */
   const handleSourceChange = branch => {
     setSourceBranch(branch);
@@ -93,13 +99,13 @@ export default function StockTransfer() {
       return setError('Origen y destino no pueden ser iguales');
 
     const payload = {
-      productId  : product._id,
-      quantity   : Number(quantity),
-      origin     : sourceBranch,
+      productId: product._id,
+      quantity: Number(quantity),
+      origin: sourceBranch,
       destination: destinationBranch,
       date,
       observations,
-      type       : 'transfer'
+      type: 'transfer'
     };
 
     try {

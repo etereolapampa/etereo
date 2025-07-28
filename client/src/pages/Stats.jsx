@@ -81,12 +81,13 @@ export default function Stats() {
   }, []);
 
   /* ───────── core: cálculo de tabla + opciones ───────── */
-  const { data: tableData, availableOptions } = useMemo(() => {
+  const { data: tableData, availableOptions, filteredFlat } = useMemo(() => {
     /* 1) aplanamos ventas múltiples */
     const flat = expandMovements(movements);
 
     /* 2) filtrado general */
-    const filtered = flat.filter(m => {
+
+    const filteredFlat = flat.filter(m => {
       const prodId = getProdId(m);
       if (!prodId) return false;
 
@@ -94,24 +95,20 @@ export default function Stats() {
       if (date.getFullYear() !== year) return false;
 
       const productMatch = products.find(p => p._id === prodId);
+
       const categoryMatch = !category ||
-        (productMatch &&
-          productMatch.categoryId._id === category);
+        (productMatch && productMatch.categoryId._id === category);
+
       const productFilterMatch = !product || prodId === product;
-      const sellerMatch = !seller ||
-        (m.sellerId && m.sellerId._id === seller);
+      const sellerMatch = !seller || (m.sellerId && m.sellerId._id === seller);
       const branchMatch = !branch || m.branch === branch;
       const finalConsMatch = !showFinalConsumer || !m.sellerId;
 
       if (!categoryMatch || !productFilterMatch ||
-        !sellerMatch || !branchMatch ||
-        !finalConsMatch) return false;
+        !sellerMatch || !branchMatch || !finalConsMatch) return false;
 
-      if (concept === 'Ventas')
-        return m.type === 'sell';
-      if (concept === 'Faltantes')
-        return m.type === 'shortage';
-
+      if (concept === 'Ventas') return m.type === 'sell';
+      if (concept === 'Faltantes') return m.type === 'shortage';
       return false;
     });
 
@@ -123,7 +120,7 @@ export default function Stats() {
       branches: new Set()
     };
 
-    filtered.forEach(m => {
+    filteredFlat.forEach(m => {
       const prodId = getProdId(m);
       const prod = products.find(p => p._id === prodId);
       if (prod) {
@@ -136,7 +133,7 @@ export default function Stats() {
 
     /* 4) agrupado   ----------------------------------------- */
     const grouped = {};
-    filtered.forEach(m => {
+    filteredFlat.forEach(m => {
       /* campo clave según rowGroup */
       let key;
       if (rowGroup === 'Producto') {
@@ -169,115 +166,106 @@ export default function Stats() {
     })).filter(r => r.total > 0)
       .sort((a, b) => b.total - a.total);
 
-    return { data: table, availableOptions: opts };
+    return { data: table, availableOptions: opts, filteredFlat };
   }, [
     movements, products, categories, sellers,
     concept, year, category, product, seller,
     branch, showFinalConsumer, rowGroup
   ]);
 
-  /* --------------- exportar a Excel (sin cambios salvo getQty) ---- */
+  /* --------------- exportar a Excel  ---- */
   const exportToExcel = () => {
-    /* ========== crear libro ========== */
     const wb = XLSX.utils.book_new();
 
-    /* ───────── 1) Pestaña MOVIMIENTOS ───────── */
-    const movHeaders = [
-      'Fecha', 'Tipo', 'Categoría', 'Producto',
-      'Cantidad', 'Precio U.', 'Total',
-      'Sucursal', 'Destino/Vendedor', 'Observaciones'
+    // ========= 1) Hoja "Estadísticas" (grupo resumido) =========
+    const MONTHS = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
 
-    const movRows = movements.map(m => {
-      /* helpers ↓ */
-      const prod = products.find(p => p._id === m.productId?._id);
+    const statsHeaders = [rowGroup, ...MONTHS, 'Total'];
+    const statsRows = tableData.map(r => [r.name, ...r.months, r.total]);
+    const wsStats = XLSX.utils.aoa_to_sheet([statsHeaders, ...statsRows]);
+    XLSX.utils.book_append_sheet(wb, wsStats, 'Estadísticas');
+
+    // ========= 2) Hoja "Movimientos filtrados" =========
+    // Tomamos los movimientos FLAT que ya pasaron por los filtros
+    const movHeaders = [
+      'Fecha', 'Tipo', 'Categoría', 'Producto',
+      'Cantidad', 'Precio U.', 'Total', 'Sucursal',
+      'Destino/Vendedor', 'Observaciones'
+    ];
+
+    const movRows = filteredFlat.map(m => {
+      // producto y categoría
+      const prodId = getProdId(m);
+      const prod = products.find(p => p._id === prodId);
       const cat = categories.find(c => c._id === prod?.categoryId?._id);
-      const sellerObj = m.sellerId
-        ? sellers.find(s => s._id === m.sellerId?._id)
-        : null;
 
-      /* destino / vendedor */
-      let dest = '-';
-      if (m.type === 'transfer') dest = m.destination || '-';
-      else if (m.type === 'sell') {
-        dest = sellerObj
-          ? `${sellerObj.name} ${sellerObj.lastname}`
-          : (m.destination || 'Consumidor Final');
-      }
+      // cantidad / precio
+      const qty = getQty(m);
+      const price = m._item ? m._item.price : (m.price ?? prod?.price ?? 0);
+      const total = m._item
+        ? m.items.reduce((s, it) => s + it.quantity * it.price, 0)
+        : (m.total ?? qty * price);
 
-      /* nombre tipo legible */
-      const tipo = (
+      // tipo legible
+      const tipo =
         m.type === 'add' ? 'Carga' :
           m.type === 'sell' ? 'Venta' :
             m.type === 'transfer' ? 'Mudanza' :
-              m.type === 'shortage' ? 'Faltante' :
-                'Otro'
-      );
+              m.type === 'shortage' ? 'Faltante' : 'Otro';
 
-      const fecha = new Date(m.date).toISOString().slice(0, 10);
+      // destino / vendedor
+      let dest = '-';
+      if (m.type === 'transfer') {
+        dest = m.destination || '-';
+      } else if (m.type === 'sell') {
+        if (m.sellerId) {
+          const s = sellers.find(s => s._id === m.sellerId._id);
+          dest = s ? `${s.name} ${s.lastname}` : 'Vendedor eliminado';
+        } else {
+          dest = m.destination || 'Consumidor Final';
+        }
+      }
 
       return [
-        fecha, tipo,
-        cat?.name || '-',            // categoría
-        prod?.name || '-',           // producto
-        m.quantity ??                 // cantidad
-        (Array.isArray(m.items) ?               // venta múltiple
-          m.items.reduce((s, it) => s + it.quantity, 0) :
-          0),
-        prod?.price ?? '-',          // precio unitario de referencia
-        m.total ?? '-',              // total tal cual se guardó
-        m.branch || m.origin || '-', // sucursal
-        dest,                        // destino/vendedor
+        new Date(m.date).toISOString().slice(0, 10),
+        tipo,
+        cat?.name || '-',
+        prod?.name || '-',
+        qty,
+        price,
+        total,
+        m.branch || m.origin || '-',
+        dest,
         m.observations || '-'
       ];
     });
 
     const wsMov = XLSX.utils.aoa_to_sheet([movHeaders, ...movRows]);
-    XLSX.utils.book_append_sheet(wb, wsMov, 'Movimientos');
+    XLSX.utils.book_append_sheet(wb, wsMov, 'Movimientos filtrados');
 
-    /* ───────── 2) Pestaña STOCK ───────── */
-    const branchNames = sucursales.map(s => s.nombre); // ['Santa Rosa', 'Macachín', …]
-    const stockHeaders = [
-      'Producto', 'Categoría', 'Stock total', ...branchNames
-    ];
-
-    const stockRows = products.map(p => {
+    // ========= 3) Hoja "Stock" ========= (usa stockData para cantidades por sucursal)
+    const branchNames = sucursales.map(s => s.nombre);
+    const stockHeaders = ['Producto', 'Categoría', 'Stock total', ...branchNames];
+    const stockRows = stockData.map(p => {
       const cat = categories.find(c => c._id === p.categoryId?._id);
       return [
         p.name,
         cat?.name || '-',
-        p.stock,
+        p.stock ?? 0,
         ...branchNames.map(b => p.stockByBranch?.[b] ?? 0)
       ];
     });
-
     const wsStock = XLSX.utils.aoa_to_sheet([stockHeaders, ...stockRows]);
     XLSX.utils.book_append_sheet(wb, wsStock, 'Stock');
 
-    /* ───────── 3) Pestaña VENDEDORES ───────── */
-    const vendHeaders = [
-      'Nombre', 'Apellido', 'DNI', 'Teléfono',
-      'Localidad', 'Provincia', 'Bonificación %', 'Email'
-    ];
-
-    const vendRows = sellers.map(v => [
-      v.name,
-      v.lastname,
-      v.dni,
-      v.phone ?? '-',
-      v.city?.name ?? '-',
-      v.city?.province ?? '-',
-      v.bonus ?? 0,
-      v.email ?? '-'
-    ]);
-
-    const wsVend = XLSX.utils.aoa_to_sheet([vendHeaders, ...vendRows]);
-    XLSX.utils.book_append_sheet(wb, wsVend, 'Vendedores');
-
-    /* ========== descargar ========== */
+    // ========= Descargar =========
     const today = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(wb, `etereo_${today}.xlsx`);
   };
+
 
 
   /* --------------- UI --------------- */
