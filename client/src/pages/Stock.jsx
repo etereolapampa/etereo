@@ -27,8 +27,12 @@ export default function Stock() {
   const [categories,     setCategories]     = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [productFilter,  setProductFilter]  = useState('');
-  const [branchFilter,   setBranchFilter]   = useState('');
-  const [stockFilter,    setStockFilter]    = useState('');
+  const [stockFilters,   setStockFilters]   = useState({
+    'Santa Rosa_with': false,
+    'Santa Rosa_without': false,
+    'Macachín_with': false,
+    'Macachín_without': false
+  });
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState('');
   const [sort,           setSort]           = useState({ field: 'name', order: 'asc' });
@@ -54,17 +58,12 @@ export default function Stock() {
   }, []);
 
   /* ───────────── filtros ───────────── */
-  const handleBranchChange = (branch) => {
-    setBranchFilter(branch);
-    if (branch && !stockFilter) setStockFilter('with');
-  };
-  const toggleStockFilter = (mode) => {
-    if (stockFilter === mode) {
-      setStockFilter('');
-      setBranchFilter('');
-    } else {
-      setStockFilter(mode);
-    }
+  const handleStockFilterChange = (branch, type) => {
+    const key = `${branch}_${type}`;
+    setStockFilters(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
 
   const filtered = stock.filter((p) => {
@@ -72,15 +71,30 @@ export default function Stock() {
     if (!catName.includes(categoryFilter.toLowerCase())) return false;
     if (!p.name.toLowerCase().includes(productFilter.toLowerCase())) return false;
 
-    if (branchFilter) {
-      const branchQty = p.stockByBranch[branchFilter] || 0;
-      if (stockFilter === 'with') return branchQty > 0;
-      if (stockFilter === 'without') return branchQty === 0;
-    } else {
-      const hasStock = Object.values(p.stockByBranch).some((q) => q > 0);
-      if (stockFilter === 'with') return hasStock;
-      if (stockFilter === 'without') return !hasStock;
+    // Verificar filtros de stock por sucursal
+    const santaRosaStock = p.stockByBranch['Santa Rosa'] || 0;
+    const macachinStock = p.stockByBranch['Macachín'] || 0;
+
+    // Si hay filtros activos, verificar condiciones
+    const activeFilters = Object.entries(stockFilters).filter(([_, active]) => active);
+    
+    if (activeFilters.length === 0) {
+      return true; // No hay filtros activos, mostrar todo
     }
+
+    // Verificar cada filtro activo
+    for (const [filterKey, _] of activeFilters) {
+      const [branch, type] = filterKey.split('_');
+      const branchStock = branch === 'Santa Rosa' ? santaRosaStock : macachinStock;
+      
+      if (type === 'with' && branchStock === 0) {
+        return false; // Necesita stock pero no lo tiene
+      }
+      if (type === 'without' && branchStock > 0) {
+        return false; // Necesita no tener stock pero lo tiene
+      }
+    }
+
     return true;
   });
 
@@ -96,7 +110,7 @@ export default function Stock() {
       return categories.find((c) => c._id === prod.categoryId)?.name || '';
     }
     if (sort.field === 'stock') {
-   return branchFilter ? (prod.stockByBranch[branchFilter] || 0) : totalFromBranches(prod);
+      return totalFromBranches(prod);
     }
     if (SUCURSALES.includes(sort.field)) {
       return prod.stockByBranch[sort.field] || 0;
@@ -129,7 +143,7 @@ export default function Stock() {
 
       {/* ███ Filtros ███ */}
       <Form className="mb-3">
-        <Row className="g-2">
+        <Row className="g-2 align-items-end">
           <Col md={3}>
             <Form.Control
               placeholder="Buscar categoría…"
@@ -144,27 +158,47 @@ export default function Stock() {
               onChange={(e) => setProductFilter(e.target.value)}
             />
           </Col>
-          <Col md={4}>
-            <Form.Select value={branchFilter} onChange={(e) => handleBranchChange(e.target.value)}>
-              <option value="">Todas las sucursales</option>
-              {SUCURSALES.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </Form.Select>
-          </Col>
-          <Col md={2} className="d-flex align-items-center gap-3">
-            <Form.Check
-              type="checkbox"
-              label="Con stock"
-              checked={stockFilter === 'with'}
-              onChange={() => toggleStockFilter('with')}
-            />
-            <Form.Check
-              type="checkbox"
-              label="Sin stock"
-              checked={stockFilter === 'without'}
-              onChange={() => toggleStockFilter('without')}
-            />
+          <Col md={6}>
+            <Row className="g-2">
+              <Col md={6}>
+                <div className="p-2">
+                  <div className="fw-bold mb-2 text-center">Santa Rosa</div>
+                  <div className="d-flex gap-3 justify-content-center">
+                    <Form.Check
+                      type="checkbox"
+                      label="Con stock"
+                      checked={stockFilters['Santa Rosa_with']}
+                      onChange={() => handleStockFilterChange('Santa Rosa', 'with')}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="Sin stock"
+                      checked={stockFilters['Santa Rosa_without']}
+                      onChange={() => handleStockFilterChange('Santa Rosa', 'without')}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="p-2">
+                  <div className="fw-bold mb-2 text-center">Macachín</div>
+                  <div className="d-flex gap-3 justify-content-center">
+                    <Form.Check
+                      type="checkbox"
+                      label="Con stock"
+                      checked={stockFilters['Macachín_with']}
+                      onChange={() => handleStockFilterChange('Macachín', 'with')}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="Sin stock"
+                      checked={stockFilters['Macachín_without']}
+                      onChange={() => handleStockFilterChange('Macachín', 'without')}
+                    />
+                  </div>
+                </div>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Form>
