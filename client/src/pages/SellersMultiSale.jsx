@@ -52,6 +52,7 @@ export default function SellersMultiSale() {
 
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [newMovementId, setNewMovementId] = useState(null);
 
   /* ───────────────────── cargar datos base ─────────────────── */
@@ -59,7 +60,7 @@ export default function SellersMultiSale() {
     (async () => {
       try {
         const [prodRes, vendRes] = await Promise.all([
-          api.get('/products'),
+          api.get('/stock'), // Cambiado de '/products' a '/stock'
           sellerIdParam ? api.get(`/sellers/${sellerIdParam}`) : Promise.resolve({ data: null })
         ]);
         setProducts(prodRes.data);
@@ -119,16 +120,40 @@ export default function SellersMultiSale() {
   const setDraftField = field => value =>
     setDraft(d => ({ ...d, [field]: value }));
 
+  /** Helper para mostrar errores en modal */
+  const showError = (message) => {
+    setError(message);
+    setShowErrorModal(true);
+  };
+
   /** Añade el draft a rows después de validar */
   const addDraftToRows = () => {
     if (draft.mode === 'product') {
-      if (!draft.product) return setError('Seleccione un producto');
-      if (!draft.quantity) return setError('Ingrese cantidad');
-      if (!draft.price) return setError('Ingrese precio');
+      if (!draft.product) return showError('Seleccione un producto');
+      if (!draft.quantity) return showError('Ingrese cantidad');
+      if (!draft.price) return showError('Ingrese precio');
+      
+      // Validar stock disponible en la sucursal seleccionada
+      if (branch && draft.product.stockByBranch) {
+        const availableStock = draft.product.stockByBranch[branch] || 0;
+        const requestedQuantity = Number(draft.quantity);
+        
+        if (availableStock < requestedQuantity) {
+          return showError(
+            `Stock insuficiente para "${draft.product.name}" en ${branch}. ` +
+            `Disponible: ${availableStock}, Solicitado: ${requestedQuantity}`
+          );
+        }
+      }
+      
+      // Verificar que el producto existe y tiene stock general
+      if (!draft.product.stockByBranch || Object.values(draft.product.stockByBranch).every(stock => stock === 0)) {
+        return showError(`El producto "${draft.product.name}" no tiene stock disponible en ninguna sucursal`);
+      }
     } else {
-      if (!draft.description.trim()) return setError('Descripción obligatoria');
+      if (!draft.description.trim()) return showError('Descripción obligatoria');
       if (!draft.price || Number(draft.price) >= 0)
-        return setError('El monto del descuento debe ser negativo');
+        return showError('El monto del descuento debe ser negativo');
     }
     setRows(r => [...r, draft]);
     setDraft(emptyDraft);
@@ -181,10 +206,10 @@ export default function SellersMultiSale() {
     e.preventDefault();
     setError('');
 
-    if (!seller?._id) return setError('Falta seleccionar la vendedora');
-    if (!branch) return setError('Seleccione la sucursal');
+    if (!seller?._id) return showError('Falta seleccionar la vendedora');
+    if (!branch) return showError('Seleccione la sucursal');
     if (rows.every(r => r.mode !== 'product'))
-      return setError('Agregue al menos un producto');
+      return showError('Agregue al menos un producto');
 
     const payload = {
       branch,
@@ -219,7 +244,7 @@ export default function SellersMultiSale() {
       }
       setShowModal(true);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al guardar la venta');
+      showError(err.response?.data?.error || 'Error al guardar la venta');
     }
   };
 
@@ -332,16 +357,28 @@ export default function SellersMultiSale() {
                       className="list-group position-absolute w-100"
                       style={{ zIndex: 2000, maxHeight: 200, overflowY: 'auto' }}
                     >
-                      {suggestions.map(p => (
-                        <button
-                          key={p._id}
-                          type="button"
-                          className="list-group-item list-group-item-action"
-                          onClick={() => chooseProduct(p)}
-                        >
-                          {p.name}
-                        </button>
-                      ))}
+                      {suggestions.map(p => {
+                        const branchStock = branch && p.stockByBranch ? p.stockByBranch[branch] || 0 : null;
+                        const totalStock = p.stockByBranch ? Object.values(p.stockByBranch).reduce((sum, stock) => sum + stock, 0) : 0;
+                        const hasStock = branchStock !== null ? branchStock > 0 : totalStock > 0;
+                        
+                        return (
+                          <button
+                            key={p._id}
+                            type="button"
+                            className={`list-group-item list-group-item-action d-flex justify-content-between ${!hasStock ? 'text-muted bg-light' : ''}`}
+                            onClick={() => chooseProduct(p)}
+                          >
+                            <span>{p.name}</span>
+                            <small className={hasStock ? "text-muted" : "text-danger fw-bold"}>
+                              {branchStock !== null 
+                                ? `Stock en ${branch}: ${branchStock}` 
+                                : `Stock total: ${totalStock}`}
+                              {!hasStock && ' ⚠️ SIN STOCK'}
+                            </small>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -458,6 +495,27 @@ export default function SellersMultiSale() {
           onClick={() => downloadReceipt(newMovementId)}
         >
           Descargar comprobante
+        </Button>
+      </Modal>
+
+      {/* modal ERROR */}
+      <Modal
+        show={showErrorModal}
+        message={error}
+        onClose={() => {
+          setShowErrorModal(false);
+          setError('');
+        }}
+        variant="danger"
+      >
+        <Button
+          variant="danger"
+          onClick={() => {
+            setShowErrorModal(false);
+            setError('');
+          }}
+        >
+          Entendido
         </Button>
       </Modal>
     </>
