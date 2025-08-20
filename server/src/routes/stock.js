@@ -527,6 +527,7 @@ router.get('/', async (_req, res) => {
       _id: p._id,
       name: p.name,
       categoryId: p.categoryId,
+      price: p.price, // Agregado el precio
       stock: p.stock,
       stockByBranch: {
         'Santa Rosa': p.stockSantaRosa || 0,
