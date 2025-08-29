@@ -44,7 +44,10 @@ export default function StockShortage() {
           setObs(mv.observations || '');
 
           const prodId = mv.productId?._id || mv.productId;
-          const { data: prod } = await api.get(`/products/${prodId}`);
+          // Cambiar a usar /stock para obtener información consistente
+          const { data: stockData } = await api.get('/stock');
+          const prod = stockData.find(p => p._id === prodId);
+          if (!prod) throw new Error('Producto no encontrado');
           setProduct(prod);
 
           setNewMovementId(isEdit);
@@ -52,7 +55,10 @@ export default function StockShortage() {
           const prodId = searchParams.get('productId');
           if (!prodId) return setError('Falta productId en la URL');
 
-          const { data: prod } = await api.get(`/products/${prodId}`);
+          // Cambiar a usar /stock para obtener información consistente
+          const { data: stockData } = await api.get('/stock');
+          const prod = stockData.find(p => p._id === prodId);
+          if (!prod) throw new Error('Producto no encontrado');
           setProduct(prod);
         }
       } catch {

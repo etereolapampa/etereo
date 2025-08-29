@@ -266,25 +266,19 @@ router.post('/shortage', async (req, res) => {
     const prod = await Producto.findById(productId);
     if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
 
-    const disponible =
-      (
-        await Movimiento.aggregate([
-          { $match: { productId: prod._id, branch } },
-          {
-            $group: {
-              _id: null,
-              total: {
-                $sum: {
-                  $cond: [{ $eq: ['$type', 'add'] }, '$quantity', { $multiply: ['$quantity', -1] }]
-                }
-              }
-            }
-          }
-        ])
-      )[0]?.total || 0;
+    // Usar el stock directo del producto en lugar de la agregación
+    const disponible = branch === 'Santa Rosa' 
+      ? (prod.stockSantaRosa || 0)
+      : branch === 'Macachín' 
+        ? (prod.stockMacachin || 0)
+        : 0;
+
+    console.log(`SHORTAGE DEBUG - Producto: ${prod.name}, Sucursal: ${branch}, Stock disponible: ${disponible}, Cantidad solicitada: ${quantity}`);
 
     if (disponible < quantity)
-      return res.status(400).json({ error: `Stock insuficiente en ${branch}` });
+      return res.status(400).json({ 
+        error: `Stock insuficiente en ${branch}. Disponible: ${disponible}, Solicitado: ${quantity}` 
+      });
 
     adjustStock(prod, branch, -quantity);
     await prod.save();
