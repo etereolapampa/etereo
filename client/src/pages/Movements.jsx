@@ -231,11 +231,24 @@ export default function Movements() {
   const getQty = m => isMulti(m) ? m._item.quantity : m.quantity;
   const getPrice = m => isMulti(m) ? m._item.price :
     (m.price ?? m.productId?.price ?? 0);
-  // — total de la venta completa —
-  const getTotal = m =>
+  // — cálculos de totales desglosados —
+  const getBruto = m => 
     isMulti(m)
       ? m.items.reduce((s, it) => s + it.quantity * it.price, 0)
       : getQty(m) * getPrice(m);
+
+  const getComision = m => {
+    if (m.type === 'sell' && m.sellerId && m.sellerId.bonus) {
+      const bruto = getBruto(m);
+      return bruto * (m.sellerId.bonus / 100);
+    }
+    return 0;
+  };
+
+  const getNeto = m => getBruto(m) - getComision(m);
+
+  // — total de la venta completa (mantener compatibilidad) —
+  const getTotal = m => getNeto(m);
 
   /* ─────────────────────────────────────────────────────────
      🔄 2) FUNCIÓN para abrir el modal ( reemplaza al navigate )
@@ -492,7 +505,7 @@ export default function Movements() {
           <thead>
             <tr>
               <th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Producto</th>
-              <th>Cant.</th><th>Precio&nbsp;U.</th><th>Total</th>
+              <th>Cant.</th><th>Precio&nbsp;U.</th><th>Bruto</th><th>Comisión</th><th>Neto</th>
               <th>Sucursal</th><th>Destino</th><th>Observaciones</th><th>Acciones</th>
             </tr>
           </thead>
@@ -535,14 +548,22 @@ export default function Movements() {
                       : getProduct(m)?.name || '—'}
                   </td>
 
-                  {/* Cantidad, Precio, Total */}
+                  {/* Cantidad, Precio, Bruto, Comisión, Neto */}
                   <td>{getQty(m)}</td>
                   <td>${getPrice(m).toFixed(2)}</td>
-                  {/* 👇  Sólo la primera fila del grupo muestra el TOTAL -rowSpan- */}
+                  {/* 👇  Sólo la primera fila del grupo muestra los TOTALES -rowSpan- */}
                   {isFirst && (
-                    <td rowSpan={span} className="text-center align-middle ">
-                      ${getTotal(m).toFixed(2)}
-                    </td>
+                    <>
+                      <td rowSpan={span} className="text-center align-middle">
+                        ${getBruto(m).toFixed(2)}
+                      </td>
+                      <td rowSpan={span} className="text-center align-middle">
+                        {getComision(m) > 0 ? `-$${getComision(m).toFixed(2)}` : '$0.00'}
+                      </td>
+                      <td rowSpan={span} className="text-center align-middle">
+                        ${getNeto(m).toFixed(2)}
+                      </td>
+                    </>
                   )}
                   {isFirst && (
                     <>
@@ -638,9 +659,13 @@ export default function Movements() {
                 </>
               )}
 
-              {/* total solo una vez por movimiento */}
+              {/* totales desglosados solo una vez por movimiento */}
               <div className="fw-bold mt-3">
-                <strong>Total:</strong> ${getTotal(m).toFixed(2)}
+                <div><strong>Bruto:</strong> ${getBruto(m).toFixed(2)}</div>
+                {getComision(m) > 0 && (
+                  <div><strong>Comisión:</strong> -${getComision(m).toFixed(2)}</div>
+                )}
+                <div><strong>Neto:</strong> ${getNeto(m).toFixed(2)}</div>
               </div>
 
               <div className="mt-2"><strong>Sucursal:</strong> {m.branch || m.origin}</div>

@@ -101,13 +101,21 @@ router.delete('/:id', async (req, res) => {
 
 /**
  * POST /products/adjust-prices
- * Body: { categoryId, percentage }
+ * Body: { categoryId, adjustmentType, percentage?, fixedPrice? }
  */
 router.post('/adjust-prices', async (req, res) => {
-  const { categoryId, percentage } = req.body;
+  const { categoryId, adjustmentType, percentage, fixedPrice } = req.body;
 
-  if (!categoryId || percentage === undefined) {
-    return res.status(400).json({ error: 'categoryId y percentage son requeridos' });
+  if (!categoryId || !adjustmentType) {
+    return res.status(400).json({ error: 'categoryId y adjustmentType son requeridos' });
+  }
+
+  if (adjustmentType === 'percentage' && percentage === undefined) {
+    return res.status(400).json({ error: 'percentage es requerido para ajuste por porcentaje' });
+  }
+
+  if (adjustmentType === 'fixed' && fixedPrice === undefined) {
+    return res.status(400).json({ error: 'fixedPrice es requerido para ajuste por precio fijo' });
   }
 
   try {
@@ -117,15 +125,28 @@ router.post('/adjust-prices', async (req, res) => {
       return res.status(400).json({ error: 'No hay productos en esta categoría' });
     }
 
-    // Actualizar solo los productos de la categoría seleccionada
-    const updatedProducts = await Producto.updateMany(
-      { categoryId },
-      { $mul: { price: (1 + percentage / 100) } }
-    );
+    let updatedProducts;
+
+    if (adjustmentType === 'percentage') {
+      // Ajuste por porcentaje (comportamiento original)
+      updatedProducts = await Producto.updateMany(
+        { categoryId },
+        { $mul: { price: (1 + percentage / 100) } }
+      );
+    } else if (adjustmentType === 'fixed') {
+      // Ajuste por monto fijo (suma el monto a cada producto)
+      updatedProducts = await Producto.updateMany(
+        { categoryId },
+        { $inc: { price: fixedPrice } }
+      );
+    }
 
     res.json({
       message: 'Precios actualizados correctamente',
-      updatedCount: updatedProducts.modifiedCount
+      updatedCount: updatedProducts.modifiedCount,
+      adjustmentType,
+      ...(adjustmentType === 'percentage' && { percentage }),
+      ...(adjustmentType === 'fixed' && { fixedPrice })
     });
   } catch (error) {
     console.error('Error al ajustar precios:', error);

@@ -605,9 +605,9 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
     }
 
     /* ═════════ 2) LAYOUT ═════════ */
-    const P = 40, W = 600, HEADER_H = 70, FOOTER = 60;
-    const NAME_W = 300, COL_QTY = P + NAME_W + 50;
-    const COL_UNIT = COL_QTY + 70, COL_SUBT = W - P;
+    const P = 40, W = 650, HEADER_H = 70, FOOTER = 60; // Ancho aumentado de 600 a 650
+    const NAME_W = 280, COL_QTY = P + NAME_W + 40;     // Nombre más angosto, qty más cerca
+    const COL_UNIT = COL_QTY + 80, COL_SUBT = W - P - 10; // Más espacio para subtotal
 
     /* simple wrap de texto */
     const wrap = (ctx, txt, maxW) => {
@@ -630,10 +630,20 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
       (s, r) => s + wrap(meas, r._prod.name, NAME_W).length, 0
     );
 
-    const H = HEADER_H + 110 + prodLines * 22 + 90 +
-      (mov.sellerId?.bonus ? 24 : 0) +
-      (mov.observations ? 24 : 0) +
-      FOOTER;
+    // Cálculo más detallado de altura para evitar cortes
+    const detailHeight = prodLines * 22 + 60; // Productos + margen
+    const totalsHeight = 150 + (mov.sellerId?.bonus ? 24 : 0); // Más espacio para totales
+    const H = HEADER_H + 110 + detailHeight + totalsHeight + FOOTER + 80; // +80 margen extra
+    
+    console.log('RECEIPT DEBUG:', {
+      HEADER_H,
+      prodLines,
+      detailHeight,
+      totalsHeight,
+      FOOTER,
+      totalHeight: H,
+      itemsCount: rows.length
+    });
 
     /* ═════════ 3) CANVAS ═════════ */
     const c = createCanvas(W, H);
@@ -711,13 +721,16 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
     ctx.beginPath(); ctx.moveTo(P, y + 3); ctx.lineTo(W - P, y + 3); ctx.stroke();
     y += 31;
     totalLn('Total neto:', `$${neto.toFixed(2)}`);
+    
+    console.log('RECEIPT DEBUG - Final Y position:', y, 'Canvas height:', H, 'Remaining space:', H - y);
 
-    /* ═════════ 7) OBSERVACIONES ═════════ */
-    if (mov.observations) {
-      y += 24;
-      ctx.font = 'italic 13px Arial'; ctx.textAlign = 'left';
-      ctx.fillText(`Obs.: ${mov.observations}`, P, y);
-    }
+    /* ═════════ 7) OBSERVACIONES (DESHABILITADO) ═════════ */
+    // Comentado por pedido del cliente
+    // if (mov.observations) {
+    //   y += 24;
+    //   ctx.font = 'italic 13px Arial'; ctx.textAlign = 'left';
+    //   ctx.fillText(`Obs.: ${mov.observations}`, P, y);
+    // }
 
     /* ═════════ 8) SALIDA ═════════ */
     const png = await c.encode('png');     // con node‑canvas → c.toBuffer('image/png')
