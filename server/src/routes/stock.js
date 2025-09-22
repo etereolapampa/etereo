@@ -366,7 +366,8 @@ router.get('/movements', async (_req, res) => {
         select: 'name price categoryId',
         populate: { path: 'categoryId', select: 'name' }
       })
-      .populate('sellerId', 'name lastname')
+      // Importante: incluir bonus para cálculo de comisión
+  .populate('sellerId', 'name lastname bonus isDeleted deletedAt')
       .sort({ date: -1 });
 
     res.json(

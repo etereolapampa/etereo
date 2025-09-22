@@ -61,6 +61,17 @@ export default function Datos() {
     [sellers, sellerFilter]
   );
 
+  const activeSellers = filteredSellers.filter(s => !s.isDeleted);
+  const deletedSellers = filteredSellers.filter(s => s.isDeleted);
+
+  const [showDeleted, setShowDeleted] = useState(false);
+
+  const restoreSeller = async (id) => {
+    await api.put(`/sellers/${id}/restore`);
+    const updated = await api.get('/sellers?includeDeleted=1');
+    setSellers(updated.data);
+  };
+
   return (
     <Container fluid className="py-4">
       <Row>
@@ -207,48 +218,90 @@ export default function Datos() {
             <div className="alert alert-info">
               Sin vendedores que coincidan con el filtro
             </div>
-          ) : filteredSellers.map(seller => (
-            <Card key={seller._id} className="mb-3 shadow-sm">
-              <Card.Header className="d-flex justify-content-between align-items-center border-bottom border-2 border-secondary">
-                <strong>{seller.name} {seller.lastname}</strong>
-                <div>
-                  <Button
-                    title="Registrar venta"
-                    variant="outline-success"
-                    size="sm"
-                    className="me-2"
-                    onClick={() => nav(`/sellers/${seller._id}/sale`)}
-                  >
-                    🛒
-                  </Button>
-                  <Button
-                    title="Editar vendedor"
-                    variant="outline-primary"
-                    size="sm"
-                    className="me-2"
-                    onClick={() => nav(`/sellers/${seller._id}/edit`)}
-                  >
-                    ✏️
-                  </Button>
-                  <Button
-                    title="Eliminar vendedor"
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => nav(`/sellers/${seller._id}/delete`)}
-                  >
-                    🗑️
-                  </Button>
-                </div>
-              </Card.Header>
-              <ListGroup variant="flush">
-                <ListGroup.Item>DNI: {seller.dni}</ListGroup.Item>
-                <ListGroup.Item>Localidad: {seller.city?.name || 'Sin localidad'}</ListGroup.Item>
-                <ListGroup.Item>Teléfono: {seller.phone}</ListGroup.Item>
-                <ListGroup.Item>Bonificación: {seller.bonus || '0'}%</ListGroup.Item>
-                <ListGroup.Item>Correo: {seller.email || '-'}</ListGroup.Item>
-              </ListGroup>
-            </Card>
-          ))}
+          ) : (
+            <>
+              {activeSellers.map(seller => (
+                <Card key={seller._id} className="mb-3 shadow-sm">
+                  <Card.Header className="d-flex justify-content-between align-items-center border-bottom border-2 border-secondary">
+                    <strong>{seller.name} {seller.lastname}</strong>
+                    <div>
+                      <Button
+                        title="Registrar venta"
+                        variant="outline-success"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => nav(`/sellers/${seller._id}/sale`)}
+                      >
+                        🛒
+                      </Button>
+                      <Button
+                        title="Editar vendedor"
+                        variant="outline-primary"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => nav(`/sellers/${seller._id}/edit`)}
+                      >
+                        ✏️
+                      </Button>
+                      <Button
+                        title="Eliminar vendedor"
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => nav(`/sellers/${seller._id}/delete`)}
+                      >
+                        🗑️
+                      </Button>
+                    </div>
+                  </Card.Header>
+                  <ListGroup variant="flush">
+                    <ListGroup.Item>DNI: {seller.dni}</ListGroup.Item>
+                    <ListGroup.Item>Localidad: {seller.city?.name || 'Sin localidad'}</ListGroup.Item>
+                    <ListGroup.Item>Teléfono: {seller.phone}</ListGroup.Item>
+                    <ListGroup.Item>Bonificación: {seller.bonus || '0'}%</ListGroup.Item>
+                    <ListGroup.Item>Correo: {seller.email || '-'}</ListGroup.Item>
+                  </ListGroup>
+                </Card>
+              ))}
+
+              {/* Bloque de Eliminados */}
+              {deletedSellers.length > 0 && (
+                <Card className="mt-4 border-danger">
+                  <Card.Header className="d-flex justify-content-between align-items-center bg-danger text-white">
+                    <strong>Vendedoras Eliminadas ({deletedSellers.length})</strong>
+                    <Button
+                      size="sm"
+                      variant="light"
+                      onClick={() => setShowDeleted(s => !s)}
+                    >
+                      {showDeleted ? 'Ocultar' : 'Mostrar'}
+                    </Button>
+                  </Card.Header>
+                  {showDeleted && (
+                    <ListGroup variant="flush">
+                      {deletedSellers.map(seller => (
+                        <ListGroup.Item key={seller._id} className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <strong>{seller.name} {seller.lastname}</strong>
+                            <small className="text-muted d-block">Eliminada</small>
+                          </div>
+                          <div className="d-flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline-secondary"
+                              title="Restaurar"
+                              onClick={() => restoreSeller(seller._id)}
+                            >
+                              ♻️
+                            </Button>
+                          </div>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  )}
+                </Card>
+              )}
+            </>
+          )}
         </Col>
       </Row>
     </Container>

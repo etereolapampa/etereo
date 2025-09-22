@@ -15,7 +15,10 @@ const VendedorSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
     match: /.+@.+\..+/   // validación básica
-  }
+  },
+  // Soft delete flags
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null }
 });
 
 export default mongoose.model('Vendedor', VendedorSchema, 'vendedores');

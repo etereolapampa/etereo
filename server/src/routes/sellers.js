@@ -3,10 +3,12 @@ import express from 'express';
 import Vendedor from '../models/Vendedor.js';
 const router = express.Router();
 
-// Listar todos los sellers
+// Listar sellers (por defecto solo activos). Usar ?includeDeleted=1 para incluir eliminados
 router.get('/', async (req, res) => {
   try {
-    const vendedores = await Vendedor.find().populate('city');
+    const { includeDeleted } = req.query;
+    const filter = includeDeleted ? {} : { isDeleted: false };
+    const vendedores = await Vendedor.find(filter).populate('city');
     res.json(vendedores);
   } catch (error) {
     console.error('Error al obtener vendedores:', error);
@@ -82,15 +84,35 @@ res.json(vendedor);
 }
 });
 
-// Eliminar seller
+// Soft delete seller
 router.delete('/:id', async (req, res) => {
   try {
-    const vendedor = await Vendedor.findByIdAndDelete(req.params.id);
+    const vendedor = await Vendedor.findByIdAndUpdate(
+      req.params.id,
+      { isDeleted: true, deletedAt: new Date() },
+      { new: true }
+    );
     if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
     res.json(vendedor);
   } catch (error) {
-    console.error('Error al eliminar vendedor:', error);
+    console.error('Error al eliminar (soft) vendedor:', error);
     res.status(500).json({ error: 'Error al eliminar el vendedor' });
+  }
+});
+
+// Restaurar seller eliminado
+router.put('/:id/restore', async (req, res) => {
+  try {
+    const vendedor = await Vendedor.findByIdAndUpdate(
+      req.params.id,
+      { isDeleted: false, deletedAt: null },
+      { new: true }
+    );
+    if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
+    res.json(vendedor);
+  } catch (error) {
+    console.error('Error al restaurar vendedor:', error);
+    res.status(500).json({ error: 'Error al restaurar el vendedor' });
   }
 });
 

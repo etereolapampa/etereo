@@ -95,7 +95,16 @@ export default function Movements() {
     if (m.type === 'sell') {
       if (m.sellerId) {
         const s = sellers.find(x => x._id === m.sellerId._id);
-        return s ? `${s.name} ${s.lastname}` : 'Vendedor eliminado';
+        if (s) {
+          const base = `${s.name} ${s.lastname}`;
+          return s.isDeleted ? `${base} (Eliminada)` : base;
+        }
+        // si no está en la lista local pero viene populateado
+        if (m.sellerId?.name) {
+          const base = `${m.sellerId.name} ${m.sellerId.lastname}`;
+          return m.sellerId.isDeleted ? `${base} (Eliminada)` : base;
+        }
+        return 'Vendedor eliminado';
       }
       return m.destination || 'Consumidor Final';
     }
@@ -238,11 +247,11 @@ export default function Movements() {
       : getQty(m) * getPrice(m);
 
   const getComision = m => {
-    if (m.type === 'sell' && m.sellerId && m.sellerId.bonus) {
-      const bruto = getBruto(m);
-      return bruto * (m.sellerId.bonus / 100);
-    }
-    return 0;
+    if (m.type !== 'sell' || !m.sellerId) return 0;
+    const b = m.sellerId.bonus;
+    if (typeof b !== 'number' || b <= 0) return 0;
+    const bruto = getBruto(m);
+    return +(bruto * (b / 100)).toFixed(2);
   };
 
   const getNeto = m => getBruto(m) - getComision(m);
@@ -314,7 +323,7 @@ export default function Movements() {
 
     const vendedor = mov.type === 'sell'
       ? mov.sellerId
-        ? `${mov.sellerId.name} ${mov.sellerId.lastname}`
+        ? `${mov.sellerId.name} ${mov.sellerId.lastname}${mov.sellerId.isDeleted ? ' (Eliminada)' : ''}`
         : (mov.destination || 'Consumidor Final')
       : mov.destination || '—';
 
@@ -519,6 +528,13 @@ export default function Movements() {
               const groupClass = groupIdx % 2 === 0 ? 'group-even' : 'group-odd';
               const span = isMulti(m) ? m.items.length : 1;
               const groupKey = m._id;            // ⭐ el mismo para todo el grupo
+              // Evitar recalcular 3 veces la comisión y neto
+              const brutoVal = getBruto(m);
+              const comVal = getComision(m);
+              const netoVal = brutoVal - comVal;
+              if (isFirst && comVal > 0) {
+                console.log(`[RENDER] mov=${m._id} bruto=${brutoVal} comVal=${comVal} neto=${netoVal}`);
+              }
 
               return (
                 <tr
@@ -555,13 +571,14 @@ export default function Movements() {
                   {isFirst && (
                     <>
                       <td rowSpan={span} className="text-center align-middle">
-                        ${getBruto(m).toFixed(2)}
+                        ${brutoVal.toFixed(2)}
                       </td>
                       <td rowSpan={span} className="text-center align-middle">
-                        {getComision(m) > 0 ? `-$${getComision(m).toFixed(2)}` : '$0.00'}
+                        {console.log('------------------------------------------------COMISION MANUAL:',comVal)}
+                        {comVal > 0 ? `-$${comVal.toFixed(2)}` : '$0.00'}
                       </td>
                       <td rowSpan={span} className="text-center align-middle">
-                        ${getNeto(m).toFixed(2)}
+                        ${netoVal.toFixed(2)}
                       </td>
                     </>
                   )}
