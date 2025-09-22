@@ -3,11 +3,15 @@ import express from 'express';
 import Vendedor from '../models/Vendedor.js';
 const router = express.Router();
 
-// Listar sellers (por defecto solo activos). Usar ?includeDeleted=1 para incluir eliminados
+// Listar sellers (por defecto solo activos).
+// NOTA: documentos antiguos podrían no tener el campo isDeleted; los incluimos también.
 router.get('/', async (req, res) => {
   try {
     const { includeDeleted } = req.query;
-    const filter = includeDeleted ? {} : { isDeleted: false };
+    let filter = {};
+    if (!includeDeleted) {
+      filter = { $or: [ { isDeleted: false }, { isDeleted: { $exists: false } } ] };
+    }
     const vendedores = await Vendedor.find(filter).populate('city');
     res.json(vendedores);
   } catch (error) {
