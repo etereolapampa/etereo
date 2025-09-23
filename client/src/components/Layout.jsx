@@ -1,7 +1,7 @@
 // src/components/Layout.jsx
 import React from 'react';
 import { Nav } from 'react-bootstrap';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 export default function Layout() {
@@ -14,6 +14,11 @@ export default function Layout() {
     // Forzar una recarga completa de la página
     window.location.replace('/login');
   };
+
+  // Detectar ruta para decidir si la vista debe ser full-width
+  const location = useLocation();
+  const fullWidthPaths = ['/movements']; // se pueden agregar más rutas si hace falta
+  const isFullWidthPage = fullWidthPaths.some(p => location.pathname.startsWith(p));
 
   return (
     <>
@@ -42,7 +47,7 @@ export default function Layout() {
           </div>
         </div>
       </nav>
-      <div className="container my-4">
+      <div className={`${isFullWidthPage ? 'container-fluid px-3' : 'container'} my-4`}>
         <Outlet />
       </div>
     </>

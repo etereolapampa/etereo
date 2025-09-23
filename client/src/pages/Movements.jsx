@@ -509,8 +509,8 @@ export default function Movements() {
 
 
       {/* ███ Tabla Desktop ███ */}
-      <div className="d-none d-md-block">
-        <Table responsive className="movements-table">
+      <div className="d-none d-md-block movements-wrapper">
+        <Table className="movements-table">
           <thead>
             <tr>
               <th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Producto</th>
@@ -545,7 +545,7 @@ export default function Movements() {
                 >
                   {isFirst && (
                     <>
-                      <td rowSpan={span} className="text-center align-middle">
+                      <td rowSpan={span} className="text-center align-middle nowrap">
                         {formatDate(m.date)}
                       </td>
                       <td rowSpan={span} className="text-center align-middle">
@@ -566,18 +566,18 @@ export default function Movements() {
 
                   {/* Cantidad, Precio, Bruto, Comisión, Neto */}
                   <td>{getQty(m)}</td>
-                  <td>${getPrice(m).toFixed(2)}</td>
+                  <td className="nowrap">${getPrice(m).toFixed(2)}</td>
                   {/* 👇  Sólo la primera fila del grupo muestra los TOTALES -rowSpan- */}
                   {isFirst && (
                     <>
-                      <td rowSpan={span} className="text-center align-middle">
+                      <td rowSpan={span} className="text-center align-middle nowrap">
                         ${brutoVal.toFixed(2)}
                       </td>
-                      <td rowSpan={span} className="text-center align-middle">
+                      <td rowSpan={span} className="text-center align-middle nowrap">
                         {console.log('------------------------------------------------COMISION MANUAL:',comVal)}
                         {comVal > 0 ? `-$${comVal.toFixed(2)}` : '$0.00'}
                       </td>
-                      <td rowSpan={span} className="text-center align-middle">
+                      <td rowSpan={span} className="text-center align-middle nowrap">
                         ${netoVal.toFixed(2)}
                       </td>
                     </>

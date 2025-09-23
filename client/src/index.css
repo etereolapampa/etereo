@@ -67,3 +67,32 @@ input[type="checkbox"] {
   vertical-align: middle !important;
 }
 
+/* Wrapper: mantiene posibilidad de scroll si alguna columna se desborda puntualmente */
+ .movements-wrapper { width: 100%; overflow-x: auto; }
+
+/* Modo compacto para que quepa en pantallas más chicas sin scroll horizontal */
+.movements-table { width: 100%; table-layout: auto; }
+/* Espaciado un poco más amplio para que no se vea tan apretado */
+.movements-table th, .movements-table td { padding: .5rem .65rem; }
+/* No cortar palabras por la mitad */
+.movements-table td { word-break: normal; overflow-wrap: normal; }
+/* Clase utilitaria para columnas que deben permanecer en una sola línea */
+.movements-table .nowrap { white-space: nowrap; }
+
+/* Limitar ancho de Observaciones para que no empuje Acciones fuera de la vista */
+.movements-table td:nth-last-child(2) { /* penúltima: Observaciones (según orden actual) */
+  max-width: 180px;
+}
+
+/* Ajustes responsivos: ocultar Comisión si el ancho es muy reducido (se puede inferir desde Neto) */
+@media (max-width: 1300px) {
+  .movements-table th:nth-child(8), /* Cabecera Comisión */
+  .movements-table td:nth-child(8) { display: none; }
+}
+
+/* Aún más chico: ocultar Bruto y dejar Neto (ya incluye comisión) */
+@media (max-width: 1150px) {
+  .movements-table th:nth-child(7), /* Bruto */
+  .movements-table td:nth-child(7) { display: none; }
+}
+
