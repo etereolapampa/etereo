@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 
 export default function Layout() {
   const navigate = useNavigate();
+  const user = React.useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
+  }, []);
   const handleLogout = () => {
     // Limpiar todo el estado de la sesión
     localStorage.clear();
@@ -24,7 +27,9 @@ export default function Layout() {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
-          <NavLink className="navbar-brand" to="/datos">Etereo</NavLink>
+          <NavLink className="navbar-brand" to="/datos">
+            Etereo{user ? ` — ${user.name} ${user.lastname}` : ''}
+          </NavLink>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span className="navbar-toggler-icon" />
           </button>
@@ -35,6 +40,7 @@ export default function Layout() {
                 { to: '/stock', label: 'Stock' },
                 { to: '/movements', label: 'Movimientos' },
                 { to: '/stats', label: 'Estadísticas' },
+                { to: '/users', label: 'Usuarios' },
               ].map(item => (
                 <li className="nav-item" key={item.to}>
                   <NavLink className="nav-link" to={item.to}>{item.label}</NavLink>

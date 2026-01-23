@@ -21,6 +21,7 @@ api.interceptors.response.use(
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       // Limpiar token del localStorage
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       
       // Redirigir al login
       window.location.href = '/login';

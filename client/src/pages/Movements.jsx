@@ -36,6 +36,7 @@ const expandMovements = list =>
 export default function Movements() {
   const navigate = useNavigate();
   const { sucursales } = useSucursales();
+  // Todas las acciones habilitadas para cualquier usuario autenticado
 
   /* estado ----------------------- */
   const [movements, setMovements] = useState([]);

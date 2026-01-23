@@ -2,6 +2,8 @@
 import express from 'express';
 import Categoria from '../models/Categoria.js';
 import Producto from '../models/Producto.js';
+// requireAdmin removido: todos los usuarios autenticados pueden operar
+import { logAction } from '../utils/logger.js';
 const router = express.Router();
 
 // Listar todas las categorías
@@ -35,6 +37,7 @@ router.post('/', async (req, res) => {
 
     const newCat = new Categoria({ name });
     await newCat.save();
+    await logAction(req, { action: 'create', entity: 'category', entityId: newCat._id, data: { name } });
     res.status(201).json(newCat);
   } catch (error) {
     console.error('Error al crear categoría:', error);
@@ -48,8 +51,10 @@ router.put('/:id', async (req, res) => {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: 'El nombre es obligatorio' });
 
+    const before = await Categoria.findById(req.params.id).lean();
     const categoria = await Categoria.findByIdAndUpdate(req.params.id, { name }, { new: true });
     if (!categoria) return res.status(404).json({ error: 'Categoría no encontrada' });
+    await logAction(req, { action: 'update', entity: 'category', entityId: categoria._id, data: { before, after: categoria } });
     res.json(categoria);
   } catch (error) {
     console.error('Error al modificar categoría:', error);
@@ -66,6 +71,7 @@ router.delete('/:id', async (req, res) => {
     // Luego eliminar la categoría
     const categoria = await Categoria.findByIdAndDelete(req.params.id);
     if (!categoria) return res.status(404).json({ error: 'Categoría no encontrada' });
+    await logAction(req, { action: 'delete', entity: 'category', entityId: categoria._id, data: { deleted: categoria } });
     
     res.json({ 
       message: 'Categoría y productos asociados eliminados correctamente',

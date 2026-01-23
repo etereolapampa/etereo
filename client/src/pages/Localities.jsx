@@ -15,6 +15,7 @@ const SortIcon = ({ active, order }) =>
 export default function Localities() {
   const nav = useNavigate();
   const location = useLocation();
+  // Todas las acciones habilitadas para cualquier usuario autenticado
 
   /* ───────── state ───────── */
   const [localities, setLocalities] = useState([]);

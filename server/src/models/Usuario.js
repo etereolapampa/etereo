@@ -5,7 +5,11 @@ const SALT_ROUNDS = 12;
 
 const UsuarioSchema = new mongoose.Schema({
   username:  { type: String, required: true, unique: true, trim: true, lowercase: true },
-  password:  { type: String, required: true },    // hash
+  password:  { type: String, required: true },
+  name:      { type: String, trim: true },
+  lastname:  { type: String, trim: true },
+  admin:     { type: Boolean, default: false },
+  lastLogin: { type: Date }
 });
 
 UsuarioSchema.pre('save', async function (next) {

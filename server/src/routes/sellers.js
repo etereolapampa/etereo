@@ -1,6 +1,8 @@
 // server/src/routes/sellers.js
 import express from 'express';
 import Vendedor from '../models/Vendedor.js';
+// requireAdmin removido: todos los usuarios autenticados pueden operar
+import { logAction } from '../utils/logger.js';
 const router = express.Router();
 
 // Listar sellers (por defecto solo activos).
@@ -51,6 +53,7 @@ router.post('/', async (req, res) => {
     });
 
     await newVendedor.save();
+    await logAction(req, { action: 'create', entity: 'seller', entityId: newVendedor._id, data: req.body });
     res.status(201).json(newVendedor);
   } catch (error) {
     console.error('Error al crear vendedor:', error);
@@ -66,6 +69,7 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
+    const before = await Vendedor.findById(req.params.id).lean();
     const vendedor = await Vendedor.findByIdAndUpdate(
       req.params.id,
       {
@@ -80,8 +84,9 @@ router.put('/:id', async (req, res) => {
       { new: true }
     );
 
-if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
-res.json(vendedor);
+    if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
+    await logAction(req, { action: 'update', entity: 'seller', entityId: vendedor._id, data: { before, after: vendedor } });
+    res.json(vendedor);
   } catch (error) {
   console.error('Error al actualizar vendedor:', error);
   res.status(500).json({ error: 'Error al actualizar el vendedor' });
@@ -97,6 +102,7 @@ router.delete('/:id', async (req, res) => {
       { new: true }
     );
     if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
+    await logAction(req, { action: 'delete', entity: 'seller', entityId: vendedor._id, data: { softDeleted: true } });
     res.json(vendedor);
   } catch (error) {
     console.error('Error al eliminar (soft) vendedor:', error);
@@ -113,6 +119,7 @@ router.put('/:id/restore', async (req, res) => {
       { new: true }
     );
     if (!vendedor) return res.status(404).json({ error: 'Seller no encontrado' });
+    await logAction(req, { action: 'restore', entity: 'seller', entityId: vendedor._id });
     res.json(vendedor);
   } catch (error) {
     console.error('Error al restaurar vendedor:', error);

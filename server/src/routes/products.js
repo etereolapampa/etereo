@@ -2,6 +2,8 @@
 import express from 'express';
 import Producto from '../models/Producto.js';
 import Categoria from '../models/Categoria.js';
+// requireAdmin removido: todos los usuarios autenticados pueden operar
+import { logAction } from '../utils/logger.js';
 const router = express.Router();
 
 // Listar todos los productos
@@ -49,6 +51,7 @@ router.post('/', async (req, res) => {
     });
 
     await newProduct.save();
+    await logAction(req, { action: 'create', entity: 'product', entityId: newProduct._id, data: { name, categoryId, price: Number(price) } });
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error al crear producto:', error);
@@ -70,6 +73,7 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Categoría inválida' });
     }
 
+    const before = await Producto.findById(req.params.id).lean();
     const producto = await Producto.findByIdAndUpdate(
       req.params.id,
       { name, categoryId, price: Number(price) },
@@ -80,6 +84,7 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Producto no encontrado' });
     }
 
+    await logAction(req, { action: 'update', entity: 'product', entityId: producto._id, data: { before, after: producto } });
     res.json(producto);
   } catch (error) {
     console.error('Error al actualizar producto:', error);
@@ -92,6 +97,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const producto = await Producto.findByIdAndDelete(req.params.id);
     if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+    await logAction(req, { action: 'delete', entity: 'product', entityId: producto._id, data: { deleted: producto } });
     res.json(producto);
   } catch (error) {
     console.error('Error al eliminar producto:', error);
@@ -141,6 +147,12 @@ router.post('/adjust-prices', async (req, res) => {
       );
     }
 
+    await logAction(req, {
+      action: 'adjust',
+      entity: 'product-prices',
+      entityId: String(categoryId),
+      data: { categoryId, adjustmentType, percentage, fixedPrice, modifiedCount: updatedProducts?.modifiedCount }
+    });
     res.json({
       message: 'Precios actualizados correctamente',
       updatedCount: updatedProducts.modifiedCount,

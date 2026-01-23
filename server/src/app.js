@@ -19,6 +19,7 @@ import stockRouter from './routes/stock.js';
 import sellersRouter from './routes/sellers.js';
 import dataRouter from './routes/data.js';
 import localitiesRouter from './routes/localities.js';
+import usersRouter from './routes/users.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -92,6 +93,7 @@ app.use('/stock', verifyToken, stockRouter);
 app.use('/sellers', verifyToken, sellersRouter);
 app.use('/data', verifyToken, dataRouter);
 app.use('/localities', verifyToken, localitiesRouter);
+app.use('/users', verifyToken, usersRouter);
 
 
 app.get('/', (_, res) =>

@@ -16,6 +16,7 @@ import api from '../api';
 export default function Datos() {
   const nav = useNavigate();
   const location = useLocation();
+  // Todas las acciones habilitadas para cualquier usuario autenticado
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [sellers, setSellers] = useState([]);
@@ -234,23 +235,25 @@ export default function Datos() {
                       >
                         🛒
                       </Button>
-                      <Button
-                        title="Editar vendedor"
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => nav(`/sellers/${seller._id}/edit`)}
-                      >
-                        ✏️
-                      </Button>
-                      <Button
-                        title="Eliminar vendedor"
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => nav(`/sellers/${seller._id}/delete`)}
-                      >
-                        🗑️
-                      </Button>
+                      <>
+                        <Button
+                          title="Editar vendedor"
+                          variant="outline-primary"
+                          size="sm"
+                          className="me-2"
+                          onClick={() => nav(`/sellers/${seller._id}/edit`)}
+                        >
+                          ✏️
+                        </Button>
+                        <Button
+                          title="Eliminar vendedor"
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => nav(`/sellers/${seller._id}/delete`)}
+                        >
+                          🗑️
+                        </Button>
+                      </>
                     </div>
                   </Card.Header>
                   <ListGroup variant="flush">

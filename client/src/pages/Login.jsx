@@ -14,6 +14,7 @@ export default function Login() {
     try {
       const { data } = await api.post('/auth/login', { username, password });
       localStorage.setItem('token', data.token);
+      if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
       nav('/');
     } catch (err) {
       console.error('Error completo:', err);

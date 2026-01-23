@@ -12,6 +12,8 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+// requireAdmin removido: todos los usuarios autenticados pueden operar
+import { logAction } from '../utils/logger.js';
 
 const router = express.Router();
 const SUCURSALES = ['Santa Rosa', 'Macachín'];
@@ -206,6 +208,7 @@ router.post('/add', async (req, res) => {
       price: product.price
     });
 
+    await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'add', ...req.body } });
     res.json({ movement });
   } catch (err) {
     console.error('POST /stock/add →', err);
@@ -285,6 +288,7 @@ router.post('/sale', async (req, res) => {
         observations
       });
 
+      await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'sell', multi: true, ...req.body } });
       return res.json({ movement, total });
     }
 
@@ -332,6 +336,7 @@ router.post('/sale', async (req, res) => {
       isFinalConsumer: !sellerId
     });
 
+  await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'sell', ...req.body } });
   res.json({ movement });
   } catch (err) {
     console.error('POST /stock/sale →', err);
@@ -366,6 +371,7 @@ router.post('/shortage', async (req, res) => {
       price: prod.price
     });
 
+    await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'shortage', ...req.body } });
     res.json({ movement });
   } catch (err) {
     console.error('POST /stock/shortage →', err);
@@ -402,6 +408,7 @@ router.post('/transfer', async (req, res) => {
       price: prod.price
     });
 
+  await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'transfer', ...req.body } });
   res.json({ movement });
   } catch (err) {
     console.error('POST /stock/transfer →', err);
@@ -464,6 +471,7 @@ router.delete('/movements/:id', async (req, res) => {
     const movement = await Movimiento.findById(id);
     if (!movement) return res.status(404).json({ error: 'Movimiento no encontrado' });
     await Movimiento.findByIdAndDelete(id);
+    await logAction(req, { action: 'delete', entity: 'movement', entityId: id, data: { deleted: movement } });
     res.json({ message: 'Movimiento eliminado (stock dinámico, no se revierte counters)' });
   } catch (error) {
     console.error('Error al eliminar movimiento:', error);
@@ -514,7 +522,9 @@ router.put('/movements/:id', async (req, res) => {
 
     if (body.date) body.date = body.date.length === 10 ? parseDateAR(body.date) : new Date(body.date);
 
+    const before = await Movimiento.findById(id).lean();
     const updated = await Movimiento.findByIdAndUpdate(id, body, { new: true });
+    await logAction(req, { action: 'update', entity: 'movement', entityId: id, data: { before, after: updated } });
     res.json(updated);
   } catch (err) {
     console.error('PUT /stock/movements/:id →', err);

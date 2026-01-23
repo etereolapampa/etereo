@@ -23,6 +23,7 @@ import SellerMultiSale from './pages/SellersMultiSale';
 import LocalityList from './pages/Localities';
 import LocalityForm from './pages/LocalityForm';
 import LocalityDelete from './pages/LocalityDelete.jsx';
+import Users from './pages/Users.jsx';
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="localities/new" element={<LocalityForm />} />
           <Route path="localities/:id/edit" element={<LocalityForm />} />
           <Route path="localities/:id/delete" element={<LocalityDelete />} />
+          <Route path="users" element={<Users />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
