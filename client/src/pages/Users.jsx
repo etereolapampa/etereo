@@ -1,6 +1,7 @@
 // client/src/pages/Users.jsx
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import Modal from '../components/Modal';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -9,9 +10,14 @@ export default function Users() {
 
   const [creating, setCreating] = useState({ username: '', password: '', name: '', lastname: '', admin: false });
   const [saving, setSaving] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({ username: '', name: '', lastname: '', admin: false, password: '' });
+  const [editError, setEditError] = useState('');
+
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
 
   const currentUser = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; } })();
   const isAdmin = !!currentUser?.admin;
@@ -31,12 +37,13 @@ export default function Users() {
   const createUser = async (e) => {
     e.preventDefault();
     setSaving(true);
+    setCreateError('');
     try {
       await api.post('/users', creating);
       setCreating({ username: '', password: '', name: '', lastname: '', admin: false });
       await refresh();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error al crear');
+      setCreateError(err.response?.data?.error || 'Error al crear');
     } finally {
       setSaving(false);
     }
@@ -49,6 +56,7 @@ export default function Users() {
 
   const saveEdit = async () => {
     setSaving(true);
+    setEditError('');
     try {
       const body = { ...editData };
       if (!body.password) delete body.password;
@@ -56,19 +64,26 @@ export default function Users() {
       setEditId(null);
       await refresh();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error al guardar');
+      setEditError(err.response?.data?.error || 'Error al guardar');
     } finally {
       setSaving(false);
     }
   };
 
-  const deleteUser = async (id) => {
-    if (!confirm('¿Eliminar usuario?')) return;
+  const askDeleteUser = (u) => {
+    setDeleteError('');
+    setDeleteTarget(u);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteError('');
     try {
-      await api.delete(`/users/${id}`);
+      await api.delete(`/users/${deleteTarget.id}`);
+      setDeleteTarget(null);
       await refresh();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error al eliminar');
+      setDeleteError(err.response?.data?.error || 'Error al eliminar');
     }
   };
 
@@ -156,7 +171,7 @@ export default function Users() {
                     {isAdmin && (
                       <>
                         <button className="btn btn-sm btn-outline-primary" onClick={() => startEdit(u)}>Editar</button>
-                        <button className="btn btn-sm btn-outline-danger" disabled={currentUser?.id === u.id} onClick={() => deleteUser(u.id)}>Eliminar</button>
+                        <button className="btn btn-sm btn-outline-danger" disabled={currentUser?.id === u.id} onClick={() => askDeleteUser(u)}>Eliminar</button>
                       </>
                     )}
                   </>
@@ -171,10 +186,31 @@ export default function Users() {
                   <div className="col-md-3">
                     <input className="form-control" type="password" placeholder="Nueva contraseña (opcional)" value={editData.password} onChange={e => setEditData({ ...editData, password: e.target.value })} />
                   </div>
+                  {editError && (
+                    <div className="col-12">
+                      <div className="alert alert-danger mt-2">{editError}</div>
+                    </div>
+                  )}
                 </div>
               </td>
             </tr>
           )}
+
+          {/* Modal confirmación borrado */}
+          <Modal
+            show={!!deleteTarget}
+            onClose={() => setDeleteTarget(null)}
+            message={deleteTarget ? (
+              <>
+                <p>¿Seguro que deseas eliminar el siguiente usuario?</p>
+                <div><strong>Usuario:</strong> {deleteTarget.username}</div>
+                <div><strong>Nombre:</strong> {deleteTarget.name} {deleteTarget.lastname}</div>
+                {deleteError && <div className="alert alert-danger mt-2">{deleteError}</div>}
+              </>
+            ) : null}
+          >
+            <button className="btn btn-danger" onClick={confirmDelete}>Eliminar</button>
+          </Modal>
         </tbody>
       </table>
     </div>
