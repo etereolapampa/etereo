@@ -644,15 +644,7 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
     const totalsHeight = 150 + (mov.sellerId?.bonus ? 24 : 0); // Más espacio para totales
     const H = HEADER_H + 110 + detailHeight + totalsHeight + FOOTER + 80; // +80 margen extra
     
-    console.log('RECEIPT DEBUG:', {
-      HEADER_H,
-      prodLines,
-      detailHeight,
-      totalsHeight,
-      FOOTER,
-      totalHeight: H,
-      itemsCount: rows.length
-    });
+    // debug removido
 
     /* ═════════ 3) CANVAS ═════════ */
     const c = createCanvas(W, H);
@@ -731,7 +723,7 @@ router.get('/movements/:id/receipt.png', async (req, res) => {
     y += 31;
     totalLn('Total neto:', `$${neto.toFixed(2)}`);
     
-    console.log('RECEIPT DEBUG - Final Y position:', y, 'Canvas height:', H, 'Remaining space:', H - y);
+    // debug removido
 
     /* ═════════ 7) OBSERVACIONES (DESHABILITADO) ═════════ */
     // Comentado por pedido del cliente

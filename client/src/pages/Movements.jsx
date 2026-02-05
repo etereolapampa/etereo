@@ -533,9 +533,7 @@ export default function Movements() {
               const brutoVal = getBruto(m);
               const comVal = getComision(m);
               const netoVal = brutoVal - comVal;
-              if (isFirst && comVal > 0) {
-                console.log(`[RENDER] mov=${m._id} bruto=${brutoVal} comVal=${comVal} neto=${netoVal}`);
-              }
+              // debug removido
 
               return (
                 <tr
@@ -575,7 +573,6 @@ export default function Movements() {
                         ${brutoVal.toFixed(2)}
                       </td>
                       <td rowSpan={span} className="text-center align-middle nowrap">
-                        {console.log('------------------------------------------------COMISION MANUAL:',comVal)}
                         {comVal > 0 ? `-$${comVal.toFixed(2)}` : '$0.00'}
                       </td>
                       <td rowSpan={span} className="text-center align-middle nowrap">
