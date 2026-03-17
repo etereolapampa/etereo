@@ -23,6 +23,13 @@ const getProdId = m => {
   return typeof pid === 'object' ? pid._id : pid;
 };
 
+const getId = value => {
+  if (!value) return null;
+  return typeof value === 'object' ? value._id : value;
+};
+
+const getProductCategoryId = product => getId(product?.categoryId);
+
 const getQty = m => (m._item ? m._item.quantity : m.quantity) || 0;
 /* ──────────────────────────────────────────── */
 
@@ -54,6 +61,20 @@ export default function Stats() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const years = new Set([currentYear]);
+
+    movements.forEach(m => {
+      const date = new Date(m.date);
+      if (!Number.isNaN(date.getTime())) {
+        years.add(date.getFullYear());
+      }
+    });
+
+    return Array.from(years).sort((a, b) => b - a);
+  }, [movements]);
 
   /* ───────── carga inicial ───────── */
   useEffect(() => {
@@ -95,12 +116,13 @@ export default function Stats() {
       if (date.getFullYear() !== year) return false;
 
       const productMatch = products.find(p => p._id === prodId);
+      const productCategoryId = getProductCategoryId(productMatch);
 
       const categoryMatch = !category ||
-        (productMatch && productMatch.categoryId._id === category);
+        (productMatch && productCategoryId === category);
 
       const productFilterMatch = !product || prodId === product;
-      const sellerMatch = !seller || (m.sellerId && m.sellerId._id === seller);
+      const sellerMatch = !seller || getId(m.sellerId) === seller;
       const branchMatch = !branch || m.branch === branch;
       const finalConsMatch = !showFinalConsumer || !m.sellerId;
 
@@ -125,9 +147,11 @@ export default function Stats() {
       const prod = products.find(p => p._id === prodId);
       if (prod) {
         opts.products.add(prod._id);
-        opts.categories.add(prod.categoryId._id);
+        const catId = getProductCategoryId(prod);
+        if (catId) opts.categories.add(catId);
       }
-      if (m.sellerId) opts.sellers.add(m.sellerId._id);
+      const sellerId = getId(m.sellerId);
+      if (sellerId) opts.sellers.add(sellerId);
       if (m.branch) opts.branches.add(m.branch);
     });
 
@@ -142,12 +166,12 @@ export default function Stats() {
       } else if (rowGroup === 'Vendedor') {
         if (!m.sellerId) key = 'Consumidor Final';
         else {
-          const s = sellers.find(s => s._id === m.sellerId._id);
+          const s = sellers.find(s => s._id === getId(m.sellerId));
           key = s ? `${s.name} ${s.lastname}` : 'Vendedor eliminado';
         }
       } else if (rowGroup === 'Categoría') {
         const prod = products.find(p => p._id === getProdId(m));
-        const cat = categories.find(c => c._id === prod?.categoryId._id);
+        const cat = categories.find(c => c._id === getProductCategoryId(prod));
         key = cat?.name || 'Categoría eliminada';
       } else if (rowGroup === 'Sucursal') {
         key = m.branch || '—';
@@ -222,7 +246,7 @@ export default function Stats() {
         dest = m.destination || '-';
       } else if (m.type === 'sell') {
         if (m.sellerId) {
-          const s = sellers.find(s => s._id === m.sellerId._id);
+          const s = sellers.find(s => s._id === getId(m.sellerId));
           dest = s ? `${s.name} ${s.lastname}` : 'Vendedor eliminado';
         } else {
           dest = m.destination || 'Consumidor Final';
@@ -312,8 +336,8 @@ export default function Stats() {
               <Form.Label>Año</Form.Label>
               <Form.Select value={year}
                 onChange={e => setYear(Number(e.target.value))}>
-                {[2023, 2024, 2025].map(y =>
-                  <option key={y}>{y}</option>)}
+                {yearOptions.map(y =>
+                  <option key={y} value={y}>{y}</option>)}
               </Form.Select>
             </Col>
 
@@ -337,7 +361,7 @@ export default function Stats() {
                 <option value="">Todos</option>
                 {products
                   .filter(p => availableOptions.products.has(p._id) &&
-                    (!category || p.categoryId._id === category))
+                    (!category || getProductCategoryId(p) === category))
                   .map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
               </Form.Select>
             </Col>
