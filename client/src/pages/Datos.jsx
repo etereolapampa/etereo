@@ -62,6 +62,32 @@ export default function Datos() {
     [sellers, sellerFilter]
   );
 
+  const collator = useMemo(
+    () => new Intl.Collator('es', { sensitivity: 'base', numeric: true }),
+    []
+  );
+
+  const sortedFilteredCats = useMemo(
+    () => [...filteredCats].sort((a, b) => collator.compare(a.name || '', b.name || '')),
+    [filteredCats, collator]
+  );
+
+  const sortedFilteredProds = useMemo(
+    () => [...filteredProds].sort((a, b) => collator.compare(a.name || '', b.name || '')),
+    [filteredProds, collator]
+  );
+
+  const productsByCategory = useMemo(
+    () => sortedFilteredProds.reduce((acc, prod) => {
+      const categoryId = prod.categoryId?._id;
+      if (!categoryId) return acc;
+      if (!acc[categoryId]) acc[categoryId] = [];
+      acc[categoryId].push(prod);
+      return acc;
+    }, {}),
+    [sortedFilteredProds]
+  );
+
   const activeSellers = filteredSellers.filter(s => !s.isDeleted);
   const deletedSellers = filteredSellers.filter(s => s.isDeleted);
 
@@ -117,7 +143,9 @@ export default function Datos() {
               Sin categorías que coincidan con los filtros
             </div>
           ) : (
-            filteredCats.map(cat => (
+            sortedFilteredCats.map(cat => {
+              const catProducts = productsByCategory[cat._id] || [];
+              return (
               <Card key={cat._id} className="mb-4 shadow-sm">
                 <Card.Header className="d-flex justify-content-between align-items-center border-bottom border-2 border-secondary">
                   <strong>{cat.name}</strong>
@@ -151,9 +179,7 @@ export default function Datos() {
                   </div>
                 </Card.Header>
                 <ListGroup variant="flush">
-                  {filteredProds
-                    .filter(p => p.categoryId && p.categoryId._id === cat._id)
-                    .map(prod => (
+                  {catProducts.map(prod => (
                       <ListGroup.Item
                         key={prod._id}
                         className="d-flex justify-content-between align-items-center"
@@ -183,14 +209,15 @@ export default function Datos() {
                         </div>
                       </ListGroup.Item>
                     ))}
-                  {!prodFilter.trim() && filteredProds.filter(p => p.categoryId && p.categoryId._id === cat._id).length === 0 && (
+                  {!prodFilter.trim() && catProducts.length === 0 && (
                     <ListGroup.Item className="text-muted">
                       Sin productos en esta categoría
                     </ListGroup.Item>
                   )}
                 </ListGroup>
               </Card>
-            ))
+              );
+            })
           )}
         </Col>
 
