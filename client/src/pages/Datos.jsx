@@ -88,8 +88,12 @@ export default function Datos() {
     [sortedFilteredProds]
   );
 
-  const activeSellers = filteredSellers.filter(s => !s.isDeleted);
-  const deletedSellers = filteredSellers.filter(s => s.isDeleted);
+  const activeSellers = filteredSellers
+    .filter(s => !s.isDeleted)
+    .sort((a, b) => collator.compare(`${a.name} ${a.lastname}`, `${b.name} ${b.lastname}`));
+  const deletedSellers = filteredSellers
+    .filter(s => s.isDeleted)
+    .sort((a, b) => collator.compare(`${a.name} ${a.lastname}`, `${b.name} ${b.lastname}`));
 
   const [showDeleted, setShowDeleted] = useState(false);
 

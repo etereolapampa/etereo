@@ -87,13 +87,14 @@ export default function PriceAdjustment() {
     // Solo mostrar vista previa si hay un número válido y productos cargados
     if (value && !isNaN(Number(value)) && products.length > 0 && selectedCategory) {
       const numValue = Number(value);
+      const roundTo100 = (value) => Math.round(value / 100) * 100;
       const previewData = products
         .filter(product => product.categoryId._id === selectedCategory)
         .map(product => ({
           ...product,
-          newPrice: type === 'percentage' 
-            ? Number((product.price * (1 + numValue / 100)).toFixed(2))
-            : Number((product.price + numValue).toFixed(2)) // suma el monto fijo
+          newPrice: type === 'percentage'
+            ? roundTo100(product.price * (1 + numValue / 100))
+            : roundTo100(product.price + numValue)
         }));
       setPreview(previewData);
     } else {
@@ -274,10 +275,10 @@ export default function PriceAdjustment() {
                   {preview.map(product => (
                     <tr key={product._id}>
                       <td>{product.name}</td>
-                      <td>${product.price.toFixed(2)}</td>
-                      <td>${product.newPrice.toFixed(2)}</td>
+                      <td>${product.price.toFixed(0)}</td>
+                      <td>${product.newPrice.toFixed(0)}</td>
                       <td className={product.newPrice > product.price ? 'text-success' : 'text-danger'}>
-                        ${(product.newPrice - product.price).toFixed(2)}
+                        ${(product.newPrice - product.price).toFixed(0)}
                       </td>
                     </tr>
                   ))}

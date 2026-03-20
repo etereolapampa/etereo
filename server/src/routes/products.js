@@ -131,21 +131,23 @@ router.post('/adjust-prices', async (req, res) => {
       return res.status(400).json({ error: 'No hay productos en esta categoría' });
     }
 
-    let updatedProducts;
+    const roundTo100 = (value) => Math.round(value / 100) * 100;
 
-    if (adjustmentType === 'percentage') {
-      // Ajuste por porcentaje (comportamiento original)
-      updatedProducts = await Producto.updateMany(
-        { categoryId },
-        { $mul: { price: (1 + percentage / 100) } }
-      );
-    } else if (adjustmentType === 'fixed') {
-      // Ajuste por monto fijo (suma el monto a cada producto)
-      updatedProducts = await Producto.updateMany(
-        { categoryId },
-        { $inc: { price: fixedPrice } }
-      );
+    let modifiedCount = 0;
+
+    for (const producto of productos) {
+      let rawPrice;
+      if (adjustmentType === 'percentage') {
+        rawPrice = producto.price * (1 + percentage / 100);
+      } else {
+        rawPrice = producto.price + fixedPrice;
+      }
+      const newPrice = roundTo100(rawPrice);
+      await Producto.findByIdAndUpdate(producto._id, { price: newPrice });
+      modifiedCount++;
     }
+
+    const updatedProducts = { modifiedCount };
 
     await logAction(req, {
       action: 'adjust',
