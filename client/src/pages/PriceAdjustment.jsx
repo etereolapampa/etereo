@@ -3,6 +3,7 @@ import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Modal from '../components/Modal';
+import { formatPrice, normalizePrice, roundPriceToHundreds } from '../utils/price';
 
 export default function PriceAdjustment() {
   const [searchParams] = useSearchParams();
@@ -87,14 +88,13 @@ export default function PriceAdjustment() {
     // Solo mostrar vista previa si hay un número válido y productos cargados
     if (value && !isNaN(Number(value)) && products.length > 0 && selectedCategory) {
       const numValue = Number(value);
-      const roundTo100 = (value) => Math.round(value / 100) * 100;
       const previewData = products
         .filter(product => product.categoryId._id === selectedCategory)
         .map(product => ({
           ...product,
           newPrice: type === 'percentage'
-            ? roundTo100(product.price * (1 + numValue / 100))
-            : roundTo100(product.price + numValue)
+            ? roundPriceToHundreds(product.price * (1 + numValue / 100))
+            : normalizePrice(product.price + numValue)
         }));
       setPreview(previewData);
     } else {
@@ -275,10 +275,10 @@ export default function PriceAdjustment() {
                   {preview.map(product => (
                     <tr key={product._id}>
                       <td>{product.name}</td>
-                      <td>${product.price.toFixed(0)}</td>
-                      <td>${product.newPrice.toFixed(0)}</td>
+                      <td>{formatPrice(product.price)}</td>
+                      <td>{formatPrice(product.newPrice)}</td>
                       <td className={product.newPrice > product.price ? 'text-success' : 'text-danger'}>
-                        ${(product.newPrice - product.price).toFixed(0)}
+                        {formatPrice(product.newPrice - product.price)}
                       </td>
                     </tr>
                   ))}

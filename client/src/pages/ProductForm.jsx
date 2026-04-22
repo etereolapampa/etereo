@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import api from '../api';
 import Modal from '../components/Modal';
+import { normalizePrice } from '../utils/price';
 
 export default function ProductForm() {
   const [name, setName] = useState('');
@@ -26,23 +27,15 @@ export default function ProductForm() {
         .then(({ data }) => {
           setName(data.name);
           setCategoryId(data.categoryId);
-          setPrice(data.price || '');
+          setPrice(data.price ? String(normalizePrice(data.price)) : '');
         })
         .catch(() => setError('No se pudo cargar el producto'));
     }
   }, [id, isEdit, searchParams]);
 
   const handlePriceChange = e => {
-    // Solo permitir números y un punto decimal
-    const value = e.target.value.replace(/[^0-9.]/g, '');
-    
-    // Evitar múltiples puntos decimales
-    const parts = value.split('.');
-    if (parts.length > 2) return;
-    
-    // Limitar a 2 decimales
-    if (parts[1] && parts[1].length > 2) return;
-    
+    // Solo permitir precios enteros: los centavos siempre quedan en cero
+    const value = e.target.value.replace(/\D/g, '');
     setPrice(value);
   };
 
@@ -56,7 +49,7 @@ export default function ProductForm() {
       const payload = { 
         name, 
         categoryId,
-        price: Number(price)
+        price: normalizePrice(price)
       };
       if (isEdit) {
         await api.put(`/products/${id}`, payload);
@@ -121,7 +114,7 @@ export default function ProductForm() {
               }}
               value={price}
               onChange={handlePriceChange}
-              placeholder="0.00"
+              placeholder="0"
               required
             />
             <span

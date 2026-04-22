@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import api from '../api';
+import { formatPrice } from '../utils/price';
 
 export default function Datos() {
   const nav = useNavigate();
@@ -190,7 +191,7 @@ export default function Datos() {
                       >
                         <div>
                           {prod.name}
-                          <small className="text-muted d-block">${prod.price || '0.00'}</small>
+                          <small className="text-muted d-block">{formatPrice(prod.price)}</small>
                         </div>
                         <div>
                           <Button

@@ -6,6 +6,18 @@ import Categoria from '../models/Categoria.js';
 import { logAction } from '../utils/logger.js';
 const router = express.Router();
 
+const normalizePrice = (value) => {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return NaN;
+  return Math.round(numericValue);
+};
+
+const roundPriceToHundreds = (value) => {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return NaN;
+  return Math.round(numericValue / 100) * 100;
+};
+
 // Listar todos los productos
 router.get('/', async (req, res) => {
   try {
@@ -37,6 +49,11 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
+    const normalizedPrice = normalizePrice(price);
+    if (!Number.isFinite(normalizedPrice)) {
+      return res.status(400).json({ error: 'Precio inválido' });
+    }
+
     // Validar que la categoría exista
     const categoria = await Categoria.findById(categoryId);
     if (!categoria) {
@@ -46,12 +63,12 @@ router.post('/', async (req, res) => {
     const newProduct = new Producto({
       name,
       categoryId,
-      price: Number(price),
+      price: normalizedPrice,
       stock: 0
     });
 
     await newProduct.save();
-    await logAction(req, { action: 'create', entity: 'product', entityId: newProduct._id, data: { name, categoryId, price: Number(price) } });
+    await logAction(req, { action: 'create', entity: 'product', entityId: newProduct._id, data: { name, categoryId, price: normalizedPrice } });
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error al crear producto:', error);
@@ -67,6 +84,11 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
+    const normalizedPrice = normalizePrice(price);
+    if (!Number.isFinite(normalizedPrice)) {
+      return res.status(400).json({ error: 'Precio inválido' });
+    }
+
     // Validar que la categoría exista
     const categoria = await Categoria.findById(categoryId);
     if (!categoria) {
@@ -76,7 +98,7 @@ router.put('/:id', async (req, res) => {
     const before = await Producto.findById(req.params.id).lean();
     const producto = await Producto.findByIdAndUpdate(
       req.params.id,
-      { name, categoryId, price: Number(price) },
+      { name, categoryId, price: normalizedPrice },
       { new: true }
     );
 
@@ -124,6 +146,17 @@ router.post('/adjust-prices', async (req, res) => {
     return res.status(400).json({ error: 'fixedPrice es requerido para ajuste por precio fijo' });
   }
 
+  const percentageValue = Number(percentage);
+  const fixedPriceValue = Number(fixedPrice);
+
+  if (adjustmentType === 'percentage' && !Number.isFinite(percentageValue)) {
+    return res.status(400).json({ error: 'percentage debe ser un número válido' });
+  }
+
+  if (adjustmentType === 'fixed' && !Number.isFinite(fixedPriceValue)) {
+    return res.status(400).json({ error: 'fixedPrice debe ser un número válido' });
+  }
+
   try {
     // Verificar que la categoría existe y tiene productos
     const productos = await Producto.find({ categoryId });
@@ -131,18 +164,20 @@ router.post('/adjust-prices', async (req, res) => {
       return res.status(400).json({ error: 'No hay productos en esta categoría' });
     }
 
-    const roundTo100 = (value) => Math.round(value / 100) * 100;
-
     let modifiedCount = 0;
 
     for (const producto of productos) {
       let rawPrice;
+      let newPrice;
+
       if (adjustmentType === 'percentage') {
-        rawPrice = producto.price * (1 + percentage / 100);
+        rawPrice = producto.price * (1 + percentageValue / 100);
+        newPrice = roundPriceToHundreds(rawPrice);
       } else {
-        rawPrice = producto.price + fixedPrice;
+        rawPrice = producto.price + fixedPriceValue;
+        newPrice = normalizePrice(rawPrice);
       }
-      const newPrice = roundTo100(rawPrice);
+
       await Producto.findByIdAndUpdate(producto._id, { price: newPrice });
       modifiedCount++;
     }
@@ -153,14 +188,20 @@ router.post('/adjust-prices', async (req, res) => {
       action: 'adjust',
       entity: 'product-prices',
       entityId: String(categoryId),
-      data: { categoryId, adjustmentType, percentage, fixedPrice, modifiedCount: updatedProducts?.modifiedCount }
+      data: {
+        categoryId,
+        adjustmentType,
+        percentage: adjustmentType === 'percentage' ? percentageValue : undefined,
+        fixedPrice: adjustmentType === 'fixed' ? fixedPriceValue : undefined,
+        modifiedCount: updatedProducts?.modifiedCount
+      }
     });
     res.json({
       message: 'Precios actualizados correctamente',
       updatedCount: updatedProducts.modifiedCount,
       adjustmentType,
-      ...(adjustmentType === 'percentage' && { percentage }),
-      ...(adjustmentType === 'fixed' && { fixedPrice })
+      ...(adjustmentType === 'percentage' && { percentage: percentageValue }),
+      ...(adjustmentType === 'fixed' && { fixedPrice: fixedPriceValue })
     });
   } catch (error) {
     console.error('Error al ajustar precios:', error);
