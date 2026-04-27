@@ -18,6 +18,7 @@ export default function PriceAdjustment() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [preview, setPreview] = useState([]);
+  const [updatedProducts, setUpdatedProducts] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -119,7 +120,22 @@ export default function PriceAdjustment() {
         payload.fixedPrice = Number(fixedPrice);
       }
 
-      await api.post('/products/adjust-prices', payload);
+      const { data } = await api.post('/products/adjust-prices', payload);
+
+      if (Array.isArray(data.updatedProducts) && data.updatedProducts.length > 0) {
+        const updatedById = new Map(
+          data.updatedProducts.map(product => [String(product._id), product])
+        );
+
+        setUpdatedProducts(data.updatedProducts);
+        setProducts(currentProducts =>
+          currentProducts.map(product => {
+            const updatedProduct = updatedById.get(String(product._id));
+            return updatedProduct ? { ...product, price: updatedProduct.price } : product;
+          })
+        );
+      }
+
       setShowModal(true);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al ajustar los precios');
@@ -292,7 +308,7 @@ export default function PriceAdjustment() {
       <Modal
         show={showModal}
         message="Los precios han sido actualizados correctamente"
-        onClose={() => navigate('/datos')}
+        onClose={() => navigate('/datos', { state: { updatedProducts, adjustedAt: Date.now() } })}
       />
     </Container>
   );

@@ -4,24 +4,14 @@ import Producto from '../models/Producto.js';
 import Categoria from '../models/Categoria.js';
 // requireAdmin removido: todos los usuarios autenticados pueden operar
 import { logAction } from '../utils/logger.js';
+import { calculateAdjustedPrice, normalizePrice } from '../utils/price.js';
 const router = express.Router();
-
-const normalizePrice = (value) => {
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) return NaN;
-  return Math.round(numericValue);
-};
-
-const roundPriceToHundreds = (value) => {
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) return NaN;
-  return Math.round(numericValue / 100) * 100;
-};
 
 // Listar todos los productos
 router.get('/', async (req, res) => {
   try {
-    const productos = await Producto.find().populate('categoryId');
+    const filter = req.query.categoryId ? { categoryId: req.query.categoryId } : {};
+    const productos = await Producto.find(filter).populate('categoryId');
     res.json(productos);
   } catch (error) {
     console.error('Error al obtener productos:', error);
@@ -164,25 +154,67 @@ router.post('/adjust-prices', async (req, res) => {
       return res.status(400).json({ error: 'No hay productos en esta categoría' });
     }
 
-    let modifiedCount = 0;
+    const updatePipeline = adjustmentType === 'percentage'
+      ? [
+          {
+            $set: {
+              price: {
+                $multiply: [
+                  {
+                    $round: [
+                      {
+                        $divide: [
+                          {
+                            $multiply: ['$price', 1 + percentageValue / 100]
+                          },
+                          100
+                        ]
+                      },
+                      0
+                    ]
+                  },
+                  100
+                ]
+              }
+            }
+          }
+        ]
+      : [
+          {
+            $set: {
+              price: {
+                $round: [
+                  {
+                    $add: ['$price', fixedPriceValue]
+                  },
+                  0
+                ]
+              }
+            }
+          }
+        ];
 
-    for (const producto of productos) {
-      let rawPrice;
-      let newPrice;
+    const updateResult = await Producto.updateMany({ categoryId }, updatePipeline);
 
-      if (adjustmentType === 'percentage') {
-        rawPrice = producto.price * (1 + percentageValue / 100);
-        newPrice = roundPriceToHundreds(rawPrice);
-      } else {
-        rawPrice = producto.price + fixedPriceValue;
-        newPrice = normalizePrice(rawPrice);
+    const updatedProducts = await Producto.find({ categoryId }, { name: 1, price: 1, categoryId: 1 }).lean();
+    const modifiedCount = updateResult.modifiedCount ?? updatedProducts.length;
+
+    if (adjustmentType === 'percentage') {
+      const invalidProduct = updatedProducts.find(producto => {
+        const expectedPrice = calculateAdjustedPrice({
+          currentPrice: productos.find(item => String(item._id) === String(producto._id))?.price,
+          adjustmentType,
+          percentage: percentageValue,
+          fixedPrice: fixedPriceValue
+        });
+
+        return Number.isFinite(expectedPrice) && expectedPrice !== producto.price;
+      });
+
+      if (invalidProduct) {
+        return res.status(500).json({ error: 'El backend no pudo registrar el redondeo esperado' });
       }
-
-      await Producto.findByIdAndUpdate(producto._id, { price: newPrice });
-      modifiedCount++;
     }
-
-    const updatedProducts = { modifiedCount };
 
     await logAction(req, {
       action: 'adjust',
@@ -193,12 +225,22 @@ router.post('/adjust-prices', async (req, res) => {
         adjustmentType,
         percentage: adjustmentType === 'percentage' ? percentageValue : undefined,
         fixedPrice: adjustmentType === 'fixed' ? fixedPriceValue : undefined,
-        modifiedCount: updatedProducts?.modifiedCount
+        modifiedCount,
+        updatedProducts: updatedProducts.map(producto => ({
+          ...producto,
+          _id: String(producto._id),
+          categoryId: String(producto.categoryId)
+        }))
       }
     });
     res.json({
       message: 'Precios actualizados correctamente',
-      updatedCount: updatedProducts.modifiedCount,
+      updatedCount: modifiedCount,
+      updatedProducts: updatedProducts.map(producto => ({
+        ...producto,
+        _id: String(producto._id),
+        categoryId: String(producto.categoryId)
+      })),
       adjustmentType,
       ...(adjustmentType === 'percentage' && { percentage: percentageValue }),
       ...(adjustmentType === 'fixed' && { fixedPrice: fixedPriceValue })

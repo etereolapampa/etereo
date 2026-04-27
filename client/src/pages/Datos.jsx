@@ -14,6 +14,21 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import api from '../api';
 import { formatPrice } from '../utils/price';
 
+const mergeUpdatedProducts = (products, updatedProducts) => {
+  if (!Array.isArray(updatedProducts) || updatedProducts.length === 0) {
+    return products;
+  }
+
+  const updatedById = new Map(
+    updatedProducts.map(product => [String(product._id), product])
+  );
+
+  return products.map(product => {
+    const updatedProduct = updatedById.get(String(product._id));
+    return updatedProduct ? { ...product, price: updatedProduct.price } : product;
+  });
+};
+
 export default function Datos() {
   const nav = useNavigate();
   const location = useLocation();
@@ -28,9 +43,11 @@ export default function Datos() {
 
   useEffect(() => {
     api.get('/categories').then(r => setCategories(r.data));
-    api.get('/products').then(r => setProducts(r.data));
+    api.get('/products').then(r => {
+      setProducts(mergeUpdatedProducts(r.data, location.state?.updatedProducts));
+    });
     api.get('/sellers').then(r => setSellers(r.data));
-  }, [location.key]);
+  }, [location.key, location.state]);
 
   const filteredProds = useMemo(
     () => products.filter(p =>
