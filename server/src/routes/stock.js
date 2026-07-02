@@ -14,9 +14,13 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 // requireAdmin removido: todos los usuarios autenticados pueden operar
 import { logAction } from '../utils/logger.js';
+import {
+  BRANCHES,
+  createEmptyBranchStock,
+  getTotalBranchStock
+} from '../constants/branches.js';
 
 const router = express.Router();
-const SUCURSALES = ['Santa Rosa', 'Macachín'];
 
 /* ───────── helpers fecha ───────── */
 const getArgentinaDate = () => new Date();
@@ -45,8 +49,6 @@ const adjustStockBulk = async () => {};
 /* ╭──────────────────────────────────────────────╮
    │  Helpers de stock dinámico                   │
    ╰──────────────────────────────────────────────╯ */
-const BRANCHES = ['Santa Rosa', 'Macachín'];
-
 // Calcula el stock por sucursal para un producto dado, opcionalmente excluyendo un movimiento (para edición)
 async function computeProductBranchStock(productId, { excludeMovementId } = {}) {
   const query = {
@@ -72,7 +74,7 @@ async function computeProductBranchStock(productId, { excludeMovementId } = {}) 
     items: 1
   }).lean();
 
-  const byBranch = { 'Santa Rosa': 0, 'Macachín': 0 };
+  const byBranch = createEmptyBranchStock();
 
   for (const mov of movs) {
     const { type, branch, destination } = mov;
@@ -104,7 +106,7 @@ async function computeProductBranchStock(productId, { excludeMovementId } = {}) 
 
   return {
     branches: byBranch,
-    total: byBranch['Santa Rosa'] + byBranch['Macachín']
+    total: getTotalBranchStock(byBranch)
   };
 }
 
@@ -134,7 +136,7 @@ async function computeAllDynamicStock() {
   const base = new Map(); // productId -> { SR:0, MAC:0 }
   const ensure = (pid) => {
     const key = pid.toString();
-    if (!base.has(key)) base.set(key, { 'Santa Rosa': 0, 'Macachín': 0 });
+    if (!base.has(key)) base.set(key, createEmptyBranchStock());
     return base.get(key);
   };
 
@@ -164,17 +166,14 @@ async function computeAllDynamicStock() {
   }
 
   const out = productos.map(p => {
-    const st = base.get(p._id.toString()) || { 'Santa Rosa': 0, 'Macachín': 0 };
+    const st = base.get(p._id.toString()) || createEmptyBranchStock();
     return {
       _id: p._id,
       name: p.name,
       categoryId: p.categoryId,
       price: p.price,
-      stock: st['Santa Rosa'] + st['Macachín'],
-      stockByBranch: {
-        'Santa Rosa': st['Santa Rosa'],
-        'Macachín': st['Macachín']
-      }
+      stock: getTotalBranchStock(st),
+      stockByBranch: st
     };
   });
 
@@ -389,7 +388,7 @@ router.post('/transfer', async (req, res) => {
   const prod = await Producto.findById(productId, { price: 1, name: 1 });
   if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
 
-    if (!SUCURSALES.includes(origin) || !SUCURSALES.includes(destination) || origin === destination)
+    if (!BRANCHES.includes(origin) || !BRANCHES.includes(destination) || origin === destination)
       return res.status(400).json({ error: 'Origen o destino inválidos' });
 
     const dyn = await computeProductBranchStock(productId);
@@ -489,6 +488,13 @@ router.put('/movements/:id', async (req, res) => {
     const original = await Movimiento.findById(id);
     if (!original) return res.status(404).json({ error: 'Movimiento no encontrado' });
 
+    if (body.type === 'transfer') {
+      body.branch = body.branch || body.origin;
+      if (!BRANCHES.includes(body.branch) || !BRANCHES.includes(body.destination) || body.branch === body.destination) {
+        return res.status(400).json({ error: 'Origen o destino inválidos' });
+      }
+    }
+
     if (Array.isArray(body.items) && body.items.length) {
       let total = 0;
       for (const it of body.items) {
@@ -519,6 +525,8 @@ router.put('/movements/:id', async (req, res) => {
           return res.status(400).json({ error: `Stock insuficiente (transfer) en ${body.branch}` });
       }
     }
+
+    delete body.origin;
 
     if (body.date) body.date = body.date.length === 10 ? parseDateAR(body.date) : new Date(body.date);
 

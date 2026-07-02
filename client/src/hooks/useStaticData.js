@@ -1,23 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
+import { SUCURSALES } from '../constants/branches';
 
 export function useSucursales() {
-  const [sucursales, setSucursales] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Sucursales hardcodeadas
-    const sucursalesHardcodeadas = [
-      { id: 1, nombre: 'Santa Rosa' },
-      { id: 2, nombre: 'Macachín' }
-    ];
-    
-    setSucursales(sucursalesHardcodeadas);
-    setLoading(false);
-  }, []);
-
-  return { sucursales, loading, error };
+  return { sucursales: SUCURSALES, loading: false, error: null };
 }
 
 export function useLocalidades() {

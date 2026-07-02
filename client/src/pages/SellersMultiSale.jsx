@@ -11,8 +11,7 @@ import api from '../api';
 import Modal from '../components/Modal';
 import { todayAR } from '../utils/date';
 import { downloadReceipt } from '../utils/receipt';
-
-const SUCURSALES = ['Santa Rosa', 'Macachín'];
+import { useSucursales } from '../hooks/useStaticData';
 
 /* ───── helpers ───── */
 const fmtNum = v => (v ? Number(v).toFixed(2) : '');
@@ -38,6 +37,11 @@ export default function SellersMultiSale() {
   const { id: sellerIdParam } = useParams();
   const [searchParams] = useSearchParams();
   const editId = searchParams.get('edit');          // ?edit=<movementId>
+  const {
+    sucursales,
+    loading: loadingSucursales,
+    error: errorSucursales
+  } = useSucursales();
 
   /* ───────── estado base ───────── */
   const [seller, setSeller] = useState(null);
@@ -249,6 +253,9 @@ export default function SellersMultiSale() {
   };
 
   /* ──────────── render ──────────── */
+  if (loadingSucursales) return <div>Cargando sucursales...</div>;
+  if (errorSucursales) return <div className="alert alert-danger">{errorSucursales}</div>;
+
   return (
     <>
       <h2>{editId ? 'Editar venta a Vendedora' : 'Registrar venta a Vendedora'}</h2>
@@ -281,8 +288,8 @@ export default function SellersMultiSale() {
           <Form.Label>Sucursal</Form.Label>
           <Form.Select value={branch} onChange={e => setBranch(e.target.value)} required>
             <option value="">Seleccione</option>
-            {SUCURSALES.map(b => (
-              <option key={b}>{b}</option>
+            {sucursales.map(({ id, nombre }) => (
+              <option key={id} value={nombre}>{nombre}</option>
             ))}
           </Form.Select>
         </Form.Group>

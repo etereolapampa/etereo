@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { BRANCHES } from '../constants/branches.js';
 
 /* ─── items para ventas múltiples ────────── */
 const ItemSchema = new mongoose.Schema({
@@ -21,8 +22,8 @@ const MovimientoSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Producto' },   // ⬅ opcional ahora
   quantity: Number,                                                      // ⬅ opcional
   type: { type: String, required: true, enum: ['add', 'sell', 'transfer', 'shortage'] },
-  branch: { type: String, required: true, enum: ['Santa Rosa', 'Macachín'] },
-  destination: { type: String, enum: ['Santa Rosa', 'Macachín'] },
+  branch: { type: String, required: true, enum: BRANCHES },
+  destination: { type: String, enum: BRANCHES },
   date: { type: Date, required: true },
   observations: String,
 

@@ -12,8 +12,7 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-
-const SUCURSALES = ['Santa Rosa', 'Macachín'];
+import { useSucursales } from '../hooks/useStaticData';
 
 // ─── suma las existencias de todas las sucursales ───
 const totalFromBranches = prod =>
@@ -21,21 +20,36 @@ const totalFromBranches = prod =>
 
 export default function Stock() {
   const navigate = useNavigate();
+  const {
+    sucursales,
+    loading: loadingSucursales,
+    error: errorSucursales
+  } = useSucursales();
+  const branchNames = sucursales.map(({ nombre }) => nombre);
+  const buildStockFilters = () =>
+    Object.fromEntries(
+      branchNames.flatMap(branch => [
+        [`${branch}_with`, false],
+        [`${branch}_without`, false]
+      ])
+    );
 
   /* ───────────── estado ───────────── */
   const [stock,          setStock]          = useState([]);
   const [categories,     setCategories]     = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [productFilter,  setProductFilter]  = useState('');
-  const [stockFilters,   setStockFilters]   = useState({
-    'Santa Rosa_with': false,
-    'Santa Rosa_without': false,
-    'Macachín_with': false,
-    'Macachín_without': false
-  });
+  const [stockFilters,   setStockFilters]   = useState(buildStockFilters);
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState('');
   const [sort,           setSort]           = useState({ field: 'name', order: 'asc' });
+
+  useEffect(() => {
+    setStockFilters(prev => ({
+      ...buildStockFilters(),
+      ...prev
+    }));
+  }, [sucursales]);
 
   /* ───────────── carga ───────────── */
   useEffect(() => {
@@ -71,10 +85,6 @@ export default function Stock() {
     if (!catName.includes(categoryFilter.toLowerCase())) return false;
     if (!p.name.toLowerCase().includes(productFilter.toLowerCase())) return false;
 
-    // Verificar filtros de stock por sucursal
-    const santaRosaStock = p.stockByBranch['Santa Rosa'] || 0;
-    const macachinStock = p.stockByBranch['Macachín'] || 0;
-
     // Si hay filtros activos, verificar condiciones
     const activeFilters = Object.entries(stockFilters).filter(([_, active]) => active);
     
@@ -84,8 +94,10 @@ export default function Stock() {
 
     // Verificar cada filtro activo
     for (const [filterKey, _] of activeFilters) {
-      const [branch, type] = filterKey.split('_');
-      const branchStock = branch === 'Santa Rosa' ? santaRosaStock : macachinStock;
+      const suffix = filterKey.endsWith('_without') ? '_without' : '_with';
+      const branch = filterKey.slice(0, -suffix.length);
+      const type = suffix === '_without' ? 'without' : 'with';
+      const branchStock = p.stockByBranch?.[branch] || 0;
       
       if (type === 'with' && branchStock === 0) {
         return false; // Necesita stock pero no lo tiene
@@ -112,7 +124,7 @@ export default function Stock() {
     if (sort.field === 'stock') {
       return totalFromBranches(prod);
     }
-    if (SUCURSALES.includes(sort.field)) {
+    if (branchNames.includes(sort.field)) {
       return prod.stockByBranch[sort.field] || 0;
     }
     return prod.name;
@@ -134,8 +146,8 @@ export default function Stock() {
     active ? (order === 'asc' ? ' ▲' : ' ▼') : null;
 
   /* ───────────── UI ───────────── */
-  if (loading) return <div>Cargando…</div>;
-  if (error)   return <div className="alert alert-danger">{error}</div>;
+  if (loadingSucursales || loading) return <div>Cargando…</div>;
+  if (errorSucursales || error)   return <div className="alert alert-danger">{errorSucursales || error}</div>;
 
   return (
     <Container fluid className="py-4">
@@ -143,62 +155,46 @@ export default function Stock() {
 
       {/* ███ Filtros ███ */}
       <Form className="mb-3">
-        <Row className="g-2 align-items-end">
-          <Col md={3}>
+        <Row className="mb-4">
+          <Col xs={12}>
+            <div className="d-flex justify-content-between align-items-start flex-wrap gap-4">
+              {branchNames.map(branch => (
+                <div key={branch} className="text-center" style={{ minWidth: 180 }}>
+                  <div className="fw-bold mb-3">{branch}</div>
+                  <div className="d-flex justify-content-center gap-4 flex-wrap">
+                    <Form.Check
+                      type="checkbox"
+                      label="Con stock"
+                      checked={stockFilters[`${branch}_with`] || false}
+                      onChange={() => handleStockFilterChange(branch, 'with')}
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="Sin stock"
+                      checked={stockFilters[`${branch}_without`] || false}
+                      onChange={() => handleStockFilterChange(branch, 'without')}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Col>
+        </Row>
+
+        <Row className="g-3 mb-2">
+          <Col md={6} lg={5}>
             <Form.Control
-              placeholder="Buscar categoría…"
+              placeholder="Buscar categoría..."
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             />
           </Col>
-          <Col md={3}>
+          <Col md={6} lg={5}>
             <Form.Control
-              placeholder="Buscar producto…"
+              placeholder="Buscar producto..."
               value={productFilter}
               onChange={(e) => setProductFilter(e.target.value)}
             />
-          </Col>
-          <Col md={6}>
-            <Row className="g-2">
-              <Col md={6}>
-                <div className="p-2">
-                  <div className="fw-bold mb-2 text-center">Santa Rosa</div>
-                  <div className="d-flex gap-3 justify-content-center">
-                    <Form.Check
-                      type="checkbox"
-                      label="Con stock"
-                      checked={stockFilters['Santa Rosa_with']}
-                      onChange={() => handleStockFilterChange('Santa Rosa', 'with')}
-                    />
-                    <Form.Check
-                      type="checkbox"
-                      label="Sin stock"
-                      checked={stockFilters['Santa Rosa_without']}
-                      onChange={() => handleStockFilterChange('Santa Rosa', 'without')}
-                    />
-                  </div>
-                </div>
-              </Col>
-              <Col md={6}>
-                <div className="p-2">
-                  <div className="fw-bold mb-2 text-center">Macachín</div>
-                  <div className="d-flex gap-3 justify-content-center">
-                    <Form.Check
-                      type="checkbox"
-                      label="Con stock"
-                      checked={stockFilters['Macachín_with']}
-                      onChange={() => handleStockFilterChange('Macachín', 'with')}
-                    />
-                    <Form.Check
-                      type="checkbox"
-                      label="Sin stock"
-                      checked={stockFilters['Macachín_without']}
-                      onChange={() => handleStockFilterChange('Macachín', 'without')}
-                    />
-                  </div>
-                </div>
-              </Col>
-            </Row>
           </Col>
         </Row>
       </Form>
@@ -217,7 +213,7 @@ export default function Stock() {
                 <SortIcon active={sort.field === 'name'} order={sort.order} />
               </th>
 
-              {SUCURSALES.map((b) => (
+              {branchNames.map((b) => (
                 <th
                   key={b}
                   style={{ cursor: 'pointer' }}
@@ -243,7 +239,7 @@ export default function Stock() {
                 <tr key={p._id}>
                   <td>{cat?.name}</td>
                   <td>{p.name}</td>
-                  {SUCURSALES.map((b) => (
+                  {branchNames.map((b) => (
                     <td key={b}>{p.stockByBranch[b] || 0}</td>
                   ))}
                   <td>{totalFromBranches(p)}</td>
@@ -338,7 +334,7 @@ export default function Stock() {
                 </div>
               </Card.Header>
               <ListGroup variant="flush">
-                {SUCURSALES.map((b) => (
+                {branchNames.map((b) => (
                   <ListGroup.Item key={b} className="d-flex justify-content-between">
                     <span>{b}</span>
                     <span>{p.stockByBranch[b] || 0}</span>
@@ -346,7 +342,7 @@ export default function Stock() {
                 ))}
                 <ListGroup.Item className="d-flex justify-content-between fw-bold">
                   <span>Total</span>
-                  <span>{p.stock}</span>
+                  <span>{totalFromBranches(p)}</span>
                 </ListGroup.Item>
               </ListGroup>
             </Card>

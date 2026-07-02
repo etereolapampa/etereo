@@ -36,8 +36,7 @@ export default function StockTransfer() {
   const isEdit = searchParams.get('edit');
 
   /* ───── helpers sucursal ───── */
-  const getOtherBranch = branch =>
-    sucursales.find(b => b.nombre !== branch)?.nombre || '';
+  const hasBranch = branch => sucursales.some(b => b.nombre === branch);
 
   /* ───── carga inicial ───── */
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function StockTransfer() {
           const { data: mv } = await api.get(`/stock/movements/${isEdit}`);
 
           setDate(toInputDate(mv.date));
-          setSourceBranch(mv.origin);
+          setSourceBranch(mv.branch || mv.origin || '');
           setDestinationBranch(mv.destination);
           setQuantity(mv.quantity);
           setObservations(mv.observations || '');
@@ -79,11 +78,11 @@ export default function StockTransfer() {
   /* ───── handlers sucursal ───── */
   const handleSourceChange = branch => {
     setSourceBranch(branch);
-    if (branch) setDestinationBranch(getOtherBranch(branch));
+    if (branch && destinationBranch === branch) setDestinationBranch('');
   };
   const handleDestinationChange = branch => {
     setDestinationBranch(branch);
-    if (branch) setSourceBranch(getOtherBranch(branch));
+    if (branch && sourceBranch === branch) setSourceBranch('');
   };
 
   /* ───── submit ───── */
@@ -130,6 +129,12 @@ export default function StockTransfer() {
     return (
       <div className="alert alert-danger">{errorSucursales || error}</div>
     );
+  if (sourceBranch && !hasBranch(sourceBranch)) {
+    return <div className="alert alert-danger">La sucursal de origen ya no existe.</div>;
+  }
+  if (destinationBranch && !hasBranch(destinationBranch)) {
+    return <div className="alert alert-danger">La sucursal de destino ya no existe.</div>;
+  }
   if (!product) return <div className="alert alert-danger">Cargando producto…</div>;
 
   return (
