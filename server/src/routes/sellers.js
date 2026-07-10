@@ -5,6 +5,12 @@ import Vendedor from '../models/Vendedor.js';
 import { logAction } from '../utils/logger.js';
 const router = express.Router();
 
+const normalizeOptionalDni = dni => {
+  if (typeof dni !== 'string') return undefined;
+  const normalized = dni.trim();
+  return normalized || undefined;
+};
+
 // Listar sellers (por defecto solo activos).
 // NOTA: documentos antiguos podrían no tener el campo isDeleted; los incluimos también.
 router.get('/', async (req, res) => {
@@ -38,14 +44,18 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, lastname, dni, city, phone, bonus, email } = req.body;
-    if (!name || !lastname || !dni || !city || !phone) {
-      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    const normalizedDni = normalizeOptionalDni(dni);
+    if (!name || !lastname || !city || !phone) {
+      return res.status(400).json({ error: 'Nombre, apellido, localidad y teléfono son obligatorios' });
+    }
+    if (normalizedDni && !/^\d+$/.test(normalizedDni)) {
+      return res.status(400).json({ error: 'DNI debe ser solo números' });
     }
 
     const newVendedor = new Vendedor({
       name,
       lastname,
-      dni,
+      dni: normalizedDni,
       city,
       phone: Number(phone),
       bonus: Number(bonus) || 0,
@@ -65,22 +75,31 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { name, lastname, dni, city, phone, bonus, email } = req.body;
-    if (!name || !lastname || !dni || !city || !phone) {
-      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    const normalizedDni = normalizeOptionalDni(dni);
+    if (!name || !lastname || !city || !phone) {
+      return res.status(400).json({ error: 'Nombre, apellido, localidad y teléfono son obligatorios' });
+    }
+    if (normalizedDni && !/^\d+$/.test(normalizedDni)) {
+      return res.status(400).json({ error: 'DNI debe ser solo números' });
     }
 
     const before = await Vendedor.findById(req.params.id).lean();
+    const baseUpdate = {
+      name,
+      lastname,
+      city,
+      phone: Number(phone),
+      bonus: Number(bonus) || 0,
+      email
+    };
+
+    const update = normalizedDni
+      ? { $set: { ...baseUpdate, dni: normalizedDni } }
+      : { $set: baseUpdate, $unset: { dni: 1 } };
+
     const vendedor = await Vendedor.findByIdAndUpdate(
       req.params.id,
-      {
-        name,
-        lastname,
-        dni,
-        city,
-        phone: Number(phone),
-        bonus: Number(bonus) || 0,
-        email                       // 👈  añadido
-      },
+      update,
       { new: true }
     );
 

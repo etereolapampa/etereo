@@ -306,11 +306,9 @@ export default function Datos() {
                     </div>
                   </Card.Header>
                   <ListGroup variant="flush">
-                    <ListGroup.Item>DNI: {seller.dni}</ListGroup.Item>
                     <ListGroup.Item>Localidad: {seller.city?.name || 'Sin localidad'}</ListGroup.Item>
                     <ListGroup.Item>Teléfono: {seller.phone}</ListGroup.Item>
                     <ListGroup.Item>Bonificación: {seller.bonus || '0'}%</ListGroup.Item>
-                    <ListGroup.Item>Correo: {seller.email || '-'}</ListGroup.Item>
                   </ListGroup>
                 </Card>
               ))}

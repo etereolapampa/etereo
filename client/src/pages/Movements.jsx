@@ -120,6 +120,23 @@ export default function Movements() {
     return `${mes.charAt(0).toUpperCase()}${mes.slice(1)} de ${y}`;
   };
 
+  const getId = value => {
+    if (!value) return '';
+    return typeof value === 'object' ? value._id : value;
+  };
+
+  function getProduct(m) {
+    return isMulti(m) ? products.find(p => p._id === m._item.productId) : m.productId;
+  }
+
+  const getCurrentCategoryId = m => {
+    return getId(getProduct(m)?.categoryId);
+  };
+
+  const getCurrentCategoryName = m => {
+    return getProduct(m)?.categoryId?.name || '—';
+  };
+
   const handleMonthChange = dir => {
     const [y, m] = currentMonth.split('-').map(Number);
     const d = new Date(y, m - 1);
@@ -138,14 +155,11 @@ export default function Movements() {
       .filter(m => !typeFilter || getMovementType(m) === typeFilter)
       .filter(m => {
         if (!categoryFilter) return true;
-        if (isMulti(m)) return false;
-        const prod = products.find(p => p._id === m.productId._id);
-        return prod?.categoryId?._id === categoryFilter;
+        return getCurrentCategoryId(m) === categoryFilter;
       })
       .filter(m => {
         if (!productFilter) return true;
-        if (isMulti(m)) return false;
-        return m.productId._id === productFilter;
+        return getId(getProduct(m)) === productFilter;
       })
       .filter(m => !branchFilter || m.branch === branchFilter)
       .filter(m => {
@@ -182,10 +196,11 @@ export default function Movements() {
       types.add(getMovementType(m));
 
       /* producto / categoría (ventas múltiples excluidas) */
-      if (!isMulti(m) && m.productId) {
-        const prod = m.productId;               // ya viene populateado
+      const prod = getProduct(m);
+      if (prod) {
         productIds.add(prod._id);
-        if (prod.categoryId) categoryIds.add(prod.categoryId._id);
+        const categoryId = getCurrentCategoryId(m);
+        if (categoryId) categoryIds.add(categoryId);
       }
 
       /* sucursales: branch y origin */
@@ -234,10 +249,6 @@ export default function Movements() {
   /* … (no se modifican en esta sección para ahorrar espacio) … */
 
   /* helpers fila expandida ------- */
-  const getProduct = m =>
-    isMulti(m) ? products.find(p => p._id === m._item.productId)
-      : m.productId;
-
   const getQty = m => isMulti(m) ? m._item.quantity : m.quantity;
   const getPrice = m => isMulti(m) ? m._item.price :
     (m.price ?? m.productId?.price ?? 0);
@@ -556,7 +567,7 @@ export default function Movements() {
                   {/* Producto + categoría */}
                   <td>
                     {isDiscountRow(m) ? 'DESCUENTOS'
-                      : getProduct(m)?.categoryId?.name || '—'}
+                      : getCurrentCategoryName(m)}
                   </td>
                   <td>
                     {isDiscountRow(m) ? (m._item?.description || 'Descuento')
@@ -668,7 +679,7 @@ export default function Movements() {
                 /* venta simple */
                 <>
                   <div><strong>Producto:</strong> {getProduct(m)?.name || '—'}</div>
-                  <div><strong>Categoría:</strong> {getProduct(m)?.categoryId?.name || '—'}</div>
+                  <div><strong>Categoría:</strong> {getCurrentCategoryName(m)}</div>
                   <div><strong>Cantidad:</strong> {getQty(m)}</div>
                   <div><strong>Precio&nbsp;U.:</strong> ${getPrice(m).toFixed(2)}</div>
                 </>

@@ -93,11 +93,12 @@ export default function SellerForm() {
   const handleSubmit = async e => {
     e.preventDefault();
     const { name, lastname, dni, city, phone, bonus } = form;
+    const normalizedDni = dni.trim();
     if (!name.trim() || !lastname.trim()) {
       setError('Nombre y Apellido son obligatorios');
       return;
     }
-    if (!/^\d+$/.test(dni)) {
+    if (normalizedDni && !/^\d+$/.test(normalizedDni)) {
       setError('DNI debe ser solo números');
       return;
     }
@@ -114,11 +115,15 @@ export default function SellerForm() {
       return;
     }
     try {
+      const payload = {
+        ...form,
+        dni: normalizedDni
+      };
       if (id) {
-        await api.put(`/sellers/${id}`, form);
+        await api.put(`/sellers/${id}`, payload);
         setModalMessage('Vendedor modificado satisfactoriamente');
       } else {
-        await api.post('/sellers', form);
+        await api.post('/sellers', payload);
         setModalMessage('Vendedor creado satisfactoriamente');
       }
       setShowModal(true);
@@ -184,11 +189,10 @@ export default function SellerForm() {
             }}
             value={form.dni}
             onChange={handleChange('dni')}
-            required
             pattern="[0-9]*"
             inputMode="numeric"
             onKeyPress={(e) => {
-              if (!/[0-9]/.test(e.key)) {
+              if (e.key.length === 1 && !/[0-9]/.test(e.key)) {
                 e.preventDefault();
               }
             }}

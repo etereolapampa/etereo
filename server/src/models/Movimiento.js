@@ -1,6 +1,17 @@
 import mongoose from 'mongoose';
 import { BRANCHES } from '../constants/branches.js';
 
+const CategorySnapshotSchema = new mongoose.Schema({
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Categoria'
+  },
+  name: {
+    type: String,
+    trim: true
+  }
+}, { _id: false });
+
 /* ─── items para ventas múltiples ────────── */
 const ItemSchema = new mongoose.Schema({
   productId: {
@@ -15,7 +26,10 @@ const ItemSchema = new mongoose.Schema({
   isDiscount: { type: Boolean, default: false },
 
   /* para descuentos necesitamos mostrar un texto */
-  description: { type: String, trim: true }
+  description: { type: String, trim: true },
+
+  /* foto de la categoría al momento del movimiento */
+  categorySnapshot: { type: CategorySnapshotSchema, default: null }
 }, { _id: false });
 
 const MovimientoSchema = new mongoose.Schema({
@@ -32,6 +46,7 @@ const MovimientoSchema = new mongoose.Schema({
   total: Number,
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendedor' },
   isFinalConsumer: Boolean,
+  categorySnapshot: { type: CategorySnapshotSchema, default: null },
 
   /* NUEVO: array de productos si es venta múltiple */
   items: [ItemSchema]                 // ← sólo presente cuando se venda +1 producto

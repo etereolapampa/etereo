@@ -34,6 +34,20 @@ const formatDate = d =>
     })
     : '';
 
+const buildCategorySnapshot = product => {
+  const categoryId = product?.categoryId?._id || product?.categoryId || null;
+  if (!categoryId) return null;
+
+  return {
+    categoryId,
+    name: product?.categoryId?.name || ''
+  };
+};
+
+const findProductForMovement = productId =>
+  Producto.findById(productId, { price: 1, name: 1, categoryId: 1 })
+    .populate('categoryId', 'name');
+
 /* ╭──────────────────────────────────────────────╮
    │  DEPRECADO: adjustStock / adjustStockBulk     │
    │  Ahora el stock se calcula SIEMPRE de forma   │
@@ -193,7 +207,7 @@ router.post('/add', async (req, res) => {
         .status(400)
         .json({ error: 'productId, quantity (int>0) y branch son obligatorios' });
 
-    const product = await Producto.findById(productId, { price: 1, name: 1 });
+    const product = await findProductForMovement(productId);
     if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
 
     // No se modifica el producto; sólo se registra el movimiento
@@ -204,7 +218,8 @@ router.post('/add', async (req, res) => {
       branch,
       date: date?.length === 10 ? parseDateAR(date) : date || getArgentinaDate(),
       observations,
-      price: product.price
+      price: product.price,
+      categorySnapshot: buildCategorySnapshot(product)
     });
 
     await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'add', ...req.body } });
@@ -229,7 +244,7 @@ const validateItem = async (it) => {
 
   /* — Ítems reales — */
   if (!mongoose.isValidObjectId(it.productId)) throw 'productId inválido';
-  const prod = await Producto.findById(it.productId);
+  const prod = await findProductForMovement(it.productId);
   if (!prod) throw `Producto ${it.productId} no encontrado`;
   if (typeof it.price !== 'number' || it.price <= 0)
     throw 'price inválido';
@@ -257,11 +272,13 @@ router.post('/sale', async (req, res) => {
 
       /* — VALIDAR todos los ítems y separar descuentos — */
       let total = 0;
+      const itemsWithSnapshot = [];
       for (const it of items) {
         const prod = await validateItem(it);        // ← lanza error si algo falla
 
         if (it.isDiscount) { // descuentos no afectan stock
           total += it.quantity * it.price;
+          itemsWithSnapshot.push(it);
           continue;
         }
 
@@ -272,6 +289,10 @@ router.post('/sale', async (req, res) => {
           return res.status(400).json({ error: `Stock insuficiente en ${branch} para ${prod.name}` });
 
         total += it.quantity * it.price;
+        itemsWithSnapshot.push({
+          ...it,
+          categorySnapshot: buildCategorySnapshot(prod)
+        });
       }
 
       /* — crear movimiento — */
@@ -282,9 +303,10 @@ router.post('/sale', async (req, res) => {
           : date || getArgentinaDate(),
         sellerId: sellerId || null,
         isFinalConsumer: !sellerId,
-        items,
+        items: itemsWithSnapshot,
         total,
-        observations
+        observations,
+        categorySnapshot: null
       });
 
       await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'sell', multi: true, ...req.body } });
@@ -304,8 +326,8 @@ router.post('/sale', async (req, res) => {
       date
     } = req.body;
 
-  const prod = await Producto.findById(productId, { price: 1, name: 1 });
-  if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
+    const prod = await findProductForMovement(productId);
+    if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
 
     if (!branch) return res.status(400).json({ error: 'branch es obligatorio' });
     if (!Number.isInteger(quantity) || quantity <= 0)
@@ -332,7 +354,8 @@ router.post('/sale', async (req, res) => {
       date: date?.length === 10 ? parseDateAR(date) : date || getArgentinaDate(),
       observations,
       sellerId: sellerId || null,
-      isFinalConsumer: !sellerId
+      isFinalConsumer: !sellerId,
+      categorySnapshot: buildCategorySnapshot(prod)
     });
 
   await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'sell', ...req.body } });
@@ -350,7 +373,7 @@ router.post('/shortage', async (req, res) => {
   try {
     const { productId, quantity, branch, observations = '', date } = req.body;
 
-    const prod = await Producto.findById(productId, { price: 1, name: 1 });
+    const prod = await findProductForMovement(productId);
     if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
 
     const dyn = await computeProductBranchStock(productId);
@@ -367,7 +390,8 @@ router.post('/shortage', async (req, res) => {
       branch,
       date: date?.length === 10 ? parseDateAR(date) : date || getArgentinaDate(),
       observations,
-      price: prod.price
+      price: prod.price,
+      categorySnapshot: buildCategorySnapshot(prod)
     });
 
     await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'shortage', ...req.body } });
@@ -385,8 +409,8 @@ router.post('/transfer', async (req, res) => {
   try {
     const { productId, quantity, origin, destination, observations = '', date } = req.body;
 
-  const prod = await Producto.findById(productId, { price: 1, name: 1 });
-  if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
+    const prod = await findProductForMovement(productId);
+    if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
 
     if (!BRANCHES.includes(origin) || !BRANCHES.includes(destination) || origin === destination)
       return res.status(400).json({ error: 'Origen o destino inválidos' });
@@ -404,7 +428,8 @@ router.post('/transfer', async (req, res) => {
       destination,
       date: date?.length === 10 ? parseDateAR(date) : date || getArgentinaDate(),
       observations,
-      price: prod.price
+      price: prod.price,
+      categorySnapshot: buildCategorySnapshot(prod)
     });
 
   await logAction(req, { action: 'create', entity: 'movement', entityId: movement._id, data: { type: 'transfer', ...req.body } });
@@ -426,6 +451,8 @@ router.get('/movements', async (_req, res) => {
         select: 'name price categoryId',
         populate: { path: 'categoryId', select: 'name' }
       })
+      .populate('categorySnapshot.categoryId', 'name')
+      .populate('items.categorySnapshot.categoryId', 'name')
       // Importante: incluir bonus para cálculo de comisión
   .populate('sellerId', 'name lastname bonus isDeleted deletedAt')
       .sort({ date: -1 });
@@ -497,20 +524,31 @@ router.put('/movements/:id', async (req, res) => {
 
     if (Array.isArray(body.items) && body.items.length) {
       let total = 0;
+      const itemsWithSnapshot = [];
       for (const it of body.items) {
-        if (it.isDiscount) { total += it.quantity * it.price; continue; }
-        const prod = await Producto.findById(it.productId, { name: 1 });
+        if (it.isDiscount) {
+          total += it.quantity * it.price;
+          itemsWithSnapshot.push(it);
+          continue;
+        }
+        const prod = await findProductForMovement(it.productId);
         if (!prod) return res.status(404).json({ error: `Producto ${it.productId} no existe` });
         const dyn = await computeProductBranchStock(it.productId, { excludeMovementId: original._id });
         const disponible = dyn.branches[body.branch] || 0;
         if (disponible < it.quantity)
           return res.status(400).json({ error: `Stock insuficiente para ${prod.name} en ${body.branch}` });
         total += it.quantity * it.price;
+        itemsWithSnapshot.push({
+          ...it,
+          categorySnapshot: buildCategorySnapshot(prod)
+        });
       }
+      body.items = itemsWithSnapshot;
       body.total = total;
       body.type = 'sell';
+      body.categorySnapshot = null;
     } else if (body.productId && body.quantity) {
-      const prod = await Producto.findById(body.productId, { name: 1 });
+      const prod = await findProductForMovement(body.productId);
       if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
       const dyn = await computeProductBranchStock(body.productId, { excludeMovementId: original._id });
       const disponible = dyn.branches[body.branch] || 0;
@@ -524,6 +562,7 @@ router.put('/movements/:id', async (req, res) => {
         if (disponible < needed)
           return res.status(400).json({ error: `Stock insuficiente (transfer) en ${body.branch}` });
       }
+      body.categorySnapshot = buildCategorySnapshot(prod);
     }
 
     delete body.origin;

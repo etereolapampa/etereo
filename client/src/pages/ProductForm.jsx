@@ -26,7 +26,7 @@ export default function ProductForm() {
       api.get(`/products/${id}`)
         .then(({ data }) => {
           setName(data.name);
-          setCategoryId(data.categoryId);
+          setCategoryId(data.categoryId?._id || data.categoryId || '');
           setPrice(data.price ? String(normalizePrice(data.price)) : '');
         })
         .catch(() => setError('No se pudo cargar el producto'));

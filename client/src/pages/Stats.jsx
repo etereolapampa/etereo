@@ -29,6 +29,14 @@ const getId = value => {
 };
 
 const getProductCategoryId = product => getId(product?.categoryId);
+const getCategorySnapshot = m => m._item?.categorySnapshot || m.categorySnapshot || null;
+const getMovementCategoryId = (m, product) => getId(getCategorySnapshot(m)?.categoryId) || getProductCategoryId(product);
+const getMovementCategoryName = (m, categories, product) => {
+  const snapshot = getCategorySnapshot(m);
+  if (snapshot?.name) return snapshot.name;
+  if (snapshot?.categoryId?.name) return snapshot.categoryId.name;
+  return categories.find(c => c._id === getMovementCategoryId(m, product))?.name || '-';
+};
 
 const getQty = m => (m._item ? m._item.quantity : m.quantity) || 0;
 /* ──────────────────────────────────────────── */
@@ -116,10 +124,10 @@ export default function Stats() {
       if (date.getFullYear() !== year) return false;
 
       const productMatch = products.find(p => p._id === prodId);
-      const productCategoryId = getProductCategoryId(productMatch);
+      const movementCategoryId = getMovementCategoryId(m, productMatch);
 
       const categoryMatch = !category ||
-        (productMatch && productCategoryId === category);
+        movementCategoryId === category;
 
       const productFilterMatch = !product || prodId === product;
       const sellerMatch = !seller || getId(m.sellerId) === seller;
@@ -147,7 +155,7 @@ export default function Stats() {
       const prod = products.find(p => p._id === prodId);
       if (prod) {
         opts.products.add(prod._id);
-        const catId = getProductCategoryId(prod);
+        const catId = getMovementCategoryId(m, prod);
         if (catId) opts.categories.add(catId);
       }
       const sellerId = getId(m.sellerId);
@@ -171,8 +179,7 @@ export default function Stats() {
         }
       } else if (rowGroup === 'Categoría') {
         const prod = products.find(p => p._id === getProdId(m));
-        const cat = categories.find(c => c._id === getProductCategoryId(prod));
-        key = cat?.name || 'Categoría eliminada';
+        key = getMovementCategoryName(m, categories, prod) || 'Categoría eliminada';
       } else if (rowGroup === 'Sucursal') {
         key = m.branch || '—';
       }
@@ -224,7 +231,6 @@ export default function Stats() {
       // producto y categoría
       const prodId = getProdId(m);
       const prod = products.find(p => p._id === prodId);
-      const cat = categories.find(c => c._id === prod?.categoryId?._id);
 
       // cantidad / precio
       const qty = getQty(m);
@@ -256,7 +262,7 @@ export default function Stats() {
       return [
         new Date(m.date).toISOString().slice(0, 10),
         tipo,
-        cat?.name || '-',
+        getMovementCategoryName(m, categories, prod),
         prod?.name || '-',
         qty,
         price,
@@ -360,8 +366,7 @@ export default function Stats() {
                 onChange={e => setProduct(e.target.value)}>
                 <option value="">Todos</option>
                 {products
-                  .filter(p => availableOptions.products.has(p._id) &&
-                    (!category || getProductCategoryId(p) === category))
+                  .filter(p => availableOptions.products.has(p._id))
                   .map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
               </Form.Select>
             </Col>

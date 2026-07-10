@@ -2,6 +2,7 @@
 import express from 'express';
 import Producto from '../models/Producto.js';
 import Categoria from '../models/Categoria.js';
+import Movimiento from '../models/Movimiento.js';
 // requireAdmin removido: todos los usuarios autenticados pueden operar
 import { logAction } from '../utils/logger.js';
 import { calculateAdjustedPrice, normalizePrice } from '../utils/price.js';
@@ -86,15 +87,53 @@ router.put('/:id', async (req, res) => {
     }
 
     const before = await Producto.findById(req.params.id).lean();
+    if (!before) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    if (String(before.categoryId) !== String(categoryId)) {
+      const previousCategory = await Categoria.findById(before.categoryId, { name: 1 }).lean();
+      if (previousCategory) {
+        const previousSnapshot = {
+          categoryId: previousCategory._id,
+          name: previousCategory.name
+        };
+
+        await Movimiento.updateMany(
+          {
+            productId: req.params.id,
+            categorySnapshot: null
+          },
+          {
+            $set: { categorySnapshot: previousSnapshot }
+          }
+        );
+
+        await Movimiento.updateMany(
+          {
+            'items.productId': req.params.id
+          },
+          {
+            $set: { 'items.$[item].categorySnapshot': previousSnapshot }
+          },
+          {
+            arrayFilters: [
+              {
+                'item.productId': before._id,
+                'item.isDiscount': { $ne: true },
+                'item.categorySnapshot': null
+              }
+            ]
+          }
+        );
+      }
+    }
+
     const producto = await Producto.findByIdAndUpdate(
       req.params.id,
       { name, categoryId, price: normalizedPrice },
       { new: true }
     );
-
-    if (!producto) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
 
     await logAction(req, { action: 'update', entity: 'product', entityId: producto._id, data: { before, after: producto } });
     res.json(producto);
