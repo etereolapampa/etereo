@@ -278,12 +278,13 @@ export default function Stats() {
 
     // ========= 3) Hoja "Stock" ========= (usa stockData para cantidades por sucursal)
     const branchNames = sucursales.map(s => s.nombre);
-    const stockHeaders = ['Producto', 'Categoría', 'Stock total', ...branchNames];
+    const stockHeaders = ['Producto', 'Categoría', 'Precio actual', 'Stock total', ...branchNames];
     const stockRows = stockData.map(p => {
       const cat = categories.find(c => c._id === p.categoryId?._id);
       return [
         p.name,
         cat?.name || '-',
+        p.price ?? 0,
         p.stock ?? 0,
         ...branchNames.map(b => p.stockByBranch?.[b] ?? 0)
       ];
